@@ -2,12 +2,34 @@ const bcrypt = require('bcryptjs');
 const { getDb } = require('../_lib/db');
 const { createToken, sendError } = require('../_lib/auth');
 
+// In-memory rate limiting: 5 login attempts per email per 15 minutes
+const loginAttempts = new Map();
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_MAX_ATTEMPTS = 5;
+
+function checkLoginRateLimit(email) {
+  const key = email.toLowerCase().trim();
+  const now = Date.now();
+  const record = loginAttempts.get(key);
+  if (!record || now - record.windowStart > LOGIN_WINDOW_MS) {
+    loginAttempts.set(key, { windowStart: now, count: 1 });
+    return true;
+  }
+  record.count++;
+  if (record.count > LOGIN_MAX_ATTEMPTS) return false;
+  return true;
+}
+
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return sendError(res, 405, 'Method not allowed');
 
   const { email, password } = req.body;
   if (!email || !password) return sendError(res, 400, 'Email and password are required');
+
+  if (!checkLoginRateLimit(email)) {
+    return sendError(res, 429, 'Too many login attempts. Please try again later.');
+  }
 
   const sql = getDb();
 
@@ -58,7 +80,7 @@ module.exports = async function handler(req, res) {
       } : null
     });
   } catch (err) {
-    console.error('Login error:', err);
+    console.error('Login error:', err.message);
     return sendError(res, 500, 'Server error');
   }
 };

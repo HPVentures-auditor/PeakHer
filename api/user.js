@@ -53,7 +53,7 @@ module.exports = async function handler(req, res) {
         checkinCount: parseInt(countResult.count)
       });
     } catch (err) {
-      console.error('User GET error:', err);
+      console.error('User GET error:', err.message);
       return sendError(res, 500, 'Server error');
     }
   }
@@ -61,6 +61,34 @@ module.exports = async function handler(req, res) {
   if (req.method === 'PUT') {
     try {
       const { name, personas, cycleProfile } = req.body;
+
+      // Validate PUT inputs
+      if (name != null) {
+        if (typeof name !== 'string' || name.trim().length === 0 || name.trim().length > 200) {
+          return sendError(res, 400, 'Name must be a non-empty string of at most 200 characters');
+        }
+      }
+      if (personas != null) {
+        if (!Array.isArray(personas) || personas.length > 20) {
+          return sendError(res, 400, 'Personas must be an array of at most 20 items');
+        }
+        for (var i = 0; i < personas.length; i++) {
+          if (typeof personas[i] !== 'string' || personas[i].length > 100) {
+            return sendError(res, 400, 'Each persona must be a string of at most 100 characters');
+          }
+        }
+      }
+      if (cycleProfile != null) {
+        if (typeof cycleProfile !== 'object') {
+          return sendError(res, 400, 'Cycle profile must be an object');
+        }
+        if (cycleProfile.averageCycleLength != null) {
+          var acl = Number(cycleProfile.averageCycleLength);
+          if (!Number.isFinite(acl) || acl < 15 || acl > 60) {
+            return sendError(res, 400, 'Average cycle length must be between 15 and 60');
+          }
+        }
+      }
 
       if (name) {
         await sql`UPDATE users SET name = ${name.trim()} WHERE id = ${userId}`;
@@ -81,7 +109,7 @@ module.exports = async function handler(req, res) {
 
       return res.status(200).json({ success: true });
     } catch (err) {
-      console.error('User PUT error:', err);
+      console.error('User PUT error:', err.message);
       return sendError(res, 500, 'Server error');
     }
   }

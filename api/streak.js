@@ -22,7 +22,7 @@ module.exports = async function handler(req, res) {
       lastCheckinDate: streak ? streak.last_checkin_date : null
     });
   } catch (err) {
-    console.error('Streak GET error:', err);
+    console.error('Streak GET error:', err.message);
     return sendError(res, 500, 'Server error');
   }
 };

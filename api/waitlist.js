@@ -16,6 +16,23 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Valid email is required' });
   }
 
+  // Validate waitlist inputs
+  if (firstName != null && (typeof firstName !== 'string' || firstName.length > 100)) {
+    return res.status(400).json({ error: 'First name must be a string of at most 100 characters' });
+  }
+  if (role != null && (typeof role !== 'string' || role.length > 50)) {
+    return res.status(400).json({ error: 'Role must be a string of at most 50 characters' });
+  }
+  if (quizScore != null) {
+    var numScore = Number(quizScore);
+    if (!Number.isFinite(numScore) || numScore < 0 || numScore > 45) {
+      return res.status(400).json({ error: 'Quiz score must be a number between 0 and 45' });
+    }
+  }
+  if (quizLevel != null && (typeof quizLevel !== 'string' || quizLevel.length > 50)) {
+    return res.status(400).json({ error: 'Quiz level must be a string of at most 50 characters' });
+  }
+
   try {
     const mpendaRes = await fetch(MPENDA_URL, {
       method: 'POST',

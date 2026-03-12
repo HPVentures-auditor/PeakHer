@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'peakher-dev-secret-change-in-production';
-const TOKEN_EXPIRY = '30d';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
+const TOKEN_EXPIRY = '7d';
 
 function createToken(userId) {
   return jwt.sign({ userId: userId }, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });

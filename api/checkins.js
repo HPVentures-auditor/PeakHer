@@ -46,7 +46,7 @@ module.exports = async function handler(req, res) {
 
       return res.status(200).json(result);
     } catch (err) {
-      console.error('Checkins GET error:', err);
+      console.error('Checkins GET error:', err.message);
       return sendError(res, 500, 'Server error');
     }
   }
@@ -57,6 +57,37 @@ module.exports = async function handler(req, res) {
 
       if (!date || !energy || !confidence) {
         return sendError(res, 400, 'Date, energy, and confidence are required');
+      }
+
+      // Validate numeric fields
+      const numEnergy = Number(energy);
+      const numConfidence = Number(confidence);
+      if (!Number.isFinite(numEnergy) || numEnergy < 1 || numEnergy > 10) {
+        return sendError(res, 400, 'Energy must be a number between 1 and 10');
+      }
+      if (!Number.isFinite(numConfidence) || numConfidence < 1 || numConfidence > 10) {
+        return sendError(res, 400, 'Confidence must be a number between 1 and 10');
+      }
+      if (sleepQuality != null) {
+        const numSleep = Number(sleepQuality);
+        if (!Number.isFinite(numSleep) || numSleep < 1 || numSleep > 10) {
+          return sendError(res, 400, 'Sleep quality must be a number between 1 and 10');
+        }
+      }
+      if (stressLevel != null) {
+        const numStress = Number(stressLevel);
+        if (!Number.isFinite(numStress) || numStress < 1 || numStress > 10) {
+          return sendError(res, 400, 'Stress level must be a number between 1 and 10');
+        }
+      }
+      if (cycleDay != null) {
+        const numCycleDay = Number(cycleDay);
+        if (!Number.isFinite(numCycleDay) || numCycleDay < 1 || numCycleDay > 50) {
+          return sendError(res, 400, 'Cycle day must be a number between 1 and 50');
+        }
+      }
+      if (notes != null && (typeof notes !== 'string' || notes.length > 2000)) {
+        return sendError(res, 400, 'Notes must be a string of at most 2000 characters');
       }
 
       // Upsert: insert or update on conflict
@@ -92,7 +123,7 @@ module.exports = async function handler(req, res) {
         createdAt: checkin.created_at
       });
     } catch (err) {
-      console.error('Checkins POST error:', err);
+      console.error('Checkins POST error:', err.message);
       return sendError(res, 500, 'Server error');
     }
   }
