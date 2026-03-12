@@ -461,6 +461,10 @@ window.PeakHer.Checkin = (function () {
 
     Store.setCheckin(today, data);
     Store.updateStreak(today);
+
+    // Sync to server
+    PeakHer.API.saveCheckin(data);
+
     showPostSubmit();
   }
 

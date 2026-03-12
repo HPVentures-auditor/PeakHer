@@ -19,6 +19,7 @@ window.PeakHer.Onboarding = (function () {
   var userData = {
     name: '',
     email: '',
+    password: '',
     hats: [],
     cycleTracking: false,
     cycleLength: 28,
@@ -105,7 +106,21 @@ window.PeakHer.Onboarding = (function () {
     '.ob-streak-msg { font-size: 16px; font-weight: 600; color: var(--teal); margin-bottom: 32px; }',
 
     /* Spacer for pushing button down */
-    '.ob-spacer { flex: 1; min-height: 16px; }'
+    '.ob-spacer { flex: 1; min-height: 16px; }',
+
+    /* Auth link */
+    '.ob-auth-link { font-size: 14px; color: var(--teal); text-align: center; margin-top: 12px; cursor: pointer; background: none; border: none; font-family: inherit; }',
+    '.ob-auth-link:hover { text-decoration: underline; }',
+
+    /* Error message */
+    '.ob-error { font-size: 14px; color: var(--coral); text-align: center; margin-bottom: 12px; min-height: 20px; }',
+
+    /* Loading state */
+    '.ob-btn.loading { opacity: 0.6; pointer-events: none; }',
+
+    /* Login step */
+    '.ob-login-step { display: none; flex-direction: column; align-items: center; flex: 1; }',
+    '.ob-login-step.active { display: flex; }'
   ].join('\n');
 
   function injectStyles() {
@@ -213,6 +228,10 @@ window.PeakHer.Onboarding = (function () {
     emailInput.id = 'ob-email';
     emailInput.autocomplete = 'email';
 
+    var passwordInput = createInput('password', 'Create a password (6+ characters)');
+    passwordInput.id = 'ob-password';
+    passwordInput.autocomplete = 'new-password';
+
     var validation = el('div', 'ob-validation');
     validation.id = 'ob-val-1';
 
@@ -222,8 +241,9 @@ window.PeakHer.Onboarding = (function () {
     btn.addEventListener('click', function () {
       var name  = nameInput.value.trim();
       var email = emailInput.value.trim();
-      if (!name || !email) {
-        validation.textContent = 'Please fill in both fields';
+      var password = passwordInput.value;
+      if (!name || !email || !password) {
+        validation.textContent = 'Please fill in all fields';
         return;
       }
       // Basic email check
@@ -231,10 +251,22 @@ window.PeakHer.Onboarding = (function () {
         validation.textContent = 'Please enter a valid email address';
         return;
       }
+      if (password.length < 6) {
+        validation.textContent = 'Password must be at least 6 characters';
+        return;
+      }
       validation.textContent = '';
       userData.name = name;
       userData.email = email;
+      userData.password = password;
       showStep(2);
+    });
+
+    // "Already have an account?" link
+    var loginLink = el('button', 'ob-auth-link', 'Already have an account? Log in');
+    loginLink.type = 'button';
+    loginLink.addEventListener('click', function () {
+      showLoginStep();
     });
 
     // Enter key support
@@ -243,12 +275,15 @@ window.PeakHer.Onboarding = (function () {
     }
     nameInput.addEventListener('keydown', handleEnter);
     emailInput.addEventListener('keydown', handleEnter);
+    passwordInput.addEventListener('keydown', handleEnter);
 
     step.appendChild(nameInput);
     step.appendChild(emailInput);
+    step.appendChild(passwordInput);
     step.appendChild(validation);
     step.appendChild(el('div', 'ob-spacer'));
     step.appendChild(btn);
+    step.appendChild(loginLink);
 
     return step;
   }
@@ -450,10 +485,13 @@ window.PeakHer.Onboarding = (function () {
     step.appendChild(el('p', 'ob-subtext', 'Your first check-in takes less than 30 seconds'));
     step.appendChild(el('p', 'ob-streak-msg', 'Start your streak today'));
 
+    var errorMsg = el('div', 'ob-error');
+    errorMsg.id = 'ob-register-error';
+
     var btn = el('button', 'ob-btn large', 'Start My First Check-in');
     btn.type = 'button';
     btn.addEventListener('click', function () {
-      // Save to Store
+      // Save to Store locally first
       userData.onboardingComplete = true;
       Store.setUser(userData);
 
@@ -465,13 +503,160 @@ window.PeakHer.Onboarding = (function () {
         });
       }
 
-      Router.navigate('#checkin');
+      // Show loading state
+      btn.classList.add('loading');
+      btn.textContent = 'Setting up your account...';
+      errorMsg.textContent = '';
+
+      // Build registration payload
+      var regData = {
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+        personas: userData.hats,
+        cycleProfile: userData.cycleTracking ? {
+          tracking: true,
+          cycleLength: userData.cycleLength,
+          lastPeriodDate: userData.lastPeriodDate
+        } : null
+      };
+
+      // Attempt API registration
+      var API = window.PeakHer.API;
+      API.register(regData)
+        .then(function () {
+          Router.navigate('#checkin');
+        })
+        .catch(function (err) {
+          btn.classList.remove('loading');
+          btn.textContent = 'Start My First Check-in';
+          if (err.status === 409) {
+            errorMsg.innerHTML = 'An account with this email already exists. <button class="ob-auth-link" type="button" style="display:inline;">Log in instead</button>';
+            var loginBtn = errorMsg.querySelector('.ob-auth-link');
+            if (loginBtn) {
+              loginBtn.addEventListener('click', function () {
+                showLoginStep();
+              });
+            }
+          } else {
+            // Still navigate — data is saved locally
+            errorMsg.textContent = '';
+            Router.navigate('#checkin');
+          }
+        });
     });
 
+    step.appendChild(errorMsg);
     step.appendChild(el('div', 'ob-spacer'));
     step.appendChild(btn);
 
     return step;
+  }
+
+  // ── Login Step ────────────────────────────────────────────────────
+
+  var loginStepEl = null;
+
+  function buildLoginStep() {
+    var step = el('div', 'ob-login-step');
+    step.id = 'ob-login-step';
+
+    step.appendChild(el('h2', 'ob-heading', 'Welcome Back'));
+    step.appendChild(el('p', 'ob-subtext', 'Log in to sync your data'));
+
+    var loginEmail = createInput('email', 'your@email.com');
+    loginEmail.id = 'ob-login-email';
+    loginEmail.autocomplete = 'email';
+
+    var loginPassword = createInput('password', 'Your password');
+    loginPassword.id = 'ob-login-password';
+    loginPassword.autocomplete = 'current-password';
+
+    var loginError = el('div', 'ob-error');
+    loginError.id = 'ob-login-error';
+
+    var loginBtn = el('button', 'ob-btn', 'Log In');
+    loginBtn.type = 'button';
+
+    loginBtn.addEventListener('click', function () {
+      var email = loginEmail.value.trim();
+      var password = loginPassword.value;
+
+      if (!email || !password) {
+        loginError.textContent = 'Please fill in both fields';
+        return;
+      }
+
+      loginBtn.classList.add('loading');
+      loginBtn.textContent = 'Logging in...';
+      loginError.textContent = '';
+
+      var API = window.PeakHer.API;
+      API.login(email, password)
+        .then(function () {
+          return API.fullSync();
+        })
+        .then(function () {
+          Router.navigate('#checkin');
+          // Show logout button after login
+          var logoutBtn = document.getElementById('logoutBtn');
+          if (logoutBtn) logoutBtn.style.display = '';
+        })
+        .catch(function (err) {
+          loginBtn.classList.remove('loading');
+          loginBtn.textContent = 'Log In';
+          if (err.status === 401) {
+            loginError.textContent = 'Invalid email or password';
+          } else {
+            loginError.textContent = err.message || 'Login failed. Please try again.';
+          }
+        });
+    });
+
+    var backToSignup = el('button', 'ob-auth-link', 'Back to sign up');
+    backToSignup.type = 'button';
+    backToSignup.addEventListener('click', function () {
+      hideLoginStep();
+    });
+
+    // Enter key support
+    function handleEnter(e) {
+      if (e.key === 'Enter') { loginBtn.click(); }
+    }
+    loginEmail.addEventListener('keydown', handleEnter);
+    loginPassword.addEventListener('keydown', handleEnter);
+
+    step.appendChild(loginEmail);
+    step.appendChild(loginPassword);
+    step.appendChild(loginError);
+    step.appendChild(el('div', 'ob-spacer'));
+    step.appendChild(loginBtn);
+    step.appendChild(backToSignup);
+
+    return step;
+  }
+
+  function showLoginStep() {
+    // Hide all onboarding steps and progress
+    var allSteps = container.querySelectorAll('.onboarding-step');
+    allSteps.forEach(function (s) { s.classList.remove('active'); });
+
+    var progress = container.querySelector('.ob-progress');
+    if (progress) progress.style.display = 'none';
+
+    var backBtn = container.querySelector('.ob-back');
+    if (backBtn) backBtn.style.display = 'none';
+
+    if (loginStepEl) loginStepEl.classList.add('active');
+  }
+
+  function hideLoginStep() {
+    if (loginStepEl) loginStepEl.classList.remove('active');
+
+    var progress = container.querySelector('.ob-progress');
+    if (progress) progress.style.display = '';
+
+    showStep(1);
   }
 
   // ── Build full UI ───────────────────────────────────────────────────
@@ -501,6 +686,10 @@ window.PeakHer.Onboarding = (function () {
     wrap.appendChild(buildStep3());
     wrap.appendChild(buildStep4());
     wrap.appendChild(buildStep5());
+
+    // Login step (hidden by default)
+    loginStepEl = buildLoginStep();
+    wrap.appendChild(loginStepEl);
 
     container.appendChild(wrap);
   }

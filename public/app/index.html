@@ -857,6 +857,7 @@
   <a href="/" class="logo">PEAKHER</a>
   <div class="nav-right">
     <a href="/">Home</a>
+    <a href="#" id="logoutBtn" style="display:none;" onclick="PeakHer.API.logout(); return false;">Log Out</a>
   </div>
 </nav>
 
@@ -920,6 +921,7 @@
 <!-- App Modules -->
 <script src="js/utils.js"></script>
 <script src="js/store.js"></script>
+<script src="js/api.js"></script>
 <script src="js/cycle.js"></script>
 <script src="js/router.js"></script>
 <script src="js/charts.js"></script>
@@ -940,6 +942,17 @@
     PeakHer.Patterns.init();
     PeakHer.WeekAhead.init();
     PeakHer.Router.init();
+
+    // Sync with server if logged in
+    if (PeakHer.API.isLoggedIn()) {
+      PeakHer.API.fullSync();
+    }
+
+    // Show logout button if logged in
+    if (PeakHer.API.isLoggedIn()) {
+      var logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) logoutBtn.style.display = '';
+    }
   });
 })();
 </script>
