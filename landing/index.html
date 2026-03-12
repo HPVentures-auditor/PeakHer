@@ -736,21 +736,36 @@
 })();
 
 // Waitlist form handler
-document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+document.getElementById('waitlistForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const email = document.getElementById('emailInput').value;
-  if (email) {
-    // Store locally (replace with real API endpoint later)
-    const waitlist = JSON.parse(localStorage.getItem('peakher_waitlist') || '[]');
-    waitlist.push({ email: email, date: new Date().toISOString() });
-    localStorage.setItem('peakher_waitlist', JSON.stringify(waitlist));
+  if (!email) return;
 
-    // Show success
-    this.style.display = 'none';
-    document.querySelector('.form-note').style.display = 'none';
-    document.getElementById('successMsg').style.display = 'block';
+  const btn = this.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'Joining...';
 
-    console.log('Waitlist signup:', email);
+  try {
+    const resp = await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, source: 'landing' }),
+    });
+    const data = await resp.json();
+
+    if (resp.ok && data.success) {
+      this.style.display = 'none';
+      document.querySelector('.form-note').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Join the Waitlist';
+      alert(data.error || 'Something went wrong. Please try again.');
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Join the Waitlist';
+    alert('Network error. Please try again.');
   }
 });
 </script>
