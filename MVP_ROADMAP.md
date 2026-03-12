@@ -18,6 +18,8 @@
 6. [Analytics and Success Metrics](#section-6-analytics-and-success-metrics)
 7. [Cost Estimate](#section-7-cost-estimate)
 8. [Risk Register](#section-8-risk-register)
+9. [Apple App Store Submission Strategy](#section-9-apple-app-store-submission-strategy)
+10. [Web App Architecture (Phase 3+)](#section-10-web-app-architecture-phase-3)
 
 ---
 
@@ -1450,6 +1452,238 @@ For reference, the total estimated development hours by phase:
 | **Total** | **~600 hours** | **16** |
 
 This maps to approximately 37.5 hours/week for a solo developer, or 18-20 hours/week per developer on a two-person team. Both are sustainable paces that include buffer for unexpected issues.
+
+---
+
+## Section 9: Apple App Store Submission Strategy
+
+### 9.1 Pre-Submission Checklist (Before Leaving Beta)
+
+Before submitting to the Apple App Store, the following gates must be passed:
+
+| Gate | Criteria | Target |
+|------|----------|--------|
+| **Beta Stability** | Crash-free rate > 99.5% across 100+ TestFlight users for 14 consecutive days | Week 18-20 |
+| **Core Loop Validation** | 60%+ of beta users complete daily check-in for 7+ consecutive days | Week 18-20 |
+| **Performance** | Cold launch < 2 seconds, all screens render < 300ms | Week 17 |
+| **Accessibility** | VoiceOver support on all screens, Dynamic Type support, minimum 4.5:1 contrast ratios | Week 16-17 |
+| **Privacy Compliance** | App Privacy Report (nutrition labels) completed, privacy policy live at peakher.ai/privacy, data deletion flow tested | Week 16 |
+| **Content Rating** | Self-rated via App Store Connect (likely 12+ due to health content) | Week 16 |
+| **Legal** | Terms of Service and Privacy Policy reviewed, EULA in place | Week 16 |
+
+### 9.2 App Store Connect Setup
+
+**Required Assets:**
+
+| Asset | Specification |
+|-------|--------------|
+| **App Icon** | 1024x1024px PNG, no alpha, no rounded corners (Apple applies mask) |
+| **Screenshots** | 6.7" (iPhone 15 Pro Max): 1290x2796px — minimum 3, recommended 6-10 |
+| | 6.5" (iPhone 14 Plus): 1284x2778px |
+| | 5.5" (iPhone 8 Plus): 1242x2208px — if supporting older devices |
+| | iPad Pro 12.9": 2048x2732px — if supporting iPad |
+| **App Preview Videos** | Optional but recommended — 15-30 second screen recordings showing check-in flow, pattern dashboard, week ahead view |
+| **App Name** | "PeakHer" (max 30 characters) |
+| **Subtitle** | "Performance Intelligence for Women" (max 30 characters) |
+| **Description** | Up to 4000 characters — lead with value proposition, include keyword-rich feature list |
+| **Keywords** | 100 character limit — target: "cycle sync, energy tracking, women performance, productivity, burnout, hormone, menstrual cycle, fitness" |
+| **Category** | Primary: Health & Fitness. Secondary: Productivity |
+| **Support URL** | https://peakher.ai |
+| **Privacy Policy URL** | https://peakher.ai/privacy/ |
+
+### 9.3 App Review Guidelines — Key Compliance Areas
+
+Apple's review process typically takes 24-48 hours but can take up to 7 days for first submissions. These are the areas most likely to trigger rejection for PeakHer:
+
+**1. Health Claims (Guideline 1.4 — Physical Harm)**
+- DO NOT claim PeakHer diagnoses, treats, or cures any condition
+- All insights must be framed as "informational and educational"
+- Include disclaimer: "PeakHer is not a medical device. Consult your healthcare provider for medical advice."
+- Add disclaimer to onboarding flow and app description
+
+**2. Data Collection Disclosure (Guideline 5.1.1 — Data Collection and Storage)**
+- Must accurately disclose ALL data collected in App Privacy Nutrition Labels
+- Categories to declare: Health & Fitness (cycle data, energy scores), Contact Info (email, name), Usage Data (analytics), Identifiers (user ID)
+- Data linked to identity: email, name, cycle data, check-in data
+- Data NOT linked to identity: crash logs, usage analytics
+
+**3. Account Deletion (Guideline 5.1.1(v))**
+- MANDATORY: Users must be able to delete their account and all associated data from within the app
+- Must be easy to find (Settings > Account > Delete Account)
+- Must actually delete data, not just deactivate
+- Already spec'd in PRODUCT_SPEC.md Section 10
+
+**4. Sign In with Apple (Guideline 4.8)**
+- REQUIRED if offering any third-party login (Google, email/password with social login)
+- If using only email/password auth (no social login), Sign In with Apple is NOT required
+- Recommendation: Implement Sign In with Apple as primary auth for frictionless onboarding
+
+**5. Subscriptions (Guideline 3.1.2) — If/When Premium Is Launched**
+- Must clearly display pricing, billing period, and auto-renewal terms
+- Must offer easy subscription management and cancellation
+- Free trial terms must be prominent before purchase
+- Apple takes 15-30% commission on in-app purchases (15% for small businesses under $1M/year revenue)
+
+### 9.4 Submission Timeline
+
+| Week | Milestone |
+|------|-----------|
+| **Week 16** | App Store Connect account configured, metadata drafted, screenshots created |
+| **Week 17** | Internal QA complete, accessibility audit, privacy labels submitted |
+| **Week 18** | TestFlight beta opens to 100 users |
+| **Week 20** | Beta gate criteria evaluated — go/no-go decision |
+| **Week 21** | Submit to App Store Review (allow 1-2 weeks for review + potential rejection) |
+| **Week 22-23** | Address any rejections, resubmit if needed |
+| **Week 23-24** | Approved — phased release (10% → 25% → 50% → 100% over 7 days) |
+
+### 9.5 Post-Launch App Update Strategy
+
+**Over-the-Air (OTA) Updates via Expo:**
+- Minor bug fixes, copy changes, and UI tweaks can ship instantly via `expo-updates` WITHOUT App Store review
+- This bypasses the 24-48 hour review cycle for small changes
+- Limitation: OTA cannot change native modules, permissions, or app structure
+
+**App Store Updates:**
+- Required for: new native modules, new permissions (e.g., adding HealthKit), major feature additions, React Native version upgrades
+- Target cadence: one App Store update every 2-4 weeks during active development
+- Always include "What's New" release notes
+
+### 9.6 Google Play Store Differences
+
+| Aspect | Apple App Store | Google Play Store |
+|--------|----------------|-------------------|
+| **Review Time** | 24-48 hours (up to 7 days) | Usually < 24 hours |
+| **Account Cost** | $99/year | $25 one-time |
+| **Commission** | 15% (first $1M) / 30% | 15% (first $1M) / 30% |
+| **Account Deletion** | Required | Required |
+| **Health Disclaimers** | Strict | Less strict but recommended |
+| **Sign In with Apple** | Required if social login offered | Not required |
+| **OTA Updates** | Allowed via Expo | Allowed via Expo |
+| **Beta Distribution** | TestFlight | Internal/Closed Testing Track |
+
+---
+
+## Section 10: Web App Architecture (Phase 3+)
+
+### 10.1 When to Build the Web App
+
+The web app is NOT part of the 16-week MVP. It should be built when:
+- Mobile app has achieved product-market fit (30-day retention > 20%)
+- Users are requesting web access (coach sharing, team dashboards, desktop check-ins)
+- Revenue supports the additional development investment
+
+Estimated timeline: Q4 2026 — 6-8 weeks of development.
+
+### 10.2 Recommended Architecture: Next.js on Vercel
+
+**Why Next.js:**
+- React-based (shared component logic with React Native via shared hooks/utilities)
+- Server-side rendering for SEO (marketing pages, quiz, blog)
+- API routes for backend-for-frontend pattern
+- Vercel deployment (already using Vercel for peakher.ai)
+- Built-in image optimization, edge functions, analytics
+
+**Tech Stack:**
+
+| Layer | Technology | Rationale |
+|-------|-----------|-----------|
+| **Framework** | Next.js 15+ (App Router) | SSR + SSG + API routes, React ecosystem |
+| **Styling** | Tailwind CSS | Rapid development, design system consistency |
+| **Charts** | Victory (web) or Recharts | Victory has web counterpart to Victory Native used in mobile |
+| **State** | Zustand (same as mobile) | Shared state patterns, easy mental model |
+| **Auth** | Same auth provider as mobile (Supabase Auth or custom JWT) | Single identity across platforms |
+| **API** | Same FastAPI backend as mobile | No API duplication |
+| **Hosting** | Vercel | Already deployed there, auto-deploy from GitHub |
+| **Domain** | peakher.ai/app or app.peakher.ai | Subdomain or path-based routing |
+
+### 10.3 Web App Feature Scope (Phase 3)
+
+**Core Features (Web-First):**
+
+| Feature | Mobile Equivalent | Web Advantage |
+|---------|-------------------|---------------|
+| **Dashboard** | Home screen | Larger screen, data-dense views, multi-month overlays |
+| **Daily Check-In** | Same flow | Keyboard shortcuts, faster input |
+| **Pattern Dashboard** | Same data | Full-width charts, hover tooltips, exportable graphs |
+| **Week Ahead View** | Same data | Calendar integration preview, drag-to-reschedule |
+| **Coach/Team Sharing** | Limited | Primary use case — shareable links, PDF exports, role-based access |
+| **Data Export** | JSON download | CSV/Excel/PDF with formatting, print-friendly reports |
+| **Settings** | Same | Full account management, billing, team admin |
+
+**NOT on Web (Mobile Only):**
+- Push notifications (use email notifications instead)
+- HealthKit / fitness tracker integration
+- Offline mode / background sync
+
+### 10.4 Progressive Web App (PWA) Considerations
+
+While the MVP correctly rejects PWA in favor of native mobile (no HealthKit, limited iOS push), the Phase 3 web app SHOULD be PWA-capable:
+
+- **Service Worker:** Cache dashboard data for offline viewing of historical patterns
+- **Add to Home Screen:** Allow mobile web users who haven't downloaded the app to pin the web dashboard
+- **Web Push Notifications:** Now supported on iOS 16.4+ Safari — viable for check-in reminders on desktop
+- **Manifest.json:** App-like experience when launched from home screen
+
+PWA should be a progressive enhancement on top of the Next.js web app, not the primary distribution strategy.
+
+### 10.5 Shared Code Strategy (Mobile + Web)
+
+**What CAN be shared:**
+- TypeScript types and interfaces (user, check-in, insight, cycle models)
+- API client layer (fetch wrappers, auth token handling, error handling)
+- Business logic (scoring algorithms, pattern detection rules, phase calculations)
+- Zustand store definitions (state shape and actions)
+- Validation schemas (Zod schemas for form validation)
+
+**What CANNOT be shared:**
+- UI components (React Native components vs. HTML/CSS components)
+- Navigation (React Navigation vs. Next.js App Router)
+- Storage (expo-secure-store vs. cookies/localStorage)
+- Push notifications (Expo notifications vs. Web Push API)
+
+**Recommended monorepo structure:**
+
+```
+peakher/
+├── apps/
+│   ├── mobile/          # React Native (Expo) app
+│   ├── web/             # Next.js web app
+│   └── landing/         # Current peakher.ai site (static HTML)
+├── packages/
+│   ├── shared-types/    # TypeScript types/interfaces
+│   ├── shared-logic/    # Business logic, scoring, phase calculations
+│   ├── api-client/      # Shared API client
+│   └── shared-stores/   # Zustand store definitions
+├── services/
+│   └── api/             # FastAPI backend
+└── package.json         # Turborepo or Nx workspace config
+```
+
+**Monorepo Tooling:** Turborepo (simpler) or Nx (more features). Turborepo recommended for team size.
+
+### 10.6 Web App Cost Estimate
+
+| Item | Monthly Cost | Notes |
+|------|-------------|-------|
+| Vercel Pro | $20/month | Needed for team features, analytics, more bandwidth |
+| Domain (already owned) | $0 | peakher.ai already active |
+| Additional backend load | ~$10-20/month | Shared infrastructure with mobile |
+| **Total incremental** | **~$30-40/month** | Minimal since backend is shared |
+
+**Development cost:** ~240-320 hours (6-8 weeks, 1-2 developers)
+
+### 10.7 Web App Launch Checklist
+
+- [ ] SEO metadata on all public pages (title, description, OG tags)
+- [ ] Google Analytics or Vercel Analytics configured
+- [ ] Auth flow works cross-platform (login on web, see data from mobile and vice versa)
+- [ ] Responsive design tested: desktop (1440px), laptop (1024px), tablet (768px), mobile web (375px)
+- [ ] Performance: Lighthouse score > 90 on all core pages
+- [ ] Accessibility: WCAG 2.1 AA compliance
+- [ ] Error monitoring: Sentry or similar
+- [ ] Rate limiting on API routes
+- [ ] Cookie consent banner for EU/international users
+- [ ] Redirect peakher.ai marketing pages to new site structure (or keep separate)
 
 ---
 
