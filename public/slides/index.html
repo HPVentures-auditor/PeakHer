@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PEAKHER - The 5 Reasons High-Performing Women Burn Out</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --navy: #0a1628;
+    --black: #000000;
+    --white: #ffffff;
+    --coral: #E87461;
+    --teal: #2d8a8a;
+    --teal-dark: #1e6b6b;
+    --gray-light: #f5f5f5;
+    --gray-mid: #999;
+    --gray-text: #666;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--black);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    overflow: hidden;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Backgrounds */
+  .bg-navy { background: var(--navy); color: var(--white); }
+  .bg-black { background: var(--black); color: var(--white); }
+  .bg-white { background: var(--white); color: #1a1a1a; }
+  .bg-dark { background: linear-gradient(135deg, #0a1628 0%, #0f2035 100%); color: var(--white); }
+
+  /* Typography */
+  .hero-number {
+    font-size: 140px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -3px;
+    margin-bottom: 30px;
+  }
+  .hero-number.coral { color: var(--coral); }
+  .hero-number.teal { color: var(--teal); }
+  .hero-number.white { color: var(--white); }
+
+  h1 {
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    max-width: 900px;
+    text-align: center;
+  }
+  h2 {
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+    max-width: 850px;
+    text-align: center;
+  }
+  h3 {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.35;
+    max-width: 800px;
+    text-align: center;
+  }
+  .subtitle {
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--gray-mid);
+    margin-top: 16px;
+    max-width: 700px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .bg-white .subtitle { color: var(--gray-text); }
+
+  .body-text {
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 800px;
+    text-align: center;
+  }
+
+  .stat-row {
+    font-size: 22px;
+    line-height: 1.8;
+    max-width: 800px;
+    text-align: left;
+    width: 100%;
+  }
+  .stat-row li {
+    list-style: none;
+    padding: 6px 0;
+    padding-left: 24px;
+    position: relative;
+  }
+  .stat-row li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--coral);
+  }
+  .bg-white .stat-row li::before { background: var(--teal); }
+
+  .source {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 30px;
+    text-align: center;
+    max-width: 700px;
+  }
+  .bg-white .source { color: rgba(0,0,0,0.3); }
+
+  .accent-line {
+    width: 80px;
+    height: 4px;
+    background: var(--coral);
+    margin-bottom: 30px;
+    border-radius: 2px;
+  }
+  .accent-line.teal { background: var(--teal); }
+
+  /* Quote slides */
+  .quote {
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1.4;
+    max-width: 850px;
+    text-align: center;
+    font-style: italic;
+    letter-spacing: -0.5px;
+  }
+  .quote::before { content: '\201C'; }
+  .quote::after { content: '\201D'; }
+
+  .screenshot-badge {
+    position: absolute;
+    bottom: 40px;
+    right: 50px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Section headers */
+  .section-number {
+    font-size: 200px;
+    font-weight: 900;
+    color: var(--coral);
+    line-height: 1;
+    letter-spacing: -5px;
+    opacity: 0.9;
+  }
+
+  /* Reason title */
+  .reason-tag {
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--coral);
+    margin-bottom: 16px;
+  }
+
+  /* Comparison layout */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 900px;
+    width: 100%;
+    margin-top: 20px;
+  }
+  .compare-card {
+    padding: 30px;
+    border-radius: 12px;
+    text-align: left;
+  }
+  .compare-card.danger {
+    background: rgba(232, 116, 97, 0.1);
+    border: 1px solid rgba(232, 116, 97, 0.25);
+  }
+  .compare-card.success {
+    background: rgba(45, 138, 138, 0.1);
+    border: 1px solid rgba(45, 138, 138, 0.25);
+  }
+  .bg-white .compare-card.danger {
+    background: rgba(232, 116, 97, 0.08);
+    border: 1px solid rgba(232, 116, 97, 0.2);
+  }
+  .bg-white .compare-card.success {
+    background: rgba(45, 138, 138, 0.08);
+    border: 1px solid rgba(45, 138, 138, 0.2);
+  }
+  .compare-card h4 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .compare-card.danger h4 { color: var(--coral); }
+  .compare-card.success h4 { color: var(--teal); }
+  .compare-card p {
+    font-size: 19px;
+    line-height: 1.6;
+  }
+
+  /* Two-column text */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    max-width: 950px;
+    width: 100%;
+    text-align: left;
+  }
+  .two-col .col h4 {
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+  .two-col .col p {
+    font-size: 20px;
+    line-height: 1.6;
+  }
+
+  /* Tables */
+  .slide-table {
+    width: 100%;
+    max-width: 900px;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 18px;
+  }
+  .slide-table th {
+    padding: 14px 18px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border-bottom: 2px solid;
+  }
+  .bg-dark .slide-table th,
+  .bg-navy .slide-table th {
+    color: var(--teal);
+    border-color: rgba(45, 138, 138, 0.3);
+  }
+  .bg-white .slide-table th {
+    color: var(--teal-dark);
+    border-color: rgba(45, 138, 138, 0.25);
+  }
+  .slide-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .bg-white .slide-table td { border-color: rgba(0,0,0,0.08); }
+  .slide-table .icon { font-size: 22px; width: 40px; }
+
+  /* Mode slides */
+  .mode-header {
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+  }
+  .mode-header.reflect { color: #7BA7C2; }
+  .mode-header.build { color: #5EC49A; }
+  .mode-header.perform { color: var(--coral); }
+  .mode-header.complete { color: #C49A5E; }
+
+  /* Pricing cards */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    max-width: 950px;
+    width: 100%;
+    margin-top: 20px;
+  }
+  .pricing-card {
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .pricing-card.free {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .pricing-card.premium {
+    background: rgba(45, 138, 138, 0.15);
+    border: 2px solid var(--teal);
+    transform: scale(1.03);
+  }
+  .pricing-card.teams {
+    background: rgba(232, 116, 97, 0.1);
+    border: 1px solid rgba(232, 116, 97, 0.25);
+  }
+  .pricing-card .tier-name {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .pricing-card .tier-price {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+  .pricing-card ul {
+    list-style: none;
+    text-align: left;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+  .pricing-card li::before {
+    content: '✓ ';
+    color: var(--teal);
+  }
+
+  /* Score blocks */
+  .score-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 800px;
+    width: 100%;
+    margin-top: 20px;
+  }
+  .score-block {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 18px;
+  }
+  .score-block .range {
+    font-weight: 700;
+    width: 80px;
+    flex-shrink: 0;
+    color: var(--coral);
+  }
+  .score-block .label {
+    font-weight: 700;
+    width: 200px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 14px;
+  }
+  .score-block .desc {
+    color: rgba(255,255,255,0.6);
+    font-size: 16px;
+  }
+  .score-block:nth-child(1) { background: rgba(232,116,97,0.08); }
+  .score-block:nth-child(2) { background: rgba(232,116,97,0.06); }
+  .score-block:nth-child(3) { background: rgba(45,138,138,0.06); }
+  .score-block:nth-child(4) { background: rgba(45,138,138,0.1); }
+  .score-block:nth-child(5) { background: rgba(45,138,138,0.15); }
+
+  /* Cycle diagram */
+  .cycle-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 30px;
+  }
+  .cycle-node {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+  }
+  .cycle-node .days {
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.6;
+    margin-top: 4px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .cycle-arrow {
+    font-size: 28px;
+    color: rgba(255,255,255,0.3);
+    margin: 0 6px;
+  }
+  .cycle-node.reflect { background: rgba(123,167,194,0.2); border: 2px solid #7BA7C2; color: #7BA7C2; }
+  .cycle-node.build { background: rgba(94,196,154,0.2); border: 2px solid #5EC49A; color: #5EC49A; }
+  .cycle-node.perform { background: rgba(232,116,97,0.2); border: 2px solid var(--coral); color: var(--coral); }
+  .cycle-node.complete { background: rgba(196,154,94,0.2); border: 2px solid #C49A5E; color: #C49A5E; }
+
+  /* CTA */
+  .cta-btn {
+    display: inline-block;
+    padding: 16px 40px;
+    background: var(--coral);
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 8px;
+    text-decoration: none;
+    margin: 8px;
+    letter-spacing: 0.5px;
+  }
+  .cta-btn.secondary {
+    background: transparent;
+    border: 2px solid var(--teal);
+    color: var(--teal);
+  }
+
+  /* Insight cards */
+  .insight-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 750px;
+    width: 100%;
+    margin-top: 20px;
+  }
+  .insight-card {
+    padding: 22px 28px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border-left: 4px solid var(--teal);
+    font-size: 20px;
+    line-height: 1.5;
+    text-align: left;
+  }
+  .insight-card:nth-child(2) { border-left-color: var(--coral); }
+  .insight-card:nth-child(3) { border-left-color: #C49A5E; }
+
+  /* Day-with table */
+  .day-table {
+    width: 100%;
+    max-width: 800px;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  .day-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--teal);
+    border-bottom: 2px solid rgba(45,138,138,0.3);
+  }
+  .day-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  .day-table .time-col {
+    color: var(--coral);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  /* Navigation */
+  .nav {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 100;
+  }
+  .nav-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.15); }
+  .slide-counter {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+    min-width: 60px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  /* Logo watermark */
+  .logo-mark {
+    position: fixed;
+    top: 30px;
+    left: 40px;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.15);
+    z-index: 100;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .logo-mark:hover { color: var(--teal); }
+
+  /* Slide nav links */
+  .slide-nav-links {
+    position: fixed;
+    top: 30px;
+    right: 40px;
+    display: flex;
+    gap: 20px;
+    z-index: 100;
+  }
+  .slide-nav-links a {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .slide-nav-links a:hover { color: var(--teal); }
+
+  /* Assessment items */
+  .assess-list {
+    max-width: 800px;
+    width: 100%;
+    text-align: left;
+    margin-top: 10px;
+  }
+  .assess-item {
+    display: flex;
+    align-items: baseline;
+    padding: 10px 0;
+    font-size: 20px;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .assess-num {
+    font-weight: 700;
+    color: var(--teal);
+    width: 36px;
+    flex-shrink: 0;
+  }
+  .assess-dots {
+    margin-left: auto;
+    color: rgba(255,255,255,0.25);
+    font-size: 14px;
+    letter-spacing: 4px;
+    padding-left: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Callout box */
+  .callout {
+    margin-top: 20px;
+    padding: 16px 24px;
+    border-radius: 8px;
+    background: rgba(232,116,97,0.1);
+    border: 1px solid rgba(232,116,97,0.25);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--coral);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  /* Four criteria */
+  .criteria-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    max-width: 850px;
+    width: 100%;
+    margin-top: 20px;
+  }
+  .criteria-card {
+    padding: 24px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(45,138,138,0.2);
+    text-align: left;
+  }
+  .bg-white .criteria-card {
+    background: #f8fafa;
+    border-color: rgba(45,138,138,0.15);
+  }
+  .criteria-card .num {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .criteria-card p {
+    font-size: 19px;
+    line-height: 1.5;
+  }
+
+  /* Evaluation Q */
+  .eval-list {
+    max-width: 800px;
+    width: 100%;
+    text-align: left;
+    margin-top: 20px;
+  }
+  .eval-item {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .eval-item .question {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .eval-item .answer {
+    font-size: 17px;
+    color: rgba(255,255,255,0.5);
+    font-style: italic;
+  }
+
+  /* Timeline */
+  .timeline {
+    max-width: 750px;
+    width: 100%;
+    margin-top: 20px;
+  }
+  .timeline-item {
+    display: flex;
+    align-items: baseline;
+    padding: 12px 0;
+    border-left: 2px solid rgba(45,138,138,0.3);
+    padding-left: 24px;
+    position: relative;
+    font-size: 20px;
+    line-height: 1.5;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 18px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+  .timeline-year {
+    font-weight: 700;
+    color: var(--coral);
+    width: 60px;
+    flex-shrink: 0;
+  }
+
+  /* Responsive — Tablet */
+  @media (max-width: 900px) {
+    .slide { padding: 40px 30px; }
+    .hero-number { font-size: 90px; }
+    h1 { font-size: 36px; }
+    h2 { font-size: 28px; }
+    h3 { font-size: 22px; }
+    .quote { font-size: 30px; }
+    .subtitle { font-size: 18px; }
+    .body-text { font-size: 18px; }
+    .section-number { font-size: 140px; }
+    .compare-grid, .pricing-grid, .criteria-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; gap: 30px; }
+    .cycle-diagram { flex-wrap: wrap; gap: 10px; }
+    .cycle-node { width: 120px; height: 120px; font-size: 13px; }
+    .stat-row { font-size: 18px; }
+    .stat-row li { line-height: 1.6; }
+    .slide-table { font-size: 16px; }
+    .slide-table th, .slide-table td { padding: 10px 12px; }
+    .score-block { font-size: 16px; }
+    .score-block .label { width: 160px; font-size: 13px; }
+    .score-block .range { width: 65px; }
+    .assess-item { font-size: 17px; }
+    .eval-item .question { font-size: 17px; }
+    .eval-item .answer { font-size: 15px; }
+    .insight-card { font-size: 17px; padding: 18px 22px; }
+    .day-table td { font-size: 16px; padding: 10px 12px; }
+    .timeline-item { font-size: 17px; }
+    .compare-card p { font-size: 17px; }
+    .two-col .col p { font-size: 17px; }
+    .criteria-card p { font-size: 16px; }
+    .criteria-card .num { font-size: 26px; }
+    .pricing-card ul { font-size: 14px; }
+    .pricing-card .tier-price { font-size: 24px; }
+    .cta-btn { padding: 14px 28px; font-size: 16px; }
+    .logo-mark { top: 20px; left: 24px; font-size: 15px; }
+    .slide-nav-links { top: 20px; right: 24px; gap: 14px; }
+    .slide-nav-links a { font-size: 12px; }
+    .nav { bottom: 20px; }
+  }
+
+  /* Responsive — Phone */
+  @media (max-width: 600px) {
+    .slide {
+      padding: 24px 20px;
+      padding-bottom: 70px;
+      overflow-y: auto;
+      justify-content: flex-start;
+      -webkit-overflow-scrolling: touch;
+    }
+    .slide.active {
+      overflow-y: auto;
+    }
+
+    .hero-number { font-size: 60px; letter-spacing: -2px; margin-bottom: 16px; }
+    h1 { font-size: 26px; letter-spacing: -0.5px; }
+    h2 { font-size: 22px; letter-spacing: 0; }
+    h3 { font-size: 18px; }
+    .quote { font-size: 22px; }
+    .subtitle { font-size: 15px; margin-top: 10px; }
+    .body-text { font-size: 16px; }
+    .section-number { font-size: 80px; letter-spacing: -3px; }
+    .source { font-size: 11px; margin-top: 16px; }
+    .accent-line { width: 50px; height: 3px; margin-bottom: 16px; }
+
+    .reason-tag { font-size: 13px; letter-spacing: 2px; }
+
+    .stat-row { font-size: 15px; }
+    .stat-row li { padding: 4px 0; padding-left: 20px; line-height: 1.5; }
+    .stat-row li::before { top: 10px; width: 6px; height: 6px; }
+
+    .compare-grid { gap: 16px; }
+    .compare-card { padding: 20px; }
+    .compare-card h4 { font-size: 13px; }
+    .compare-card p { font-size: 15px; }
+
+    .two-col { gap: 20px; }
+    .two-col .col h4 { font-size: 13px; }
+    .two-col .col p { font-size: 15px; }
+
+    .slide-table { font-size: 14px; }
+    .slide-table th { font-size: 11px; padding: 8px 10px; letter-spacing: 1px; }
+    .slide-table td { padding: 8px 10px; }
+    .slide-table .icon { font-size: 18px; width: 30px; }
+
+    .mode-header { font-size: 13px; letter-spacing: 2px; }
+
+    .pricing-grid { grid-template-columns: 1fr; gap: 14px; }
+    .pricing-card { padding: 20px; }
+    .pricing-card.premium { transform: none; }
+    .pricing-card .tier-name { font-size: 12px; }
+    .pricing-card .tier-price { font-size: 22px; }
+    .pricing-card ul { font-size: 13px; line-height: 1.7; }
+
+    .score-blocks { gap: 6px; }
+    .score-block { padding: 10px 14px; font-size: 14px; flex-wrap: wrap; }
+    .score-block .range { width: auto; margin-right: 8px; font-size: 13px; }
+    .score-block .label { width: auto; font-size: 11px; margin-right: 8px; }
+    .score-block .desc { font-size: 13px; }
+
+    .cycle-diagram { gap: 4px; justify-content: center; }
+    .cycle-node { width: 72px; height: 72px; font-size: 10px; letter-spacing: 0; }
+    .cycle-node .days { font-size: 9px; }
+    .cycle-arrow { font-size: 16px; margin: 0 2px; }
+
+    .cta-btn { padding: 12px 20px; font-size: 14px; margin: 4px; }
+
+    .insight-cards { gap: 12px; }
+    .insight-card { padding: 16px 18px; font-size: 15px; }
+
+    .day-table th { font-size: 11px; padding: 8px 10px; }
+    .day-table td { font-size: 14px; padding: 10px; }
+    .day-table .time-col { font-size: 12px; }
+
+    .assess-list { margin-top: 6px; }
+    .assess-item { font-size: 15px; padding: 8px 0; }
+    .assess-num { width: 28px; font-size: 14px; }
+    .assess-dots { font-size: 11px; letter-spacing: 2px; }
+
+    .callout { padding: 12px 16px; font-size: 14px; }
+
+    .criteria-grid { gap: 12px; }
+    .criteria-card { padding: 16px; }
+    .criteria-card .num { font-size: 22px; }
+    .criteria-card p { font-size: 15px; }
+
+    .eval-list { margin-top: 10px; }
+    .eval-item { padding: 10px 0; }
+    .eval-item .question { font-size: 16px; }
+    .eval-item .answer { font-size: 14px; }
+
+    .timeline-item { font-size: 16px; padding-left: 18px; padding-top: 8px; padding-bottom: 8px; }
+    .timeline-year { width: 50px; font-size: 14px; }
+
+    .screenshot-badge { bottom: 70px; right: 20px; font-size: 11px; padding: 6px 12px; }
+
+    .logo-mark { top: 14px; left: 16px; font-size: 13px; letter-spacing: 2px; }
+    .slide-nav-links { top: 14px; right: 16px; gap: 10px; }
+    .slide-nav-links a { font-size: 11px; }
+
+    .nav { bottom: 12px; gap: 14px; }
+    .nav-btn { width: 42px; height: 42px; font-size: 18px; }
+    .slide-counter { font-size: 13px; min-width: 50px; }
+  }
+
+  /* Ensure content-heavy slides can scroll on mobile */
+  @media (max-width: 600px) {
+    .slide {
+      padding-top: 40px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<a href="/" class="logo-mark">PeakHer</a>
+<div class="slide-nav-links">
+  <a href="/quiz/">Quiz</a>
+  <a href="/">Home</a>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- ==================== SLIDE 1: Welcome ==================== -->
+<div class="slide bg-navy active" data-slide="1">
+  <div class="accent-line" style="background: var(--coral); width: 120px; margin-bottom: 50px;"></div>
+  <p style="font-size: 20px; color: rgba(255,255,255,0.5); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 30px;">Starting in 2 minutes...</p>
+  <h1 style="font-size: 44px;">The 5 Reasons High-Performing Women Burn Out</h1>
+  <p class="subtitle" style="margin-top: 20px;">(And What the Top Performers Do Differently)</p>
+  <p style="font-size: 16px; color: rgba(255,255,255,0.3); margin-top: 50px; letter-spacing: 1px;">By Jairek Robbins &nbsp;|&nbsp; PeakHer</p>
+</div>
+
+<!-- ==================== SLIDE 2: Title ==================== -->
+<div class="slide bg-navy" data-slide="2">
+  <h1>The 5 Reasons High-Performing Women Burn Out</h1>
+  <p class="subtitle" style="font-size: 24px; margin-top: 24px; max-width: 800px;">And What the Top Performers Do Differently to Sustain Peak Performance Across Every Role They Play</p>
+  <div style="display:flex; gap:16px; margin-top: 50px; align-items: center;">
+    <div style="width:60px; height:60px; border-radius:50%; background: var(--teal); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px;">P</div>
+    <div style="text-align:left;">
+      <div style="font-weight:600; font-size:18px;">Jairek Robbins</div>
+      <div style="color:rgba(255,255,255,0.4); font-size:14px;">PeakHer</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 3: Quick Context ==================== -->
+<div class="slide bg-white" data-slide="3">
+  <div class="two-col">
+    <div class="col">
+      <h4 style="color: var(--teal);">What this is</h4>
+      <p>A research-backed look at why high-performing women burn out - and the biological intelligence system that changes everything.</p>
+    </div>
+    <div class="col">
+      <h4 style="color: var(--coral);">What this isn't</h4>
+      <p>A pitch. <strong>80% of what I'm sharing today is education you can use immediately</strong>, whether we ever work together or not.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 4: The Burnout Crisis ==================== -->
+<div class="slide bg-dark" data-slide="4">
+  <div class="hero-number coral">77M</div>
+  <h3>Working Women in the U.S.</h3>
+  <ul class="stat-row" style="margin-top: 30px;">
+    <li>Women = <strong>47%</strong> of the U.S. labor force</li>
+    <li><strong>42%</strong> of women report burnout (vs. 35% of men)</li>
+    <li>Nearly <strong>60%</strong> of working parents report burnout</li>
+    <li>Burnout is the <strong>#1 reason</strong> women leave their employer - cited by ~40%</li>
+  </ul>
+  <p class="source">Sources: BLS 2024; McKinsey & LeanIn, Women in the Workplace 2021; Ohio State University 2022; Deloitte Women @ Work 2022</p>
+</div>
+
+<!-- ==================== SLIDE 5: The ROI Problem ==================== -->
+<div class="slide bg-white" data-slide="5">
+  <div class="hero-number teal">2.5x</div>
+  <h2 style="color: #1a1a1a;">Women-founded startups generate<br>2.5x more revenue per dollar invested</h2>
+  <div style="margin-top: 30px; font-size: 22px; color: var(--gray-text); line-height: 1.8; text-align: center;">
+    They perform better - <em>when they can sustain it.</em><br>
+    <strong style="color: #1a1a1a;">The system isn't built for them to sustain it.</strong>
+  </div>
+  <p class="source">Source: BCG, 2018</p>
+</div>
+
+<!-- ==================== SLIDE 6: Hidden Performance Tax ==================== -->
+<div class="slide bg-dark" data-slide="6">
+  <div class="hero-number coral">81%</div>
+  <h3>of women report decreased productivity due to their cycle</h3>
+  <ul class="stat-row" style="margin-top: 30px;">
+    <li><strong>23.2 days/year</strong> of reduced productivity</li>
+    <li><strong>94.6%</strong> receive ZERO workplace support</li>
+    <li><strong>75.6%</strong> want support but have never been offered any</li>
+  </ul>
+  <p class="source">Sources: Schoep et al., BMJ Open, 2019 (32,748 women); Ponzo et al., Digital Health, 2022</p>
+</div>
+
+<!-- ==================== SLIDE 7: The "Always On" Trap ==================== -->
+<div class="slide bg-dark" data-slide="7">
+  <h2>The "Always On" Trap</h2>
+  <div class="compare-grid" style="margin-top: 30px;">
+    <div style="text-align: center;">
+      <div style="font-size: 64px; margin-bottom: 16px;">&#128339;</div>
+      <div style="font-size: 20px; font-weight: 700; color: var(--teal); margin-bottom: 8px;">24-HOUR CLOCK</div>
+      <p style="font-size: 18px; color: rgba(255,255,255,0.6);">Circadian rhythm<br>Male hormones reset daily<br>Every productivity system built on this</p>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-size: 64px; margin-bottom: 16px;">&#128197;</div>
+      <div style="font-size: 20px; font-weight: 700; color: var(--coral); margin-bottom: 8px;">~28-DAY CLOCK</div>
+      <p style="font-size: 18px; color: rgba(255,255,255,0.6);">Infradian rhythm<br>Affects energy, cognition, mood<br>ZERO productivity systems account for this</p>
+    </div>
+  </div>
+  <p style="margin-top: 30px; font-size: 18px; color: rgba(255,255,255,0.3);">Average American checks phone 352 times/day (Asurion, 2022)</p>
+</div>
+
+<!-- ==================== SLIDE 8: Quote ==================== -->
+<div class="slide bg-black" data-slide="8">
+  <p class="quote">You've been trying to run a 28-day engine on a 24-hour schedule. You're not broken. The system was never built for you.</p>
+  <div class="screenshot-badge">Screenshot this</div>
+</div>
+
+<!-- ==================== SLIDE 9: Section Header - 5 Reasons ==================== -->
+<div class="slide bg-dark" data-slide="9">
+  <div class="section-number">5</div>
+  <h2 style="margin-top: 16px;">The 5 Reasons High-Performing<br>Women Burn Out</h2>
+</div>
+
+<!-- ==================== SLIDE 10: Reason #1 Title ==================== -->
+<div class="slide bg-dark" data-slide="10">
+  <div class="reason-tag">Reason #1</div>
+  <h1>They Push the Same Way Every Day</h1>
+</div>
+
+<!-- ==================== SLIDE 11: Reason #1 Data ==================== -->
+<div class="slide bg-dark" data-slide="11">
+  <h3 style="margin-bottom: 30px;">Hormonal Cycles: A Comparison</h3>
+  <div class="compare-grid">
+    <div style="text-align: center; padding: 30px; background: rgba(45,138,138,0.1); border-radius: 12px; border: 1px solid rgba(45,138,138,0.2);">
+      <div style="font-size: 18px; font-weight: 700; color: var(--teal); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 2px;">Male Cycle</div>
+      <p style="font-size: 20px; line-height: 1.6;">Resets every<br><strong style="font-size: 42px;">24 hours</strong></p>
+    </div>
+    <div style="text-align: center; padding: 30px; background: rgba(232,116,97,0.1); border-radius: 12px; border: 1px solid rgba(232,116,97,0.2);">
+      <div style="font-size: 18px; font-weight: 700; color: var(--coral); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 2px;">Female Cycle</div>
+      <p style="font-size: 20px; line-height: 1.6;">~28 days,<br><strong style="font-size: 42px;">4 phases</strong></p>
+    </div>
+  </div>
+  <ul class="stat-row" style="margin-top: 30px;">
+    <li>Estrogen: <strong>10x swing</strong> (36 to 380 &mu;g/day)</li>
+    <li>Testosterone: <strong>Over 25% swing</strong> across the cycle</li>
+    <li>Progesterone: Surges to <strong>25 mg/day</strong> in luteal phase</li>
+  </ul>
+  <p class="source">Source: NCBI Endotext</p>
+</div>
+
+<!-- ==================== SLIDE 12: Reason #1 What's Happening ==================== -->
+<div class="slide bg-white" data-slide="12">
+  <div class="two-col">
+    <div class="col">
+      <h4 style="color: var(--coral);">What it looks like</h4>
+      <p>Some weeks you crush it. Other weeks the same routine feels like dragging a boulder uphill.</p>
+    </div>
+    <div class="col">
+      <h4 style="color: var(--teal);">What's actually happening</h4>
+      <p>Same routine, different neurochemical environment. <strong>Nothing is wrong with you.</strong></p>
+    </div>
+  </div>
+  <div style="margin-top: 40px; padding: 24px; background: #f5f5f5; border-radius: 12px; max-width: 700px; text-align: center;">
+    <p style="font-size: 20px; color: var(--gray-text); font-style: italic;">It's like wearing summer clothes in winter - then blaming yourself for being cold.</p>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 13: Reason #1 Solution ==================== -->
+<div class="slide bg-white" data-slide="13">
+  <div class="compare-grid">
+    <div class="compare-card danger">
+      <h4>Danger Zone</h4>
+      <p>Same intensity, same schedule, same expectations every day of the month.</p>
+    </div>
+    <div class="compare-card success">
+      <h4>Top Performers</h4>
+      <p>Match intensity to biology. Go all-in when the body says go. Rest when the body says recover.</p>
+    </div>
+  </div>
+  <div style="margin-top: 40px; text-align: center;">
+    <h3 style="color: var(--teal-dark);">Result: MORE output with LESS burnout.</h3>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 14: Reason #2 Title ==================== -->
+<div class="slide bg-dark" data-slide="14">
+  <div class="reason-tag">Reason #2</div>
+  <h1>They Have No Data on Their Own Patterns</h1>
+</div>
+
+<!-- ==================== SLIDE 15: Reason #2 Data ==================== -->
+<div class="slide bg-dark" data-slide="15">
+  <div class="hero-number teal">380M+</div>
+  <h3>Flo downloads alone</h3>
+  <ul class="stat-row" style="margin-top: 30px;">
+    <li>Most women track only <strong>ONE thing</strong>: period start/stop</li>
+    <li><strong>Zero</strong> mainstream apps correlate cycle data with performance outcomes</li>
+    <li>Jang et al. 2025 meta-analysis (102 studies, 3,943 women):<br><strong>No robust group-level cognitive differences</strong> across cycle phases</li>
+    <li><strong>Individual patterns matter more than textbook averages</strong></li>
+  </ul>
+  <p class="source">Sources: Business of Apps, 2024; Jang et al., 2025</p>
+</div>
+
+<!-- ==================== SLIDE 16: Reason #2 What's Happening ==================== -->
+<div class="slide bg-white" data-slide="16">
+  <h2 style="color: #1a1a1a; margin-bottom: 30px;">You've had the experience:</h2>
+  <div style="max-width: 700px; text-align: left;">
+    <div style="padding: 18px 0; border-bottom: 1px solid #eee; font-size: 22px;">
+      <span style="color: var(--teal); font-weight: 700;">&#9650;</span>&nbsp; A <strong>fire week</strong> - where everything clicks
+    </div>
+    <div style="padding: 18px 0; border-bottom: 1px solid #eee; font-size: 22px;">
+      <span style="color: var(--coral); font-weight: 700;">&#9660;</span>&nbsp; Followed by a <strong>terrible week</strong> - with no data to explain it
+    </div>
+    <div style="padding: 18px 0; border-bottom: 1px solid #eee; font-size: 22px;">
+      You schedule pitches around <em>client</em> calendars, not your peak windows
+    </div>
+    <div style="padding: 18px 0; font-size: 22px; color: var(--coral); font-weight: 600;">
+      Because you don't KNOW your peak windows.
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 17: Reason #2 Quote ==================== -->
+<div class="slide bg-black" data-slide="17">
+  <p class="quote">You can't optimize what you don't measure. The most powerful performance variable in your life - your own biology - is completely unmeasured.</p>
+  <div class="screenshot-badge">Screenshot this</div>
+</div>
+
+<!-- ==================== SLIDE 18: Reason #3 Title ==================== -->
+<div class="slide bg-dark" data-slide="18">
+  <div class="reason-tag">Reason #3</div>
+  <h1>They Optimize Everything<br>EXCEPT Their Biology</h1>
+</div>
+
+<!-- ==================== SLIDE 19: Reason #3 Data ==================== -->
+<div class="slide bg-dark" data-slide="19">
+  <div class="hero-number coral">$6.3T</div>
+  <h3>Global wellness industry</h3>
+  <ul class="stat-row" style="margin-top: 30px;">
+    <li>The average ambitious woman invests in: coaching, fitness, productivity tools, professional development</li>
+    <li>Optimizes: tech stack, calendar, team, diet, sleep, morning routine</li>
+    <li>But <strong>NOT</strong> the one variable that affects <strong>ALL</strong> of them</li>
+  </ul>
+  <p class="source">Source: Global Wellness Institute, 2024</p>
+</div>
+
+<!-- ==================== SLIDE 20: F1 Analogy ==================== -->
+<div class="slide bg-dark" data-slide="20">
+  <div style="font-size: 72px; margin-bottom: 30px;">&#127950;</div>
+  <h2>Imagine an F1 team that optimized the car, tires, aerodynamics, and pit crew -</h2>
+  <h2 style="color: var(--coral); margin-top: 20px;">But never checked the weather.</h2>
+  <div style="margin-top: 30px; font-size: 20px; color: rgba(255,255,255,0.5); line-height: 1.6;">
+    Some races they dominate.<br>Others they crash.<br><strong style="color: white;">And they have no idea why.</strong>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 21: Reason #3 Solution ==================== -->
+<div class="slide bg-white" data-slide="21">
+  <div class="compare-grid">
+    <div class="compare-card danger">
+      <h4>Danger Zone</h4>
+      <p>Optimizing car, tires, aerodynamics, pit crew - but ignoring the weather.</p>
+    </div>
+    <div class="compare-card success">
+      <h4>Top Performers</h4>
+      <p>Treat biology as the <strong>OPERATING SYSTEM</strong>. The training plan adapts. The sales calendar adapts. The family commitments adapt.</p>
+    </div>
+  </div>
+  <div style="margin-top: 40px; text-align: center;">
+    <h3 style="color: var(--teal-dark);">Biology first. Everything else second.</h3>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 22: Reason #4 Title ==================== -->
+<div class="slide bg-dark" data-slide="22">
+  <div class="reason-tag">Reason #4</div>
+  <h1>They Blame Themselves<br>for Inconsistency</h1>
+</div>
+
+<!-- ==================== SLIDE 23: Reason #4 Data ==================== -->
+<div class="slide bg-dark" data-slide="23">
+  <div class="hero-number coral">75%</div>
+  <h3>of female executives have experienced imposter syndrome</h3>
+  <ul class="stat-row" style="margin-top: 30px;">
+    <li>KPMG, 2020 - 750 senior women surveyed</li>
+    <li>Women more likely to attribute failure to <strong>internal causes</strong></li>
+    <li>Luteal phase = increased amygdala reactivity (Sundstrom-Poromaa, 2018)</li>
+    <li>Progesterone = increased emotional memory + heightened stress reactivity<br>(Toffoletto et al., 2014 - 33 fMRI studies)</li>
+  </ul>
+</div>
+
+<!-- ==================== SLIDE 24: Reason #4 What's Happening ==================== -->
+<div class="slide bg-white" data-slide="24">
+  <div style="max-width: 700px; text-align: left;">
+    <div style="font-size: 22px; line-height: 1.8; margin-bottom: 24px;">
+      <span style="color: var(--teal); font-weight: 700;">Last week:</span> Closed deals. Crushed your presentation. Great workout.
+    </div>
+    <div style="font-size: 22px; line-height: 1.8; margin-bottom: 24px;">
+      <span style="color: var(--coral); font-weight: 700;">This week:</span> Can't get through your inbox.
+    </div>
+    <div style="font-size: 22px; line-height: 1.8; margin-bottom: 24px; color: var(--gray-text); font-style: italic;">
+      Inner voice: &ldquo;What's wrong with me?&rdquo;
+    </div>
+    <div style="background: #f5f5f5; padding: 24px; border-radius: 12px; border-left: 4px solid var(--teal);">
+      <p style="font-size: 20px; line-height: 1.6;"><strong>Truth:</strong> Same playbook. Different neurochemical environment.</p>
+      <p style="font-size: 20px; line-height: 1.6; margin-top: 8px;">You have <strong>FOUR modes</strong>, not one. When you only reward yourself for one, you spend 50-70% of the month feeling like you're failing.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 25: Reason #4 Quote ==================== -->
+<div class="slide bg-black" data-slide="25">
+  <p class="quote">What if inconsistency isn't a character flaw? What if it's a signal?</p>
+  <div class="screenshot-badge">Screenshot this</div>
+</div>
+
+<!-- ==================== SLIDE 26: Reason #5 Title ==================== -->
+<div class="slide bg-dark" data-slide="26">
+  <div class="reason-tag">Reason #5</div>
+  <h1>They Design Their Lives Around a System Built for a Different Biology</h1>
+</div>
+
+<!-- ==================== SLIDE 27: Reason #5 Data ==================== -->
+<div class="slide bg-dark" data-slide="27">
+  <h3 style="margin-bottom: 24px;">The System Was Never Built for You</h3>
+  <div class="timeline">
+    <div class="timeline-item"><span class="timeline-year">1926</span> Ford adopts the 8-hour workday</div>
+    <div class="timeline-item"><span class="timeline-year">1938</span> Fair Labor Standards Act standardizes it federally</div>
+    <div class="timeline-item"><span class="timeline-year">1993</span> NIH finally requires women in clinical research</div>
+    <div class="timeline-item"><span class="timeline-year">2021</span> Only <strong>6%</strong> of sports science research is exclusively on women</div>
+  </div>
+  <div style="margin-top: 30px; font-size: 20px; text-align: center; color: rgba(255,255,255,0.6); line-height: 1.6;">
+    Modern productivity canon: written almost entirely by men, for men.<br>
+    <strong style="color: white;">24-hour cycle = male testosterone rhythm. Does NOT account for female infradian rhythm.</strong>
+  </div>
+  <p class="source">Sources: Cowley et al., 2021</p>
+</div>
+
+<!-- ==================== SLIDE 28: Reason #5 What's Happening ==================== -->
+<div class="slide bg-white" data-slide="28">
+  <h2 style="color: #1a1a1a; margin-bottom: 30px;">Every system you use was designed for a 24-hour hormonal reset:</h2>
+  <div style="max-width: 600px; text-align: left;">
+    <div style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 22px;">Your sales methodology</div>
+    <div style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 22px;">Your training program</div>
+    <div style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 22px;">Your leadership playbook</div>
+    <div style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 22px;">Your weekly schedule</div>
+    <div style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 22px;">Your performance reviews</div>
+  </div>
+  <p style="margin-top: 30px; font-size: 20px; color: var(--coral); font-weight: 600; text-align: center; max-width: 700px;">
+    None have a chapter for &ldquo;when neurochemistry shifts every 7 days.&rdquo;
+  </p>
+</div>
+
+<!-- ==================== SLIDE 29: Reason #5 Quote ==================== -->
+<div class="slide bg-black" data-slide="29">
+  <p class="quote">You don't need a new productivity system. You need a system that finally accounts for YOUR biology.</p>
+  <div class="screenshot-badge">Screenshot this</div>
+</div>
+
+<!-- ==================== SLIDE 30: These 5 Problems Aren't Random ==================== -->
+<div class="slide bg-dark" data-slide="30">
+  <div class="accent-line teal" style="width: 100px;"></div>
+  <h2>These 5 problems aren't random.</h2>
+  <h2 style="margin-top: 16px; color: var(--coral);">They're the same problem:</h2>
+  <h3 style="margin-top: 24px; color: rgba(255,255,255,0.7); font-weight: 400;">Operating without knowledge of your own performance rhythm.</h3>
+</div>
+
+<!-- ==================== SLIDE 31: Performance Fingerprint ==================== -->
+<div class="slide bg-dark" data-slide="31">
+  <div style="font-size: 72px; margin-bottom: 20px; opacity: 0.8;">&#129518;</div>
+  <h2>Your Performance Fingerprint</h2>
+  <p class="subtitle">Your unique pattern of energy, confidence, and capability</p>
+  <div style="display: flex; gap: 30px; margin-top: 40px; max-width: 850px; flex-wrap: wrap; justify-content: center;">
+    <div style="flex: 1; min-width: 220px; padding: 24px; background: rgba(232,116,97,0.1); border-radius: 12px; border: 1px solid rgba(232,116,97,0.2); text-align: center;">
+      <div style="font-size: 28px; font-weight: 800; color: var(--coral);">1</div>
+      <div style="font-size: 17px; font-weight: 600; margin-top: 8px;">Peak Windows</div>
+      <div style="font-size: 15px; color: rgba(255,255,255,0.5); margin-top: 4px;">When you are at your absolute best</div>
+    </div>
+    <div style="flex: 1; min-width: 220px; padding: 24px; background: rgba(45,138,138,0.1); border-radius: 12px; border: 1px solid rgba(45,138,138,0.2); text-align: center;">
+      <div style="font-size: 28px; font-weight: 800; color: var(--teal);">2</div>
+      <div style="font-size: 17px; font-weight: 600; margin-top: 8px;">Power-Down Windows</div>
+      <div style="font-size: 15px; color: rgba(255,255,255,0.5); margin-top: 4px;">When your body needs recovery</div>
+    </div>
+    <div style="flex: 1; min-width: 220px; padding: 24px; background: rgba(196,154,94,0.1); border-radius: 12px; border: 1px solid rgba(196,154,94,0.2); text-align: center;">
+      <div style="font-size: 28px; font-weight: 800; color: #C49A5E;">3</div>
+      <div style="font-size: 17px; font-weight: 600; margin-top: 8px;">Cross-Domain Patterns</div>
+      <div style="font-size: 15px; color: rgba(255,255,255,0.5); margin-top: 4px;">How your rhythm shows up across every role</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 32: Quote ==================== -->
+<div class="slide bg-black" data-slide="32">
+  <p class="quote">You don't need to change who you are. You need to discover WHEN you are at your best.</p>
+  <div class="screenshot-badge">Screenshot this</div>
+</div>
+
+<!-- ==================== SLIDE 33: 4 Modes Intro ==================== -->
+<div class="slide bg-dark" data-slide="33">
+  <div class="accent-line" style="width: 100px;"></div>
+  <h1>You Don't Have One Speed.<br>You Have Four.</h1>
+</div>
+
+<!-- ==================== SLIDE 34: 4 Modes Table ==================== -->
+<div class="slide bg-dark" data-slide="34">
+  <h3 style="margin-bottom: 24px;">THE 4 MODES</h3>
+  <table class="slide-table">
+    <thead>
+      <tr>
+        <th>Mode</th>
+        <th>Cycle Days</th>
+        <th>Superpower</th>
+        <th>Energy Direction</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-weight:700; color: #7BA7C2;">REFLECT</td>
+        <td>Days 1-5</td>
+        <td>Strategic clarity, intuition</td>
+        <td>Rest + Evaluate</td>
+      </tr>
+      <tr>
+        <td style="font-weight:700; color: #5EC49A;">BUILD</td>
+        <td>Days 6-14</td>
+        <td>Creativity, learning, initiation</td>
+        <td>Start + Create</td>
+      </tr>
+      <tr>
+        <td style="font-weight:700; color: var(--coral);">PERFORM</td>
+        <td>Days 15-17</td>
+        <td>Communication, persuasion, charisma</td>
+        <td>Push Hard</td>
+      </tr>
+      <tr>
+        <td style="font-weight:700; color: #C49A5E;">COMPLETE</td>
+        <td>Days 18-28</td>
+        <td>Detail-orientation, follow-through</td>
+        <td>Finish + Refine</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==================== SLIDE 35: Mode 1 - REFLECT ==================== -->
+<div class="slide bg-dark" data-slide="35">
+  <div class="mode-header reflect">MODE 1</div>
+  <h2 style="color: #7BA7C2;">REFLECT <span style="font-weight: 400; font-size: 24px; color: rgba(255,255,255,0.4);">(Days 1-5)</span></h2>
+  <p style="font-size: 20px; color: rgba(255,255,255,0.5); margin: 8px 0 24px;">Superpower: Strategic clarity + intuition</p>
+  <table class="slide-table">
+    <thead><tr><th style="width: 50px;"></th><th>Domain</th><th>What to Prioritize</th></tr></thead>
+    <tbody>
+      <tr><td class="icon">&#128188;</td><td style="font-weight:600;">Business</td><td>Review pipeline, analyze metrics, strategic planning</td></tr>
+      <tr><td class="icon">&#127947;</td><td style="font-weight:600;">Training</td><td>Light movement, yoga, walks, stretching</td></tr>
+      <tr><td class="icon">&#10084;&#65039;</td><td style="font-weight:600;">Mom</td><td>Quiet connection, reading together, low-stimulation bonding</td></tr>
+      <tr><td class="icon">&#128081;</td><td style="font-weight:600;">Leader</td><td>Strategic planning, vision work, big-picture thinking</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==================== SLIDE 36: Mode 2 - BUILD ==================== -->
+<div class="slide bg-dark" data-slide="36">
+  <div class="mode-header build">MODE 2</div>
+  <h2 style="color: #5EC49A;">BUILD <span style="font-weight: 400; font-size: 24px; color: rgba(255,255,255,0.4);">(Days 6-14)</span></h2>
+  <p style="font-size: 20px; color: rgba(255,255,255,0.5); margin: 8px 0 24px;">Superpower: Creativity + learning + initiation</p>
+  <table class="slide-table">
+    <thead><tr><th style="width: 50px;"></th><th>Domain</th><th>What to Prioritize</th></tr></thead>
+    <tbody>
+      <tr><td class="icon">&#128188;</td><td style="font-weight:600;">Business</td><td>Brainstorm, create content, start new projects, R&D</td></tr>
+      <tr><td class="icon">&#127947;</td><td style="font-weight:600;">Training</td><td>Ramp intensity, try new workouts, build training volume</td></tr>
+      <tr><td class="icon">&#10084;&#65039;</td><td style="font-weight:600;">Mom</td><td>Adventures, new activities, teach new skills</td></tr>
+      <tr><td class="icon">&#128081;</td><td style="font-weight:600;">Leader</td><td>Innovation sessions, team brainstorms, new initiatives</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==================== SLIDE 37: Mode 3 - PERFORM ==================== -->
+<div class="slide bg-dark" data-slide="37">
+  <div class="mode-header perform">MODE 3</div>
+  <h2 style="color: var(--coral);">PERFORM <span style="font-weight: 400; font-size: 24px; color: rgba(255,255,255,0.4);">(Days 15-17)</span></h2>
+  <p style="font-size: 20px; color: rgba(255,255,255,0.5); margin: 8px 0 24px;">Superpower: Communication + persuasion + charisma</p>
+  <table class="slide-table">
+    <thead><tr><th style="width: 50px;"></th><th>Domain</th><th>What to Prioritize</th></tr></thead>
+    <tbody>
+      <tr><td class="icon">&#128188;</td><td style="font-weight:600;">Business</td><td>Close deals, pitch, negotiate, presentations</td></tr>
+      <tr><td class="icon">&#127947;</td><td style="font-weight:600;">Training</td><td>Race day, PR attempts, peak physical performance</td></tr>
+      <tr><td class="icon">&#10084;&#65039;</td><td style="font-weight:600;">Mom</td><td>Big events, hard conversations, family meetings</td></tr>
+      <tr><td class="icon">&#128081;</td><td style="font-weight:600;">Leader</td><td>Keynotes, negotiations, high-stakes decisions</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">This window is 2-3 days. Protect it fiercely.</div>
+</div>
+
+<!-- ==================== SLIDE 38: Mode 4 - COMPLETE ==================== -->
+<div class="slide bg-dark" data-slide="38">
+  <div class="mode-header complete">MODE 4</div>
+  <h2 style="color: #C49A5E;">COMPLETE <span style="font-weight: 400; font-size: 24px; color: rgba(255,255,255,0.4);">(Days 18-28)</span></h2>
+  <p style="font-size: 20px; color: rgba(255,255,255,0.5); margin: 8px 0 24px;">Superpower: Detail-orientation + follow-through</p>
+  <table class="slide-table">
+    <thead><tr><th style="width: 50px;"></th><th>Domain</th><th>What to Prioritize</th></tr></thead>
+    <tbody>
+      <tr><td class="icon">&#128188;</td><td style="font-weight:600;">Business</td><td>Follow-ups, CRM updates, editing, admin, systems</td></tr>
+      <tr><td class="icon">&#127947;</td><td style="font-weight:600;">Training</td><td>Taper, recover, lighter sessions, maintenance</td></tr>
+      <tr><td class="icon">&#10084;&#65039;</td><td style="font-weight:600;">Mom</td><td>Cozy routines, nesting, low-key family time</td></tr>
+      <tr><td class="icon">&#128081;</td><td style="font-weight:600;">Leader</td><td>Reviews, documentation, performance evaluations</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==================== SLIDE 39: Cycle of Excellence ==================== -->
+<div class="slide bg-dark" data-slide="39">
+  <h2 style="margin-bottom: 12px;">The Cycle of Excellence</h2>
+  <p style="font-size: 18px; color: rgba(255,255,255,0.4); margin-bottom: 20px;">Every month. A complete performance cycle.</p>
+  <div class="cycle-diagram">
+    <div class="cycle-node reflect">Reflect<span class="days">Days 1-5</span></div>
+    <div class="cycle-arrow">&#10132;</div>
+    <div class="cycle-node build">Build<span class="days">Days 6-14</span></div>
+    <div class="cycle-arrow">&#10132;</div>
+    <div class="cycle-node perform">Perform<span class="days">Days 15-17</span></div>
+    <div class="cycle-arrow">&#10132;</div>
+    <div class="cycle-node complete">Complete<span class="days">Days 18-28</span></div>
+    <div class="cycle-arrow">&#10132;</div>
+    <div style="font-size: 14px; color: rgba(255,255,255,0.3); align-self: center;">&#8634;</div>
+  </div>
+  <p style="margin-top: 30px; font-size: 20px; text-align: center; color: rgba(255,255,255,0.6);">Not a flatline. <strong style="color: white;">A rhythm.</strong></p>
+</div>
+
+<!-- ==================== SLIDE 40: Quote ==================== -->
+<div class="slide bg-black" data-slide="40">
+  <p class="quote">Men have one gear. Women have four. The world taught you that was a disadvantage. It's actually a superpower - if you know how to use it.</p>
+  <div class="screenshot-badge">Screenshot this</div>
+</div>
+
+<!-- ==================== SLIDE 41: Category Definition ==================== -->
+<div class="slide bg-dark" data-slide="41">
+  <h1 style="font-size: 48px;">This Is Not a Period Tracker.</h1>
+  <h2 style="color: var(--coral); margin-top: 16px;">It's a Different Category.</h2>
+</div>
+
+<!-- ==================== SLIDE 42: 4 Buying Criteria ==================== -->
+<div class="slide bg-white" data-slide="42">
+  <h3 style="color: #1a1a1a; margin-bottom: 24px;">THE 4 CRITERIA THAT MATTER</h3>
+  <div class="criteria-grid">
+    <div class="criteria-card">
+      <div class="num">1</div>
+      <p>Learns from <strong>YOUR data</strong>, not a textbook</p>
+    </div>
+    <div class="criteria-card">
+      <div class="num">2</div>
+      <p>Covers your <strong>WHOLE life</strong>, not one domain</p>
+    </div>
+    <div class="criteria-card">
+      <div class="num">3</div>
+      <p>Works for <strong>ALL women</strong> (including birth control, irregular cycles, perimenopause)</p>
+    </div>
+    <div class="criteria-card">
+      <div class="num">4</div>
+      <p>Gets <strong>smarter every month</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 43: Comparison Shift ==================== -->
+<div class="slide bg-dark" data-slide="43">
+  <h3 style="margin-bottom: 24px;">After hearing these 4 criteria, you'll evaluate everything differently:</h3>
+  <div class="eval-list">
+    <div class="eval-item">
+      <div class="question">&ldquo;Does it learn from MY data?&rdquo;</div>
+      <div class="answer">If no, it's a horoscope.</div>
+    </div>
+    <div class="eval-item">
+      <div class="question">&ldquo;Does it cover my whole life?&rdquo;</div>
+      <div class="answer">If no, it's a single-use tool.</div>
+    </div>
+    <div class="eval-item">
+      <div class="question">&ldquo;Does it work on birth control?&rdquo;</div>
+      <div class="answer">If no, it excludes me.</div>
+    </div>
+    <div class="eval-item">
+      <div class="question">&ldquo;Does it get smarter?&rdquo;</div>
+      <div class="answer">If no, it's a static app.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 44: Femtech Explosion ==================== -->
+<div class="slide bg-dark" data-slide="44">
+  <h3 style="margin-bottom: 20px;">THE FEMTECH EXPLOSION</h3>
+  <div style="display: flex; gap: 30px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center;">
+    <div style="text-align: center;">
+      <div style="font-size: 44px; font-weight: 800; color: var(--coral);">$2.49B</div>
+      <div style="font-size: 14px; color: rgba(255,255,255,0.4);">Menstrual health apps (2026)</div>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-size: 44px; font-weight: 800; color: var(--teal);">$13.1B</div>
+      <div style="font-size: 14px; color: rgba(255,255,255,0.4);">Projected by 2035</div>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-size: 44px; font-weight: 800; color: #C49A5E;">$75-100B</div>
+      <div style="font-size: 14px; color: rgba(255,255,255,0.4);">Femtech overall by 2030</div>
+    </div>
+  </div>
+  <ul class="stat-row">
+    <li>Flo: <strong>380M+</strong> downloads | Clue: <strong>100M+</strong> downloads</li>
+    <li>#cyclesyncing: <strong>285M+</strong> views on TikTok (PMC, 2023)</li>
+    <li>WNBA viewership: Up <strong>155%</strong> (ESPN, 2024)</li>
+    <li>Women's World Cup: <strong>2B</strong> viewers (FIFA, 2023)</li>
+  </ul>
+  <div style="margin-top: 24px; padding: 16px; border: 1px solid rgba(232,116,97,0.3); border-radius: 8px; text-align: center;">
+    <p style="font-size: 18px; color: var(--coral); font-weight: 600;">Yet ZERO apps at the intersection of: Cycle intelligence + Multi-domain performance + Data-driven personalization</p>
+  </div>
+  <p class="source">Sources: Grand View Research, Precedence Research</p>
+</div>
+
+<!-- ==================== SLIDE 45: Self-Assessment ==================== -->
+<div class="slide bg-dark" data-slide="45">
+  <h3 style="margin-bottom: 6px;">HOW WELL DO YOU KNOW YOUR OWN RHYTHM?</h3>
+  <p style="font-size: 16px; color: rgba(255,255,255,0.4); margin-bottom: 24px;">Score each statement 1-5 (1 = not at all true, 5 = completely true)</p>
+  <div class="assess-list">
+    <div class="assess-item"><span class="assess-num">1.</span> I can predict which days I'll have the most energy <span class="assess-dots">1 2 3 4 5</span></div>
+    <div class="assess-item"><span class="assess-num">2.</span> I know my best "performance window" each month <span class="assess-dots">1 2 3 4 5</span></div>
+    <div class="assess-item"><span class="assess-num">3.</span> I schedule high-stakes activities based on when I perform best <span class="assess-dots">1 2 3 4 5</span></div>
+    <div class="assess-item"><span class="assess-num">4.</span> I adjust training intensity based on my cycle/energy rhythm <span class="assess-dots">1 2 3 4 5</span></div>
+    <div class="assess-item"><span class="assess-num">5.</span> I have data showing my energy and outcomes correlate <span class="assess-dots">1 2 3 4 5</span></div>
+    <div class="assess-item"><span class="assess-num">6.</span> When I have a "bad week" I can explain WHY biologically <span class="assess-dots">1 2 3 4 5</span></div>
+    <div class="assess-item"><span class="assess-num">7.</span> I protect low-energy days by lightening my schedule <span class="assess-dots">1 2 3 4 5</span></div>
+    <div class="assess-item"><span class="assess-num">8.</span> I plan my month with my rhythm in mind <span class="assess-dots">1 2 3 4 5</span></div>
+    <div class="assess-item"><span class="assess-num">9.</span> People I work with understand my energy fluctuates <span class="assess-dots">1 2 3 4 5</span></div>
+  </div>
+  <p style="margin-top: 20px; font-size: 22px; font-weight: 700; color: var(--coral);">Add your total: _____ / 45</p>
+</div>
+
+<!-- ==================== SLIDE 46: Score Results ==================== -->
+<div class="slide bg-dark" data-slide="46">
+  <h3 style="margin-bottom: 24px;">YOUR RHYTHM INTELLIGENCE SCORE</h3>
+  <div class="score-blocks">
+    <div class="score-block">
+      <span class="range">9-15</span>
+      <span class="label" style="color: #E87461;">Rhythm-Blind</span>
+      <span class="desc">Running a 28-day engine on a 24-hour schedule</span>
+    </div>
+    <div class="score-block">
+      <span class="range">16-22</span>
+      <span class="label" style="color: #C49A5E;">Rhythm-Aware</span>
+      <span class="desc">You sense patterns but have no data</span>
+    </div>
+    <div class="score-block">
+      <span class="range">23-31</span>
+      <span class="label" style="color: #5EC49A;">Rhythm-Aligned</span>
+      <span class="desc">You've started but lack tools to optimize across all domains</span>
+    </div>
+    <div class="score-block">
+      <span class="range">32-40</span>
+      <span class="label" style="color: var(--teal);">Rhythm-Optimized</span>
+      <span class="desc">Already syncing, need predictive intelligence</span>
+    </div>
+    <div class="score-block">
+      <span class="range">41-45</span>
+      <span class="label" style="color: #7BA7C2;">Rhythm-Mastered</span>
+      <span class="desc">Ahead of 99%, need data to prove it and share it</span>
+    </div>
+  </div>
+  <p style="margin-top: 24px; font-size: 18px; text-align: center; color: rgba(255,255,255,0.5);">Most high-performing women score between <strong style="color: var(--coral);">11 and 20</strong>.</p>
+</div>
+
+<!-- ==================== SLIDE 47: What We Built ==================== -->
+<div class="slide bg-dark" data-slide="47">
+  <div style="font-size: 48px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; color: var(--teal); margin-bottom: 16px;">PeakHer</div>
+  <h2 style="max-width: 750px;">The first personal performance platform that understands women's biology</h2>
+  <p class="subtitle">and uses YOUR data to optimize every role you play.</p>
+</div>
+
+<!-- ==================== SLIDE 48: Your Day with PeakHer ==================== -->
+<div class="slide bg-dark" data-slide="48">
+  <h3 style="margin-bottom: 20px;">YOUR DAY WITH PEAKHER</h3>
+  <table class="day-table">
+    <thead>
+      <tr><th>When</th><th>What</th><th>Time</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="time-col">Morning</td><td>2 sliders: Energy + Confidence</td><td><strong>10 seconds</strong></td></tr>
+      <tr><td class="time-col">Throughout the day</td><td>Quick-log wins</td><td><strong>5 seconds</strong> each</td></tr>
+      <tr><td class="time-col">Passive</td><td>Calendar, fitness, CRM sync automatically</td><td><strong>0 seconds</strong></td></tr>
+      <tr><td class="time-col">Sunday</td><td>Week Ahead briefing arrives</td><td><strong>2 min</strong> to read</td></tr>
+      <tr><td class="time-col">Monthly</td><td>Performance Fingerprint updates</td><td><strong>5 min</strong> to review</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==================== SLIDE 49: Insights After 2-3 Months ==================== -->
+<div class="slide bg-dark" data-slide="49">
+  <h3 style="margin-bottom: 8px;">WHAT YOU SEE AFTER 2-3 MONTHS</h3>
+  <p style="font-size: 16px; color: rgba(255,255,255,0.4); margin-bottom: 24px;">Example insights from YOUR data:</p>
+  <div class="insight-cards">
+    <div class="insight-card">
+      &ldquo;Your close rate is <strong style="color: var(--teal);">3.2x higher</strong> when confidence is 8+.<br>
+      Those days cluster around <strong>days 12-17</strong>.&rdquo;
+    </div>
+    <div class="insight-card">
+      &ldquo;Your best workouts happen <strong>days 8-15</strong>.<br>
+      Perceived exertion is <strong style="color: var(--coral);">23% higher</strong> for the same effort on days 25-28.&rdquo;
+    </div>
+    <div class="insight-card">
+      &ldquo;Your patience drops below 5 on <strong>days 24-27</strong>.<br>
+      Best family days: <strong style="color: #C49A5E;">days 9-16</strong>.&rdquo;
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 50: Pricing ==================== -->
+<div class="slide bg-dark" data-slide="50">
+  <h3 style="margin-bottom: 24px;">THREE TIERS</h3>
+  <div class="pricing-grid">
+    <div class="pricing-card free">
+      <div class="tier-name" style="color: rgba(255,255,255,0.6);">Free</div>
+      <div class="tier-price">$0</div>
+      <ul>
+        <li>Daily check-in</li>
+        <li>Basic tracking</li>
+        <li>Cycle logging</li>
+        <li>General phase education</li>
+      </ul>
+    </div>
+    <div class="pricing-card premium">
+      <div class="tier-name" style="color: var(--teal);">Premium</div>
+      <div class="tier-price">$9.99-$14.99<span style="font-size:14px; font-weight:400;">/mo</span></div>
+      <ul>
+        <li>Full Performance Fingerprint</li>
+        <li>Predictive Week Ahead</li>
+        <li>AI-powered insights</li>
+        <li>All integrations</li>
+        <li>Multi-domain tracking</li>
+        <li>Unlimited history</li>
+      </ul>
+    </div>
+    <div class="pricing-card teams">
+      <div class="tier-name" style="color: var(--coral);">Teams</div>
+      <div class="tier-price">$19.99<span style="font-size:14px; font-weight:400;">/user/mo</span></div>
+      <ul>
+        <li>Everything in Premium</li>
+        <li>Team capacity dashboard</li>
+        <li>Coach/trainer sharing</li>
+        <li>Organizational analytics</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 51: CTA ==================== -->
+<div class="slide bg-dark" data-slide="51">
+  <h2 style="margin-bottom: 8px;">Join the Beta Waitlist</h2>
+  <p style="font-size: 20px; color: rgba(255,255,255,0.5); margin-bottom: 40px;">Early access. Shape the product. Founding member rate locked for life.</p>
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+    <span class="cta-btn">Join Waitlist</span>
+    <span class="cta-btn secondary">Take the Quiz</span>
+    <span class="cta-btn secondary">Download Modes Guide</span>
+  </div>
+  <div style="margin-top: 50px; width: 160px; height: 160px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #333; font-weight: 600;">
+    [QR CODE]
+  </div>
+</div>
+
+<!-- ==================== SLIDE 52: Final ==================== -->
+<div class="slide bg-black" data-slide="52">
+  <p class="quote" style="font-style: normal; font-size: 38px;">Your body has a rhythm. We help you find it.</p>
+  <div style="margin-top: 60px; text-align: center; color: rgba(255,255,255,0.4);">
+    <div style="font-size: 18px; font-weight: 600; color: rgba(255,255,255,0.6);">Jairek Robbins</div>
+    <div style="font-size: 16px; margin-top: 8px;">PeakHer</div>
+    <div style="font-size: 14px; margin-top: 4px;">peakher.ai &nbsp;|&nbsp; @peakher</div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn" id="prev" aria-label="Previous slide">&#8592;</button>
+  <span class="slide-counter"><span id="current">1</span> / <span id="total">52</span></span>
+  <button class="nav-btn" id="next" aria-label="Next slide">&#8594;</button>
+</div>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  document.getElementById('total').textContent = total;
+
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    document.getElementById('current').textContent = current + 1;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault();
+      goTo(current + 1);
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault();
+      goTo(current - 1);
+    }
+    if (e.key === 'Home') goTo(0);
+    if (e.key === 'End') goTo(total - 1);
+  });
+
+  // Touch swipe support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? goTo(current + 1) : goTo(current - 1);
+    }
+  });
+})();
+</script>
+</body>
+</html>
