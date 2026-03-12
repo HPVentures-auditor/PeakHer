@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>PeakHer — Your Performance Dashboard</title>
+<meta name="description" content="Track your energy, confidence, and cycle-based patterns. Discover your peak performance rhythm.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --navy: #0a1628;
+    --navy-light: #0f2035;
+    --black: #000000;
+    --white: #ffffff;
+    --coral: #E87461;
+    --coral-hover: #d4634f;
+    --teal: #2d8a8a;
+    --teal-hover: #247474;
+    --gray-mid: #999;
+    --gray-text: #b0b0b0;
+    --reflect: #7BA7C2;
+    --build: #5EC49A;
+    --perform: #E87461;
+    --complete: #C49A5E;
+    --bottom-nav-height: 72px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* ---- TOP NAV ---- */
+  .app-top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 56px;
+    background: rgba(10, 22, 40, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-top: env(safe-area-inset-top);
+  }
+  .app-top-nav .logo {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal);
+    text-decoration: none;
+  }
+  .app-top-nav .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .app-top-nav .nav-right a {
+    font-size: 13px;
+    color: var(--gray-text);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .app-top-nav .nav-right a:hover { color: var(--teal); }
+
+  /* ---- BOTTOM TAB NAV ---- */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    height: var(--bottom-nav-height);
+    background: rgba(10, 22, 40, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-nav.hidden { display: none; }
+  .tab-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-decoration: none;
+    color: var(--gray-mid);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    transition: color 0.2s;
+    min-height: 44px;
+    padding: 8px 4px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab-link.active { color: var(--teal); }
+  .tab-link:hover { color: var(--teal); }
+  .tab-link svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 1.8;
+  }
+
+  /* ---- SCREEN SYSTEM ---- */
+  .app-content {
+    padding-top: 56px;
+    padding-bottom: var(--bottom-nav-height);
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .screen {
+    display: none;
+    flex-direction: column;
+    min-height: calc(100vh - 56px - var(--bottom-nav-height));
+    min-height: calc(100dvh - 56px - var(--bottom-nav-height));
+    padding: 24px 20px 40px;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .screen.active {
+    display: flex;
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* ---- SHARED COMPONENTS ---- */
+
+  /* Buttons */
+  .btn-primary {
+    background: var(--coral);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-primary:hover { background: var(--coral-hover); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.06);
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: inherit;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    min-height: 44px;
+  }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  .btn-text {
+    background: none;
+    border: none;
+    color: var(--teal);
+    font-size: 15px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 8px;
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-text:hover { text-decoration: underline; }
+
+  /* Inputs */
+  .input-field {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: var(--white);
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: inherit;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-height: 44px;
+  }
+  .input-field:focus {
+    border-color: var(--teal);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(45,138,138,0.2);
+  }
+  .input-field::placeholder { color: rgba(255,255,255,0.3); }
+
+  textarea.input-field {
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  /* Range Sliders */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--coral), #e8a961, var(--teal));
+    outline: none;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+    margin: 8px 0;
+  }
+  input[type="range"]:hover { opacity: 1; }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  /* Cards */
+  .card {
+    background: var(--navy-light);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge-teal { background: rgba(45,138,138,0.15); color: var(--teal); }
+  .badge-coral { background: rgba(232,116,97,0.15); color: var(--coral); }
+  .badge-reflect { background: rgba(123,167,194,0.15); color: var(--reflect); }
+  .badge-build { background: rgba(94,196,154,0.15); color: var(--build); }
+  .badge-perform { background: rgba(232,116,97,0.15); color: var(--perform); }
+  .badge-complete { background: rgba(196,154,94,0.15); color: var(--complete); }
+
+  /* Progress Bar */
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--coral), var(--teal));
+    transition: width 0.5s ease;
+  }
+
+  /* Toggle Switch */
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .toggle-track {
+    width: 48px;
+    height: 28px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.12);
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle-track.active { background: var(--teal); }
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.2s;
+  }
+  .toggle-track.active .toggle-thumb { transform: translateX(20px); }
+
+  /* Pill Toggle Group */
+  .pill-group {
+    display: flex;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .pill-option {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: var(--gray-text);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    min-height: 36px;
+  }
+  .pill-option.active {
+    background: var(--teal);
+    color: white;
+  }
+
+  /* Section headings */
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .section-subtitle {
+    font-size: 14px;
+    color: var(--gray-text);
+    margin-bottom: 24px;
+  }
+
+  /* Onboarding steps */
+  .onboarding-step {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .onboarding-step.active {
+    display: flex;
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Progress dots */
+  .progress-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: background 0.3s, transform 0.3s;
+  }
+  .progress-dot.active { background: var(--teal); transform: scale(1.2); }
+  .progress-dot.completed { background: var(--teal); }
+
+  /* Hat selection grid */
+  .hat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  .hat-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 8px;
+    background: var(--navy-light);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    min-height: 90px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hat-tile .hat-emoji { font-size: 28px; }
+  .hat-tile .hat-label { font-size: 13px; font-weight: 600; }
+  .hat-tile.selected {
+    border-color: var(--teal);
+    background: rgba(45,138,138,0.1);
+  }
+
+  /* Check-in specific */
+  .slider-group { margin-bottom: 28px; }
+  .slider-label {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: rgba(255,255,255,0.9);
+  }
+  .slider-value {
+    font-size: 48px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .slider-endpoints {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--gray-mid);
+    margin-top: 4px;
+  }
+
+  /* Expandable section */
+  .expandable {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease;
+  }
+  .expandable.open { max-height: 600px; }
+  .expand-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--teal);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 12px 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .expand-toggle svg {
+    transition: transform 0.3s;
+  }
+  .expand-toggle.open svg {
+    transform: rotate(180deg);
+  }
+
+  /* Post-submit animation */
+  @keyframes checkmark-pop {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .checkmark-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    animation: checkmark-pop 0.5s ease forwards;
+  }
+  .checkmark-circle svg {
+    width: 40px;
+    height: 40px;
+    stroke: white;
+    stroke-width: 3;
+  }
+
+  /* Calendar */
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .calendar-header .month-label {
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .calendar-nav-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--white);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .calendar-nav-btn:hover { background: rgba(255,255,255,0.06); }
+  .calendar-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+  .calendar-day-header {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-mid);
+    padding: 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    gap: 3px;
+  }
+  .calendar-day:hover { background: rgba(255,255,255,0.04); }
+  .calendar-day.today {
+    outline: 2px solid rgba(255,255,255,0.4);
+    outline-offset: -2px;
+  }
+  .calendar-day.future { opacity: 0.3; pointer-events: none; }
+  .calendar-day.empty { pointer-events: none; }
+  .calendar-day .day-num {
+    font-size: 13px;
+    color: var(--gray-text);
+  }
+  .calendar-day.has-checkin .day-num { color: var(--white); }
+  .calendar-day .day-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* Day detail panel (bottom sheet) */
+  .day-detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 500;
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: none;
+  }
+  .day-detail-overlay.active {
+    display: block;
+    opacity: 1;
+  }
+  .day-detail-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--navy-light);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px calc(24px + var(--bottom-nav-height));
+    z-index: 501;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .day-detail-panel.active { transform: translateY(0); }
+  .day-detail-panel .handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .metric-card {
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .metric-card .metric-label {
+    font-size: 12px;
+    color: var(--gray-text);
+    margin-bottom: 4px;
+  }
+  .metric-card .metric-value {
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .metric-card .metric-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.08);
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .metric-card .metric-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* Pattern cards */
+  .pattern-card {
+    background: var(--navy-light);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--teal);
+    position: relative;
+  }
+  .pattern-card.negative { border-left-color: var(--coral); }
+  .pattern-card .pattern-type {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--gray-mid);
+    margin-bottom: 6px;
+  }
+  .pattern-card .pattern-desc {
+    font-size: 15px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .pattern-card .pattern-meta {
+    font-size: 12px;
+    color: var(--gray-mid);
+  }
+
+  /* Week ahead cards */
+  .weekahead-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .weekahead-scroll::-webkit-scrollbar { display: none; }
+  .weekahead-card {
+    flex-shrink: 0;
+    width: 140px;
+    background: var(--navy-light);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    border: 2px solid transparent;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .weekahead-card.best-day {
+    border-color: var(--teal);
+    box-shadow: 0 0 20px rgba(45,138,138,0.15);
+  }
+  .weekahead-card .wa-day {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .weekahead-card .wa-date {
+    font-size: 12px;
+    color: var(--gray-mid);
+    margin-bottom: 12px;
+  }
+  .wa-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .wa-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .wa-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .wa-bar-fill.energy { background: var(--teal); }
+  .wa-bar-fill.confidence { background: var(--coral); }
+  .wa-bar-value {
+    font-size: 14px;
+    font-weight: 700;
+    width: 20px;
+    text-align: right;
+  }
+
+  /* Signal badges */
+  .signal-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .signal-high-energy { background: rgba(45,138,138,0.15); color: var(--teal); }
+  .signal-rest { background: rgba(232,116,97,0.15); color: var(--coral); }
+  .signal-great { background: rgba(196,154,94,0.15); color: var(--complete); }
+
+  /* Chart containers */
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    margin: 16px 0;
+  }
+  .chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Lock/pre-activation state */
+  .locked-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px;
+    flex: 1;
+  }
+  .lock-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .lock-icon svg { width: 28px; height: 28px; stroke: var(--gray-mid); }
+
+  /* Empty state */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px;
+    flex: 1;
+  }
+  .empty-state p {
+    color: var(--gray-text);
+    margin-bottom: 20px;
+  }
+
+  /* Streak display */
+  .streak-display {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .streak-number {
+    font-size: 32px;
+    font-weight: 800;
+  }
+  .streak-label {
+    font-size: 13px;
+    color: var(--gray-text);
+  }
+
+  /* Detail expand on weekahead cards */
+  .wa-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .wa-detail.open { max-height: 200px; }
+  .wa-detail-content {
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--gray-text);
+    line-height: 1.6;
+  }
+
+  /* Responsive */
+  @media (max-width: 380px) {
+    .hat-grid { grid-template-columns: repeat(2, 1fr); }
+    .weekahead-card { width: 120px; padding: 12px; }
+    .slider-value { font-size: 40px; }
+  }
+  @media (min-width: 600px) {
+    .screen { padding: 32px 40px 48px; max-width: 600px; margin: 0 auto; }
+  }
+  @media (min-width: 768px) {
+    .screen { max-width: 700px; }
+  }
+  @media (min-width: 900px) {
+    .screen { max-width: 800px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="app-top-nav">
+  <a href="/" class="logo">PEAKHER</a>
+  <div class="nav-right">
+    <a href="/">Home</a>
+  </div>
+</nav>
+
+<!-- App Content Area -->
+<main class="app-content">
+
+  <!-- Onboarding Screen -->
+  <div id="screen-onboarding" class="screen"></div>
+
+  <!-- Check-in Screen -->
+  <div id="screen-checkin" class="screen"></div>
+
+  <!-- History Screen -->
+  <div id="screen-history" class="screen"></div>
+
+  <!-- Patterns Screen -->
+  <div id="screen-patterns" class="screen"></div>
+
+  <!-- Week Ahead Screen -->
+  <div id="screen-weekahead" class="screen"></div>
+
+</main>
+
+<!-- Bottom Tab Navigation -->
+<nav class="bottom-nav hidden" id="bottomNav">
+  <a href="#checkin" class="tab-link" data-tab="checkin">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+      <path d="M9 12l2 2 4-4"/>
+    </svg>
+    Check-in
+  </a>
+  <a href="#history" class="tab-link" data-tab="history">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    History
+  </a>
+  <a href="#patterns" class="tab-link" data-tab="patterns">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </svg>
+    Patterns
+  </a>
+  <a href="#weekahead" class="tab-link" data-tab="weekahead">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12 6 12 12 16 14"/>
+    </svg>
+    Week Ahead
+  </a>
+</nav>
+
+<!-- Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+
+<!-- App Modules -->
+<script src="js/utils.js"></script>
+<script src="js/store.js"></script>
+<script src="js/cycle.js"></script>
+<script src="js/router.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/onboarding.js"></script>
+<script src="js/checkin.js"></script>
+<script src="js/history.js"></script>
+<script src="js/patterns.js"></script>
+<script src="js/weekahead.js"></script>
+
+<!-- App Init -->
+<script>
+(function() {
+  // Initialize all modules
+  document.addEventListener('DOMContentLoaded', function() {
+    PeakHer.Onboarding.init();
+    PeakHer.Checkin.init();
+    PeakHer.History.init();
+    PeakHer.Patterns.init();
+    PeakHer.WeekAhead.init();
+    PeakHer.Router.init();
+  });
+})();
+</script>
+
+</body>
+</html>

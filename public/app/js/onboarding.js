@@ -1,0 +1,529 @@
+/**
+ * PeakHer Onboarding Module
+ * 5-step onboarding flow: Welcome, Hats, Cycle, Integrations, Ready.
+ * Renders dynamically into #screen-onboarding.
+ */
+window.PeakHer = window.PeakHer || {};
+
+window.PeakHer.Onboarding = (function () {
+  'use strict';
+
+  var Store  = window.PeakHer.Store;
+  var Router = window.PeakHer.Router;
+
+  var TOTAL_STEPS = 5;
+  var currentStep = 1;
+  var container;   // #screen-onboarding
+
+  // Collected data
+  var userData = {
+    name: '',
+    email: '',
+    hats: [],
+    cycleTracking: false,
+    cycleLength: 28,
+    lastPeriodDate: '',
+    onboardingComplete: false
+  };
+
+  // ── Styles (injected once) ──────────────────────────────────────────
+
+  var STYLES = [
+    '.ob-wrap { max-width: 480px; margin: 0 auto; padding: 24px 16px 40px; position: relative; min-height: 100vh; display: flex; flex-direction: column; }',
+
+    /* Progress dots */
+    '.ob-progress { display: flex; justify-content: center; gap: 10px; padding: 16px 0 24px; }',
+    '.ob-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: background 0.3s; }',
+    '.ob-dot.completed, .ob-dot.active { background: var(--teal); }',
+
+    /* Back arrow */
+    '.ob-back { position: absolute; top: 18px; left: 16px; background: none; border: none; color: rgba(255,255,255,0.5); font-size: 22px; cursor: pointer; padding: 4px 8px; transition: color 0.2s; z-index: 2; }',
+    '.ob-back:hover { color: #fff; }',
+
+    /* Step containers */
+    '.onboarding-step { display: none; flex-direction: column; align-items: center; flex: 1; }',
+    '.onboarding-step.active { display: flex; }',
+
+    /* Typography */
+    '.ob-heading { font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 8px; letter-spacing: -0.5px; color: #fff; }',
+    '.ob-subtext { font-size: 16px; color: var(--gray-text); text-align: center; margin-bottom: 32px; line-height: 1.5; }',
+
+    /* Inputs */
+    '.ob-input { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 14px 16px; font-size: 16px; width: 100%; font-family: inherit; margin-bottom: 16px; transition: border-color 0.2s, box-shadow 0.2s; }',
+    '.ob-input:focus { border-color: var(--teal); outline: none; box-shadow: 0 0 0 3px rgba(45,138,138,0.2); }',
+    '.ob-input::placeholder { color: rgba(255,255,255,0.3); }',
+
+    /* Buttons */
+    '.ob-btn { background: var(--coral); color: white; border: none; border-radius: 8px; padding: 16px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; font-family: inherit; transition: background 0.2s, transform 0.15s; margin-top: auto; }',
+    '.ob-btn:hover { background: var(--coral-hover); }',
+    '.ob-btn:active { transform: scale(0.98); }',
+    '.ob-btn.large { padding: 18px; font-size: 18px; }',
+
+    /* Validation message */
+    '.ob-validation { font-size: 13px; color: var(--coral); text-align: center; min-height: 20px; margin-bottom: 8px; }',
+
+    /* Hat tiles */
+    '.ob-hats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin-bottom: 24px; }',
+    '@media (max-width: 360px) { .ob-hats-grid { grid-template-columns: repeat(2, 1fr); } }',
+    '.ob-hat-tile { min-width: 120px; background: var(--navy-light); border: 2px solid transparent; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; user-select: none; -webkit-user-select: none; }',
+    '.ob-hat-tile .ob-hat-emoji { font-size: 28px; display: block; margin-bottom: 6px; }',
+    '.ob-hat-tile .ob-hat-label { font-size: 14px; font-weight: 600; color: #fff; }',
+    '.ob-hat-tile.selected { border-color: var(--teal); background: rgba(45,138,138,0.1); }',
+
+    /* Toggle switch */
+    '.ob-toggle-row { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; width: 100%; }',
+    '.ob-toggle-label { font-size: 16px; font-weight: 500; color: #fff; }',
+    '.ob-toggle { position: relative; width: 52px; height: 28px; flex-shrink: 0; }',
+    '.ob-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }',
+    '.ob-toggle-track { position: absolute; inset: 0; background: rgba(255,255,255,0.12); border-radius: 14px; cursor: pointer; transition: background 0.25s; }',
+    '.ob-toggle-track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: #fff; border-radius: 50%; transition: transform 0.25s; }',
+    '.ob-toggle input:checked + .ob-toggle-track { background: var(--teal); }',
+    '.ob-toggle input:checked + .ob-toggle-track::after { transform: translateX(24px); }',
+
+    /* Cycle fields (slide reveal) */
+    '.ob-cycle-fields { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease; width: 100%; }',
+    '.ob-cycle-fields.open { max-height: 200px; opacity: 1; }',
+    '.ob-cycle-off-msg { font-size: 14px; color: var(--gray-text); text-align: center; line-height: 1.5; margin-bottom: 16px; }',
+    '.ob-field-label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.7); margin-bottom: 6px; display: block; width: 100%; }',
+
+    /* Integration cards */
+    '.ob-integrations { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-bottom: 24px; }',
+    '.ob-int-card { background: var(--navy-light); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; opacity: 0.5; }',
+    '.ob-int-icon { font-size: 28px; flex-shrink: 0; width: 40px; text-align: center; }',
+    '.ob-int-info { flex: 1; }',
+    '.ob-int-name { font-size: 15px; font-weight: 600; color: #fff; }',
+    '.ob-int-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-text); background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; }',
+    '.ob-int-lock { font-size: 20px; flex-shrink: 0; opacity: 0.4; }',
+
+    /* Checkmark animation */
+    '.ob-checkmark-circle { width: 80px; height: 80px; border-radius: 50%; background: rgba(45,138,138,0.15); border: 3px solid var(--teal); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; animation: ob-pop 0.5s ease; }',
+    '.ob-checkmark { width: 36px; height: 36px; position: relative; }',
+    '.ob-checkmark::after { content: ""; position: absolute; left: 8px; top: 2px; width: 14px; height: 28px; border: solid var(--teal); border-width: 0 3.5px 3.5px 0; transform: rotate(45deg); animation: ob-check-draw 0.4s ease 0.3s both; }',
+    '@keyframes ob-pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }',
+    '@keyframes ob-check-draw { 0% { opacity: 0; transform: rotate(45deg) scale(0.5); } 100% { opacity: 1; transform: rotate(45deg) scale(1); } }',
+
+    '.ob-streak-msg { font-size: 16px; font-weight: 600; color: var(--teal); margin-bottom: 32px; }',
+
+    /* Spacer for pushing button down */
+    '.ob-spacer { flex: 1; min-height: 16px; }'
+  ].join('\n');
+
+  function injectStyles() {
+    if (document.getElementById('ob-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'ob-styles';
+    style.textContent = STYLES;
+    document.head.appendChild(style);
+  }
+
+  // ── DOM helpers ─────────────────────────────────────────────────────
+
+  function el(tag, className, html) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (html !== undefined) node.innerHTML = html;
+    return node;
+  }
+
+  function createInput(type, placeholder, className) {
+    var inp = document.createElement('input');
+    inp.type = type;
+    inp.className = className || 'ob-input';
+    if (placeholder) inp.placeholder = placeholder;
+    return inp;
+  }
+
+  // ── Progress bar ────────────────────────────────────────────────────
+
+  var progressDots = [];
+
+  function buildProgress() {
+    var bar = el('div', 'ob-progress');
+    for (var i = 1; i <= TOTAL_STEPS; i++) {
+      var dot = el('div', 'ob-dot');
+      dot.setAttribute('data-dot', i);
+      progressDots.push(dot);
+      bar.appendChild(dot);
+    }
+    return bar;
+  }
+
+  function updateProgress() {
+    for (var i = 0; i < progressDots.length; i++) {
+      var step = i + 1;
+      progressDots[i].className = 'ob-dot';
+      if (step < currentStep) progressDots[i].classList.add('completed');
+      if (step === currentStep) progressDots[i].classList.add('active');
+    }
+    // Show/hide back arrow
+    var backBtn = container.querySelector('.ob-back');
+    if (backBtn) {
+      backBtn.style.display = currentStep > 1 ? 'block' : 'none';
+    }
+  }
+
+  // ── Step animation ──────────────────────────────────────────────────
+
+  function showStep(stepNum) {
+    var direction = stepNum > currentStep ? 'forward' : 'backward';
+    var allSteps = container.querySelectorAll('.onboarding-step');
+    allSteps.forEach(function (s) {
+      if (s.classList.contains('active')) {
+        s.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+        s.style.opacity = '0';
+        s.style.transform = direction === 'forward' ? 'translateX(-30px)' : 'translateX(30px)';
+        setTimeout(function () {
+          s.classList.remove('active');
+          s.style.transform = '';
+          s.style.opacity = '';
+        }, 250);
+      }
+    });
+    setTimeout(function () {
+      var target = container.querySelector('[data-step="' + stepNum + '"]');
+      target.style.transform = direction === 'forward' ? 'translateX(30px)' : 'translateX(-30px)';
+      target.style.opacity = '0';
+      target.classList.add('active');
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          target.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+          target.style.opacity = '1';
+          target.style.transform = 'translateX(0)';
+        });
+      });
+    }, 260);
+    currentStep = stepNum;
+    updateProgress();
+  }
+
+  // ── Step 1: Welcome + Name & Email ──────────────────────────────────
+
+  function buildStep1() {
+    var step = el('div', 'onboarding-step active');
+    step.setAttribute('data-step', '1');
+
+    step.appendChild(el('h2', 'ob-heading', 'Welcome to PeakHer'));
+    step.appendChild(el('p', 'ob-subtext', "Let's personalize your experience"));
+
+    var nameInput = createInput('text', 'Your first name');
+    nameInput.id = 'ob-name';
+    nameInput.autocomplete = 'given-name';
+
+    var emailInput = createInput('email', 'your@email.com');
+    emailInput.id = 'ob-email';
+    emailInput.autocomplete = 'email';
+
+    var validation = el('div', 'ob-validation');
+    validation.id = 'ob-val-1';
+
+    var btn = el('button', 'ob-btn', 'Continue');
+    btn.type = 'button';
+
+    btn.addEventListener('click', function () {
+      var name  = nameInput.value.trim();
+      var email = emailInput.value.trim();
+      if (!name || !email) {
+        validation.textContent = 'Please fill in both fields';
+        return;
+      }
+      // Basic email check
+      if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
+        validation.textContent = 'Please enter a valid email address';
+        return;
+      }
+      validation.textContent = '';
+      userData.name = name;
+      userData.email = email;
+      showStep(2);
+    });
+
+    // Enter key support
+    function handleEnter(e) {
+      if (e.key === 'Enter') { btn.click(); }
+    }
+    nameInput.addEventListener('keydown', handleEnter);
+    emailInput.addEventListener('keydown', handleEnter);
+
+    step.appendChild(nameInput);
+    step.appendChild(emailInput);
+    step.appendChild(validation);
+    step.appendChild(el('div', 'ob-spacer'));
+    step.appendChild(btn);
+
+    return step;
+  }
+
+  // ── Step 2: Hat Selection ───────────────────────────────────────────
+
+  var HATS = [
+    { id: 'founder',   label: 'Founder',   emoji: '\uD83D\uDE80' },
+    { id: 'creative',  label: 'Creative',  emoji: '\uD83C\uDFA8' },
+    { id: 'executive', label: 'Executive', emoji: '\uD83D\uDCBC' },
+    { id: 'caregiver', label: 'Caregiver', emoji: '\uD83D\uDC9B' },
+    { id: 'athlete',   label: 'Athlete',   emoji: '\uD83C\uDFC3\u200D\u2640\uFE0F' },
+    { id: 'student',   label: 'Student',   emoji: '\uD83D\uDCDA' }
+  ];
+
+  function buildStep2() {
+    var step = el('div', 'onboarding-step');
+    step.setAttribute('data-step', '2');
+
+    step.appendChild(el('h2', 'ob-heading', 'Which hats do you wear?'));
+    step.appendChild(el('p', 'ob-subtext', 'Select all that apply \u2014 this helps us personalize your insights'));
+
+    var grid = el('div', 'ob-hats-grid');
+    var selectedHats = {};
+
+    HATS.forEach(function (hat) {
+      var tile = el('div', 'ob-hat-tile');
+      tile.setAttribute('data-hat', hat.id);
+      tile.innerHTML = '<span class="ob-hat-emoji">' + hat.emoji + '</span><span class="ob-hat-label">' + hat.label + '</span>';
+
+      tile.addEventListener('click', function () {
+        if (selectedHats[hat.id]) {
+          delete selectedHats[hat.id];
+          tile.classList.remove('selected');
+        } else {
+          selectedHats[hat.id] = true;
+          tile.classList.add('selected');
+        }
+      });
+
+      grid.appendChild(tile);
+    });
+
+    var validation = el('div', 'ob-validation');
+    validation.id = 'ob-val-2';
+
+    var btn = el('button', 'ob-btn', 'Continue');
+    btn.type = 'button';
+    btn.addEventListener('click', function () {
+      var keys = Object.keys(selectedHats);
+      if (keys.length === 0) {
+        validation.textContent = 'Please select at least one hat';
+        return;
+      }
+      validation.textContent = '';
+      userData.hats = keys;
+      showStep(3);
+    });
+
+    step.appendChild(grid);
+    step.appendChild(validation);
+    step.appendChild(el('div', 'ob-spacer'));
+    step.appendChild(btn);
+
+    return step;
+  }
+
+  // ── Step 3: Cycle Context ───────────────────────────────────────────
+
+  function buildStep3() {
+    var step = el('div', 'onboarding-step');
+    step.setAttribute('data-step', '3');
+
+    step.appendChild(el('h2', 'ob-heading', 'Cycle Tracking'));
+    step.appendChild(el('p', 'ob-subtext', 'Optional \u2014 enables powerful phase-based insights'));
+
+    // Toggle row
+    var toggleRow = el('div', 'ob-toggle-row');
+    var toggleLabel = el('span', 'ob-toggle-label', 'Track my cycle');
+    var toggleWrap = el('label', 'ob-toggle');
+    var toggleInput = document.createElement('input');
+    toggleInput.type = 'checkbox';
+    var toggleTrack = el('span', 'ob-toggle-track');
+    toggleWrap.appendChild(toggleInput);
+    toggleWrap.appendChild(toggleTrack);
+    toggleRow.appendChild(toggleLabel);
+    toggleRow.appendChild(toggleWrap);
+
+    // Cycle fields container
+    var cycleFields = el('div', 'ob-cycle-fields');
+
+    var lengthLabel = el('label', 'ob-field-label', 'Average cycle length');
+    var lengthInput = createInput('number', '');
+    lengthInput.value = '28';
+    lengthInput.min = '21';
+    lengthInput.max = '45';
+    lengthInput.id = 'ob-cycle-length';
+
+    var dateLabel = el('label', 'ob-field-label', 'First day of last period');
+    dateLabel.style.marginTop = '4px';
+    var dateInput = createInput('date', '');
+    dateInput.id = 'ob-last-period';
+
+    cycleFields.appendChild(lengthLabel);
+    cycleFields.appendChild(lengthInput);
+    cycleFields.appendChild(dateLabel);
+    cycleFields.appendChild(dateInput);
+
+    // Off message
+    var offMsg = el('p', 'ob-cycle-off-msg', "No problem! You'll still get great insights from your daily data.");
+
+    // Toggle behavior
+    toggleInput.addEventListener('change', function () {
+      if (toggleInput.checked) {
+        cycleFields.classList.add('open');
+        offMsg.style.display = 'none';
+      } else {
+        cycleFields.classList.remove('open');
+        offMsg.style.display = '';
+      }
+    });
+
+    var btn = el('button', 'ob-btn', 'Continue');
+    btn.type = 'button';
+    btn.addEventListener('click', function () {
+      userData.cycleTracking = toggleInput.checked;
+      if (toggleInput.checked) {
+        var len = parseInt(lengthInput.value, 10);
+        if (isNaN(len) || len < 21 || len > 45) len = 28;
+        userData.cycleLength = len;
+        userData.lastPeriodDate = dateInput.value || '';
+      }
+      showStep(4);
+    });
+
+    step.appendChild(toggleRow);
+    step.appendChild(offMsg);
+    step.appendChild(cycleFields);
+    step.appendChild(el('div', 'ob-spacer'));
+    step.appendChild(btn);
+
+    return step;
+  }
+
+  // ── Step 4: Integrations (Coming Soon) ──────────────────────────────
+
+  var INTEGRATIONS = [
+    { name: 'Apple Health',  icon: '\u2764\uFE0F' },
+    { name: 'Google Fit',    icon: '\uD83C\uDFC3' },
+    { name: 'Oura',          icon: '\uD83D\uDCAD' }
+  ];
+
+  function buildStep4() {
+    var step = el('div', 'onboarding-step');
+    step.setAttribute('data-step', '4');
+
+    step.appendChild(el('h2', 'ob-heading', 'Integrations'));
+    step.appendChild(el('p', 'ob-subtext', 'Coming soon \u2014 connect your favorite tools'));
+
+    var list = el('div', 'ob-integrations');
+
+    INTEGRATIONS.forEach(function (int) {
+      var card = el('div', 'ob-int-card');
+      card.innerHTML =
+        '<span class="ob-int-icon">' + int.icon + '</span>' +
+        '<div class="ob-int-info">' +
+          '<div class="ob-int-name">' + int.name + '</div>' +
+          '<span class="ob-int-badge">Coming Soon</span>' +
+        '</div>' +
+        '<span class="ob-int-lock">\uD83D\uDD12</span>';
+      list.appendChild(card);
+    });
+
+    var btn = el('button', 'ob-btn', 'Continue');
+    btn.type = 'button';
+    btn.addEventListener('click', function () {
+      showStep(5);
+    });
+
+    step.appendChild(list);
+    step.appendChild(el('div', 'ob-spacer'));
+    step.appendChild(btn);
+
+    return step;
+  }
+
+  // ── Step 5: Ready to Go ─────────────────────────────────────────────
+
+  function buildStep5() {
+    var step = el('div', 'onboarding-step');
+    step.setAttribute('data-step', '5');
+
+    // Animated checkmark
+    var circle = el('div', 'ob-checkmark-circle');
+    circle.appendChild(el('div', 'ob-checkmark'));
+    step.appendChild(circle);
+
+    step.appendChild(el('h2', 'ob-heading', "You're all set! \uD83C\uDF89"));
+    step.appendChild(el('p', 'ob-subtext', 'Your first check-in takes less than 30 seconds'));
+    step.appendChild(el('p', 'ob-streak-msg', 'Start your streak today'));
+
+    var btn = el('button', 'ob-btn large', 'Start My First Check-in');
+    btn.type = 'button';
+    btn.addEventListener('click', function () {
+      // Save to Store
+      userData.onboardingComplete = true;
+      Store.setUser(userData);
+
+      if (userData.cycleTracking) {
+        Store.setCycleProfile({
+          tracking: true,
+          cycleLength: userData.cycleLength,
+          lastPeriodDate: userData.lastPeriodDate
+        });
+      }
+
+      Router.navigate('#checkin');
+    });
+
+    step.appendChild(el('div', 'ob-spacer'));
+    step.appendChild(btn);
+
+    return step;
+  }
+
+  // ── Build full UI ───────────────────────────────────────────────────
+
+  function buildUI() {
+    container.innerHTML = '';
+
+    var wrap = el('div', 'ob-wrap');
+
+    // Back button
+    var backBtn = el('button', 'ob-back', '\u2190');
+    backBtn.type = 'button';
+    backBtn.style.display = 'none';
+    backBtn.addEventListener('click', function () {
+      if (currentStep > 1) {
+        showStep(currentStep - 1);
+      }
+    });
+    wrap.appendChild(backBtn);
+
+    // Progress
+    wrap.appendChild(buildProgress());
+
+    // Steps
+    wrap.appendChild(buildStep1());
+    wrap.appendChild(buildStep2());
+    wrap.appendChild(buildStep3());
+    wrap.appendChild(buildStep4());
+    wrap.appendChild(buildStep5());
+
+    container.appendChild(wrap);
+  }
+
+  // ── Public init ─────────────────────────────────────────────────────
+
+  function init() {
+    container = document.getElementById('screen-onboarding');
+    if (!container) {
+      console.warn('PeakHer.Onboarding: #screen-onboarding not found');
+      return;
+    }
+
+    injectStyles();
+    currentStep = 1;
+    progressDots = [];
+    buildUI();
+    updateProgress();
+  }
+
+  // ── Public API ──────────────────────────────────────────────────────
+
+  return {
+    init: init
+  };
+})();
