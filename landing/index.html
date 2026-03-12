@@ -498,25 +498,6 @@
   }
   .final-cta .cta-buttons .btn { padding: 18px 36px; font-size: 17px; }
 
-  .qr-block {
-    margin-top: 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-  .qr-block canvas {
-    border-radius: 12px;
-    background: white;
-    padding: 16px;
-  }
-  .qr-block .qr-label {
-    font-size: 13px;
-    color: rgba(255,255,255,0.3);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
   /* ---- FOOTER ---- */
   footer {
     text-align: center;
@@ -717,55 +698,15 @@
     <a href="/quiz/" class="btn btn-teal">Take the Quiz</a>
   </div>
 
-  <div class="qr-block">
-    <canvas id="qrCanvas"></canvas>
-    <div class="qr-label">Scan to visit this page</div>
-  </div>
 </div>
 
 <!-- ==================== FOOTER ==================== -->
 <footer>
-  <p>PeakHer &copy; 2026. Built by Jairek Robbins. All rights reserved.</p>
+  <p>PeakHer &copy; 2026 High Performance Ventures LLC. All rights reserved.</p>
+  <p style="margin-top: 8px;"><a href="/privacy/" style="color: rgba(255,255,255,0.35); text-decoration: none;">Privacy Policy</a> &nbsp;|&nbsp; <a href="/terms/" style="color: rgba(255,255,255,0.35); text-decoration: none;">Terms &amp; Conditions</a></p>
 </footer>
 
-<!-- QR Code Generator (lightweight, no dependencies) -->
 <script>
-// Minimal QR Code generator - generates on canvas
-(function(){
-  // Use the page URL or a placeholder
-  const pageUrl = window.location.href.startsWith('file:')
-    ? 'https://peakher.ai'
-    : window.location.href;
-
-  // Load QR library from CDN
-  const script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-  script.onload = function() {
-    const canvas = document.getElementById('qrCanvas');
-    QRCode.toCanvas(canvas, pageUrl, {
-      width: 180,
-      margin: 2,
-      color: { dark: '#0a1628', light: '#ffffff' }
-    });
-  };
-  script.onerror = function() {
-    // Fallback: draw placeholder
-    const canvas = document.getElementById('qrCanvas');
-    canvas.width = 180;
-    canvas.height = 180;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, 180, 180);
-    ctx.fillStyle = '#0a1628';
-    ctx.font = '600 14px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('QR CODE', 90, 85);
-    ctx.font = '12px Inter, sans-serif';
-    ctx.fillText('peakher.ai', 90, 105);
-  };
-  document.head.appendChild(script);
-})();
-
 // Nav scroll effect
 (function() {
   const nav = document.getElementById('topNav');
