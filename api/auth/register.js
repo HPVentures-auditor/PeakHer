@@ -77,6 +77,16 @@ module.exports = async function handler(req, res) {
 
     const token = createToken(user.id);
 
+    // Send welcome email (fire-and-forget, don't block registration)
+    try {
+      var emailLib = require('../_lib/email');
+      var tpl = emailLib.welcomeEmail(user.name);
+      emailLib.sendEmail({ to: user.email, subject: tpl.subject, html: tpl.html })
+        .catch(function (emailErr) { console.warn('Welcome email failed:', emailErr.message); });
+    } catch (emailInitErr) {
+      console.warn('Email module not available:', emailInitErr.message);
+    }
+
     return res.status(201).json({
       token: token,
       user: {

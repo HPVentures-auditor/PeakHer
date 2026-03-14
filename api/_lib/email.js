@@ -1,0 +1,154 @@
+/**
+ * PeakHer Email Module — Resend integration
+ *
+ * Requires RESEND_API_KEY env var.
+ * Until peakher.ai domain is verified in Resend, uses onboarding@resend.dev as sender.
+ * After verification, switch FROM_EMAIL to 'PeakHer <hello@peakher.ai>'.
+ */
+
+var FROM_EMAIL = process.env.PEAKHER_FROM_EMAIL || 'PeakHer <onboarding@resend.dev>';
+
+function getResendKey() {
+  return process.env.RESEND_API_KEY || null;
+}
+
+/**
+ * Send an email via Resend HTTP API (no SDK dependency needed).
+ */
+async function sendEmail(options) {
+  var apiKey = getResendKey();
+  if (!apiKey) {
+    console.warn('PeakHer Email: RESEND_API_KEY not set, skipping email');
+    return { skipped: true };
+  }
+
+  var resp = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + apiKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: options.from || FROM_EMAIL,
+      to: Array.isArray(options.to) ? options.to : [options.to],
+      subject: options.subject,
+      html: options.html
+    })
+  });
+
+  if (!resp.ok) {
+    var errorBody = await resp.text();
+    console.error('PeakHer Email: Resend error', resp.status, errorBody);
+    throw new Error('Email send failed: ' + resp.status);
+  }
+
+  return resp.json();
+}
+
+// ── Email Templates ──────────────────────────────────────────────────
+
+function welcomeEmail(name) {
+  return {
+    subject: 'Welcome to PeakHer, ' + name + '!',
+    html: '<!DOCTYPE html>' +
+      '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>' +
+      '<body style="margin:0;padding:0;background:#0a1628;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;">' +
+      '<div style="max-width:560px;margin:0 auto;padding:40px 24px;">' +
+        '<div style="text-align:center;margin-bottom:32px;">' +
+          '<span style="font-size:15px;font-weight:800;letter-spacing:4px;color:#2d8a8a;text-transform:uppercase;">PEAKHER</span>' +
+        '</div>' +
+        '<div style="background:#0f2035;border-radius:12px;padding:32px 24px;border:1px solid rgba(255,255,255,0.06);">' +
+          '<h1 style="color:#ffffff;font-size:24px;font-weight:700;margin:0 0 12px;">Welcome, ' + escapeHtml(name) + '!</h1>' +
+          '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 20px;">' +
+            'You\'re in. PeakHer tracks your energy, confidence, and daily rhythm so you can see the patterns behind your performance.' +
+          '</p>' +
+          '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 24px;">' +
+            'Your first step: <strong style="color:#ffffff;">log today\'s check-in.</strong> It takes 30 seconds and starts building your performance map.' +
+          '</p>' +
+          '<div style="text-align:center;">' +
+            '<a href="https://peakher.ai/app/" style="display:inline-block;background:#E87461;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;">Log Your First Check-in</a>' +
+          '</div>' +
+        '</div>' +
+        '<div style="text-align:center;margin-top:32px;">' +
+          '<p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">PeakHer &copy; 2026 High Performance Ventures LLC.</p>' +
+          '<p style="margin:4px 0 0;"><a href="https://peakher.ai/privacy/" style="color:rgba(255,255,255,0.3);font-size:12px;text-decoration:none;">Privacy</a></p>' +
+        '</div>' +
+      '</div>' +
+      '</body></html>'
+  };
+}
+
+function reminderEmail(name, streak) {
+  var streakLine = streak > 0
+    ? 'You\'re on a <strong style="color:#2d8a8a;">' + streak + '-day streak</strong>. Keep it going!'
+    : 'Start a new streak today — one check-in is all it takes.';
+
+  return {
+    subject: streak > 0
+      ? name + ', keep your ' + streak + '-day streak alive'
+      : name + ', your daily check-in is waiting',
+    html: '<!DOCTYPE html>' +
+      '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>' +
+      '<body style="margin:0;padding:0;background:#0a1628;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;">' +
+      '<div style="max-width:560px;margin:0 auto;padding:40px 24px;">' +
+        '<div style="text-align:center;margin-bottom:32px;">' +
+          '<span style="font-size:15px;font-weight:800;letter-spacing:4px;color:#2d8a8a;text-transform:uppercase;">PEAKHER</span>' +
+        '</div>' +
+        '<div style="background:#0f2035;border-radius:12px;padding:32px 24px;border:1px solid rgba(255,255,255,0.06);">' +
+          '<h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 12px;">Hey ' + escapeHtml(name) + ',</h1>' +
+          '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 16px;">' +
+            'Quick reminder to log your daily check-in. ' + streakLine +
+          '</p>' +
+          '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 24px;">' +
+            'The more data you log, the clearer your performance patterns become.' +
+          '</p>' +
+          '<div style="text-align:center;">' +
+            '<a href="https://peakher.ai/app/" style="display:inline-block;background:#E87461;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;">Check In Now</a>' +
+          '</div>' +
+        '</div>' +
+        '<div style="text-align:center;margin-top:32px;">' +
+          '<p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">PeakHer &copy; 2026 High Performance Ventures LLC.</p>' +
+          '<p style="margin:4px 0 0;"><a href="https://peakher.ai/privacy/" style="color:rgba(255,255,255,0.3);font-size:12px;text-decoration:none;">Privacy</a></p>' +
+        '</div>' +
+      '</div>' +
+      '</body></html>'
+  };
+}
+
+function customEmail(subject, bodyHtml) {
+  return {
+    subject: subject,
+    html: '<!DOCTYPE html>' +
+      '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>' +
+      '<body style="margin:0;padding:0;background:#0a1628;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;">' +
+      '<div style="max-width:560px;margin:0 auto;padding:40px 24px;">' +
+        '<div style="text-align:center;margin-bottom:32px;">' +
+          '<span style="font-size:15px;font-weight:800;letter-spacing:4px;color:#2d8a8a;text-transform:uppercase;">PEAKHER</span>' +
+        '</div>' +
+        '<div style="background:#0f2035;border-radius:12px;padding:32px 24px;border:1px solid rgba(255,255,255,0.06);">' +
+          bodyHtml +
+        '</div>' +
+        '<div style="text-align:center;margin-top:32px;">' +
+          '<p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">PeakHer &copy; 2026 High Performance Ventures LLC.</p>' +
+          '<p style="margin:4px 0 0;"><a href="https://peakher.ai/privacy/" style="color:rgba(255,255,255,0.3);font-size:12px;text-decoration:none;">Privacy</a></p>' +
+        '</div>' +
+      '</div>' +
+      '</body></html>'
+  };
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+module.exports = {
+  sendEmail: sendEmail,
+  welcomeEmail: welcomeEmail,
+  reminderEmail: reminderEmail,
+  customEmail: customEmail,
+  escapeHtml: escapeHtml
+};
