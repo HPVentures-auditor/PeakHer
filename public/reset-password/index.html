@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reset Password - PeakHer</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root {
+    --navy: #0a1628; --navy-light: #0f2035; --white: #ffffff;
+    --coral: #E87461; --coral-hover: #d4634f; --teal: #2d8a8a;
+    --gray-text: #b0b0b0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--navy); color: var(--white);
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    width: 100%; max-width: 420px; text-align: center;
+  }
+  .logo {
+    font-size: 15px; font-weight: 800; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 32px;
+  }
+  h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .sub { font-size: 15px; color: var(--gray-text); margin-bottom: 32px; }
+  .form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+  .form label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.7); }
+  .form input {
+    width: 100%; padding: 14px 16px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06);
+    color: white; font-size: 16px; font-family: inherit; outline: none;
+    transition: border-color 0.2s;
+  }
+  .form input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(45,138,138,0.2); }
+  .form input::placeholder { color: rgba(255,255,255,0.3); }
+  .error { font-size: 14px; color: var(--coral); text-align: center; min-height: 20px; }
+  .success { font-size: 14px; color: #5EC49A; text-align: center; }
+  .btn {
+    width: 100%; padding: 16px; border-radius: 8px; font-size: 16px;
+    font-weight: 700; font-family: inherit; cursor: pointer; border: none;
+    background: var(--coral); color: white; transition: background 0.2s;
+    margin-top: 8px;
+  }
+  .btn:hover { background: var(--coral-hover); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .link { display: block; margin-top: 20px; color: var(--teal); font-size: 14px; text-decoration: none; }
+  .link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">PEAKHER</div>
+
+  <div id="formView">
+    <h1>Set New Password</h1>
+    <p class="sub">Choose a new password for your account.</p>
+    <form class="form" id="resetForm" novalidate>
+      <div>
+        <label for="pw">New Password</label>
+        <input type="password" id="pw" placeholder="At least 8 characters" autocomplete="new-password" required>
+      </div>
+      <div>
+        <label for="pw2">Confirm Password</label>
+        <input type="password" id="pw2" placeholder="Re-enter your password" autocomplete="new-password" required>
+      </div>
+      <div class="error" id="errMsg"></div>
+      <button type="submit" class="btn" id="submitBtn">Reset Password</button>
+    </form>
+  </div>
+
+  <div id="successView" style="display:none;">
+    <h1>Password Updated</h1>
+    <p class="sub">Your password has been reset. You can now log in with your new password.</p>
+    <a href="/login/" class="btn" style="display:inline-block;text-decoration:none;text-align:center;">Go to Login</a>
+  </div>
+
+  <div id="expiredView" style="display:none;">
+    <h1>Link Expired</h1>
+    <p class="sub">This password reset link is invalid or has expired. Please contact support for a new one.</p>
+    <a href="/login/" class="link">Back to Login</a>
+  </div>
+</div>
+
+<script>
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('token');
+
+  if (!token) {
+    document.getElementById('formView').style.display = 'none';
+    document.getElementById('expiredView').style.display = 'block';
+    return;
+  }
+
+  var form = document.getElementById('resetForm');
+  var errMsg = document.getElementById('errMsg');
+  var submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var pw = document.getElementById('pw').value;
+    var pw2 = document.getElementById('pw2').value;
+
+    if (!pw || !pw2) { errMsg.textContent = 'Please fill in both fields'; return; }
+    if (pw.length < 8) { errMsg.textContent = 'Password must be at least 8 characters'; return; }
+    if (pw !== pw2) { errMsg.textContent = 'Passwords do not match'; return; }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Updating...';
+    errMsg.textContent = '';
+
+    fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token, password: pw })
+    })
+    .then(function(res) {
+      return res.json().then(function(data) {
+        if (!res.ok) throw new Error(data.error || 'Reset failed');
+        return data;
+      });
+    })
+    .then(function() {
+      document.getElementById('formView').style.display = 'none';
+      document.getElementById('successView').style.display = 'block';
+    })
+    .catch(function(err) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Reset Password';
+      if (err.message.indexOf('expired') > -1 || err.message.indexOf('Invalid') > -1) {
+        document.getElementById('formView').style.display = 'none';
+        document.getElementById('expiredView').style.display = 'block';
+      } else {
+        errMsg.textContent = err.message;
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

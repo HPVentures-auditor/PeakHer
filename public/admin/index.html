@@ -850,6 +850,39 @@
   </div>
 </div>
 
+<!-- ═══ EDIT USER MODAL ═══ -->
+<div class="modal-overlay" id="editUserModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-head">
+      <h2>Edit User</h2>
+      <button class="modal-close" onclick="Admin.closeEditModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Name</label>
+        <input type="text" id="editName" placeholder="User's name">
+      </div>
+      <div class="form-row">
+        <label>Email</label>
+        <input type="email" id="editEmail" placeholder="user@email.com">
+      </div>
+      <div class="form-row">
+        <label>New Password <span style="font-weight:400;color:var(--gray-mid);">(leave blank to keep current)</span></label>
+        <input type="text" id="editPassword" placeholder="Enter new password (8+ chars)">
+      </div>
+      <div class="form-row" style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="editEmailOptOut" style="width:auto;">
+        <label for="editEmailOptOut" style="margin:0;">Opt out of reminder emails</label>
+      </div>
+      <div class="error" id="editError" style="font-size:14px;color:var(--coral);min-height:20px;margin-top:8px;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="Admin.closeEditModal()">Cancel</button>
+      <button class="btn btn-teal" id="saveEditBtn" onclick="Admin.saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ CONFIRM DIALOG ═══ -->
 <div class="confirm-overlay" id="confirmDialog">
   <div class="confirm-box">
@@ -1177,13 +1210,14 @@ var Admin = (function () {
       tbody.innerHTML = state.users.map(function (u) {
         var days = daysSince(u.lastCheckinDate);
         var isActive = days !== null && days <= 7;
+        var eid = escapeHtml(u.id); // UUID safe for HTML attributes
         var statusBadge = u.isAdmin
           ? '<span class="badge-sm badge-admin">Admin</span>'
           : (isActive
               ? '<span class="badge-sm badge-active">Active</span>'
               : '<span class="badge-sm badge-inactive">Inactive</span>');
 
-        return '<tr class="clickable" data-uid="' + u.id + '">' +
+        return '<tr class="clickable" data-uid="' + eid + '">' +
           '<td>' +
             '<div class="user-cell">' +
               '<div class="avatar">' + initials(u.name) + '</div>' +
@@ -1200,22 +1234,31 @@ var Admin = (function () {
           '<td>' + statusBadge + '</td>' +
           '<td>' +
             '<div class="action-menu-wrap">' +
-              '<button class="btn btn-ghost btn-sm action-trigger" data-uid="' + u.id + '" onclick="Admin.toggleMenu(event, ' + u.id + ')">&#8943;</button>' +
-              '<div class="action-menu" id="menu-' + u.id + '">' +
-                '<button class="action-menu-item" onclick="Admin.viewUser(' + u.id + ')">' +
+              '<button class="btn btn-ghost btn-sm action-trigger" onclick="Admin.toggleMenu(event, \'' + eid + '\')">&#8943;</button>' +
+              '<div class="action-menu" id="menu-' + eid + '">' +
+                '<button class="action-menu-item" onclick="Admin.viewUser(\'' + eid + '\')">' +
                   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>' +
                   'View Details' +
                 '</button>' +
-                '<button class="action-menu-item" onclick="Admin.sendWelcome(' + u.id + ')">' +
+                '<button class="action-menu-item" onclick="Admin.editUser(\'' + eid + '\')">' +
+                  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+                  'Edit User' +
+                '</button>' +
+                '<button class="action-menu-item" onclick="Admin.sendPasswordReset(\'' + eid + '\')">' +
+                  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
+                  'Send Password Reset' +
+                '</button>' +
+                '<div class="action-menu-divider"></div>' +
+                '<button class="action-menu-item" onclick="Admin.sendWelcome(\'' + eid + '\')">' +
                   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' +
                   'Send Welcome Email' +
                 '</button>' +
-                '<button class="action-menu-item" onclick="Admin.sendReminder(' + u.id + ')">' +
+                '<button class="action-menu-item" onclick="Admin.sendReminder(\'' + eid + '\')">' +
                   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
                   'Send Reminder Email' +
                 '</button>' +
                 '<div class="action-menu-divider"></div>' +
-                '<button class="action-menu-item danger" onclick="Admin.confirmDelete(' + u.id + ', \'' + escapeHtml(u.name).replace(/'/g, "\\'") + '\')">' +
+                '<button class="action-menu-item danger" onclick="Admin.confirmDelete(\'' + eid + '\', \'' + escapeHtml(u.name).replace(/'/g, "\\'") + '\')">' +
                   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
                   'Delete Account' +
                 '</button>' +
@@ -1231,7 +1274,7 @@ var Admin = (function () {
       row.addEventListener('click', function (e) {
         if (e.target.closest('.action-menu-wrap')) return;
         var uid = row.getAttribute('data-uid');
-        viewUser(parseInt(uid));
+        viewUser(uid);
       });
     });
 
@@ -1347,11 +1390,14 @@ var Admin = (function () {
       );
 
     // Footer actions
+    var eid = escapeHtml(u.id);
     var foot = document.getElementById('modalUserFoot');
     foot.innerHTML =
-      '<button class="btn btn-ghost btn-sm" onclick="Admin.sendWelcome(' + u.id + ')">Send Welcome</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="Admin.sendReminder(' + u.id + ')">Send Reminder</button>' +
-      '<button class="btn btn-danger btn-sm" onclick="Admin.confirmDelete(' + u.id + ', \'' + escapeHtml(u.name).replace(/'/g, "\\'") + '\')">Delete</button>';
+      '<button class="btn btn-teal btn-sm" onclick="Admin.editUser(\'' + eid + '\')">Edit</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="Admin.sendPasswordReset(\'' + eid + '\')">Password Reset</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="Admin.sendWelcome(\'' + eid + '\')">Send Welcome</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="Admin.sendReminder(\'' + eid + '\')">Send Reminder</button>' +
+      '<button class="btn btn-danger btn-sm" onclick="Admin.confirmDelete(\'' + eid + '\', \'' + escapeHtml(u.name).replace(/'/g, "\\'") + '\')">Delete</button>';
   }
 
   function detailItem(label, value) {
@@ -1386,23 +1432,102 @@ var Admin = (function () {
 
   // ── USER ACTIONS ───────────────────────────────────────────────────
 
-  function sendWelcome(uid) {
+  function closeMenus() {
     document.querySelectorAll('.action-menu.open').forEach(function (m) { m.classList.remove('open'); });
+  }
+
+  function sendWelcome(uid) {
+    closeMenus();
     request('POST', '/admin/email', { type: 'welcome', userId: uid })
       .then(function () { toast('Welcome email sent!', 'success'); })
       .catch(function (err) { toast('Failed: ' + err.message, 'error'); });
   }
 
   function sendReminder(uid) {
-    document.querySelectorAll('.action-menu.open').forEach(function (m) { m.classList.remove('open'); });
+    closeMenus();
     request('POST', '/admin/email', { type: 'reminder', userId: uid })
       .then(function () { toast('Reminder sent!', 'success'); })
       .catch(function (err) { toast('Failed: ' + err.message, 'error'); });
   }
 
+  function sendPasswordReset(uid) {
+    closeMenus();
+    showConfirm('Send Password Reset', 'Send a password reset email to this user?', function () {
+      request('POST', '/admin/user?id=' + uid, { action: 'send_password_reset' })
+        .then(function () { toast('Password reset email sent!', 'success'); })
+        .catch(function (err) { toast('Failed: ' + err.message, 'error'); });
+    });
+  }
+
+  function editUser(uid) {
+    closeMenus();
+    state.editUserId = uid;
+    // Find user in cached list
+    var user = state.users.find(function (u) { return u.id === uid; });
+    if (!user) {
+      // If not in list (e.g. opened from detail modal), fetch
+      request('GET', '/admin/user?id=' + uid).then(function (data) {
+        populateEditForm(data.user);
+        document.getElementById('editUserModal').classList.add('open');
+      }).catch(function (err) { toast('Failed: ' + err.message, 'error'); });
+      return;
+    }
+    populateEditForm(user);
+    document.getElementById('editUserModal').classList.add('open');
+  }
+
+  function populateEditForm(u) {
+    document.getElementById('editName').value = u.name || '';
+    document.getElementById('editEmail').value = u.email || '';
+    document.getElementById('editPassword').value = '';
+    document.getElementById('editEmailOptOut').checked = u.emailOptOut || false;
+    document.getElementById('editError').textContent = '';
+  }
+
+  function closeEditModal() {
+    document.getElementById('editUserModal').classList.remove('open');
+    state.editUserId = null;
+  }
+
+  function saveEdit() {
+    var uid = state.editUserId;
+    if (!uid) return;
+    var name = document.getElementById('editName').value.trim();
+    var email = document.getElementById('editEmail').value.trim();
+    var password = document.getElementById('editPassword').value;
+    var emailOptOut = document.getElementById('editEmailOptOut').checked;
+    var errEl = document.getElementById('editError');
+
+    if (!name) { errEl.textContent = 'Name is required'; return; }
+    if (!email || email.indexOf('@') === -1) { errEl.textContent = 'Valid email is required'; return; }
+    if (password && password.length < 8) { errEl.textContent = 'Password must be at least 8 characters'; return; }
+
+    errEl.textContent = '';
+    var saveBtn = document.getElementById('saveEditBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+
+    var body = { name: name, email: email, emailOptOut: emailOptOut };
+    if (password) body.newPassword = password;
+
+    request('PUT', '/admin/user?id=' + uid, body)
+      .then(function () {
+        toast('User updated!', 'success');
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+        closeEditModal();
+        closeModal(); // close detail modal too if open
+        loadUsers();  // refresh table
+      })
+      .catch(function (err) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+        errEl.textContent = err.message;
+      });
+  }
 
   function confirmDelete(uid, name) {
-    document.querySelectorAll('.action-menu.open').forEach(function (m) { m.classList.remove('open'); });
+    closeMenus();
     showConfirm('Delete Account', 'Permanently delete ' + name + ' and all their data? This cannot be undone.', function () {
       request('DELETE', '/admin/user?id=' + uid)
         .then(function () {
@@ -1490,8 +1615,12 @@ var Admin = (function () {
     viewUser: viewUser,
     closeModal: closeModal,
     toggleMenu: toggleMenu,
+    editUser: editUser,
+    closeEditModal: closeEditModal,
+    saveEdit: saveEdit,
     sendWelcome: sendWelcome,
     sendReminder: sendReminder,
+    sendPasswordReset: sendPasswordReset,
     confirmDelete: confirmDelete,
     closeConfirm: closeConfirm
   };
