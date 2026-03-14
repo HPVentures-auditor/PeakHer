@@ -642,6 +642,31 @@
   .confirm-box p { font-size: 14px; color: var(--gray-text); margin-bottom: 20px; }
   .confirm-actions { display: flex; gap: 8px; justify-content: center; }
 
+  /* ── SEGMENT COLORS ─────────────────────── */
+  .seg-green { background: var(--green); }
+  .seg-teal { background: var(--teal); }
+  .seg-yellow { background: var(--yellow); }
+  .seg-coral { background: var(--coral); }
+  .seg-gray { background: #666; }
+  .seg-dot {
+    width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0;
+  }
+
+  /* ── ACTIVITY LOG ─────────────────────────── */
+  .action-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .action-badge.edit { background: rgba(45,138,138,0.15); color: var(--teal); }
+  .action-badge.delete { background: rgba(232,116,97,0.15); color: var(--coral); }
+  .action-badge.email { background: rgba(94,196,154,0.15); color: var(--green); }
+  .action-badge.reset { background: rgba(232,200,97,0.15); color: var(--yellow); }
+
   /* ── RESPONSIVE ─────────────────────────── */
   @media (max-width: 900px) {
     .chart-row { grid-template-columns: 1fr; }
@@ -684,6 +709,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         <span>Email</span>
       </button>
+      <button class="nav-item" data-view="activity">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Activity</span>
+      </button>
     </nav>
     <div class="sidebar-footer">
       <div class="admin-email" id="adminEmail">—</div>
@@ -721,6 +750,13 @@
       </div>
       <div class="page-body">
         <div class="stat-grid" id="statGrid"></div>
+        <div class="panel" style="margin-bottom:20px;" id="segmentsPanel">
+          <div class="panel-header"><h3>User Engagement</h3></div>
+          <div class="panel-body" style="padding:16px;">
+            <div id="segmentsBar" style="display:flex;height:24px;border-radius:6px;overflow:hidden;margin-bottom:12px;"></div>
+            <div id="segmentsLegend" style="display:flex;flex-wrap:wrap;gap:16px;font-size:13px;"></div>
+          </div>
+        </div>
         <div class="chart-row">
           <div class="chart-panel">
             <h3>Signups (Last 30 Days)</h3>
@@ -755,6 +791,7 @@
           <div class="table-toolbar">
             <input type="text" class="search-input" id="userSearch" placeholder="Search by name or email...">
             <button class="btn btn-ghost btn-sm" id="refreshUsersBtn">Refresh</button>
+            <button class="btn btn-ghost btn-sm" onclick="Admin.exportCSV('users')">Export CSV</button>
           </div>
           <div style="overflow-x:auto;">
             <table>
@@ -822,6 +859,7 @@
             <div class="form-row">
               <label>Body <span style="font-weight:400;color:var(--gray-mid);">(HTML supported)</span></label>
               <textarea id="emailBody" placeholder="Write your email content here..."></textarea>
+              <p class="form-help">Use <strong>{{name}}</strong> and <strong>{{email}}</strong> for personalization.</p>
             </div>
             <div style="display:flex;gap:8px;">
               <button class="btn btn-primary" id="sendEmailBtn">Send Email</button>
@@ -829,6 +867,32 @@
             </div>
             <div id="emailPreviewArea"></div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ACTIVITY LOG VIEW ═══ -->
+    <div id="view-activity" class="view">
+      <div class="page-header">
+        <h1>Activity Log</h1>
+        <p class="subtitle">Admin actions and audit trail</p>
+      </div>
+      <div class="page-body">
+        <div class="panel">
+          <div class="panel-body" style="padding:0;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Action</th>
+                  <th>Target</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="activityTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="activityPagination"></div>
         </div>
       </div>
     </div>
@@ -917,7 +981,9 @@ var Admin = (function () {
     search: '',
     currentUserId: null,
     charts: { signups: null, checkins: null },
-    confirmCallback: null
+    confirmCallback: null,
+    editUserId: null,
+    activityLoaded: false
   };
 
   // ── Auth ────────────────────────────────────────────────────────────
@@ -1005,6 +1071,7 @@ var Admin = (function () {
 
     if (name === 'users' && state.users.length === 0) loadUsers();
     if (name === 'email') updateReminderCount();
+    if (name === 'activity' && !state.activityLoaded) loadActivity(1);
   }
 
   // ── Toast ───────────────────────────────────────────────────────────
@@ -1111,6 +1178,30 @@ var Admin = (function () {
         '</div>';
       }).join('');
     }
+
+    // Render engagement segments bar
+    renderSegments(s);
+  }
+
+  function renderSegments(s) {
+    if (!s.segments) return;
+    var total = s.overview.totalUsers || 1;
+    var segColors = { green: '#5EC49A', teal: '#2d8a8a', yellow: '#E8C861', coral: '#E87461', gray: '#666' };
+
+    var bar = document.getElementById('segmentsBar');
+    bar.innerHTML = s.segments.map(function (seg) {
+      var pct = Math.max(seg.count > 0 ? 3 : 0, (seg.count / total) * 100);
+      return '<div class="seg-' + seg.color + '" style="width:' + pct + '%;transition:width 0.4s;" title="' + seg.label + ': ' + seg.count + '"></div>';
+    }).join('');
+
+    var legend = document.getElementById('segmentsLegend');
+    legend.innerHTML = s.segments.map(function (seg) {
+      return '<div style="display:flex;align-items:center;gap:6px;">' +
+        '<div class="seg-dot seg-' + seg.color + '"></div>' +
+        '<span style="color:var(--gray-text);">' + seg.label + ':</span> ' +
+        '<strong>' + seg.count + '</strong>' +
+      '</div>';
+    }).join('');
   }
 
   function statCardHtml(label, value, sub, accent) {
@@ -1607,6 +1698,82 @@ var Admin = (function () {
     }
   }
 
+  // ── ACTIVITY LOG ───────────────────────────────────────────────────
+
+  function loadActivity(page) {
+    var p = page || 1;
+    request('GET', '/admin/activity?page=' + p + '&limit=50')
+      .then(function (data) {
+        state.activityLoaded = true;
+        renderActivityTable(data.entries, data.pagination);
+      })
+      .catch(function (err) {
+        document.getElementById('activityTableBody').innerHTML =
+          '<tr><td colspan="4" style="text-align:center;color:var(--coral);padding:24px;">' + escapeHtml(err.message) + '</td></tr>';
+      });
+  }
+
+  function renderActivityTable(entries, pg) {
+    var tbody = document.getElementById('activityTableBody');
+    if (!entries || entries.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-mid);padding:32px;">No activity yet</td></tr>';
+    } else {
+      tbody.innerHTML = entries.map(function (e) {
+        var actionClass = 'email';
+        if (e.action.indexOf('delete') > -1) actionClass = 'delete';
+        else if (e.action.indexOf('edit') > -1) actionClass = 'edit';
+        else if (e.action.indexOf('reset') > -1) actionClass = 'reset';
+
+        var actionLabel = e.action.replace(/_/g, ' ');
+        var timeStr = new Date(e.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+        return '<tr>' +
+          '<td style="color:var(--gray-mid);">' + timeStr + '</td>' +
+          '<td><span class="action-badge ' + actionClass + '">' + actionLabel + '</span></td>' +
+          '<td>' + (e.targetLabel ? escapeHtml(e.targetLabel) : '<span style="color:var(--gray-mid);">—</span>') + '</td>' +
+          '<td style="color:var(--gray-text);max-width:300px;overflow:hidden;text-overflow:ellipsis;">' + (e.details ? escapeHtml(e.details) : '') + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    var pgEl = document.getElementById('activityPagination');
+    if (pg && pg.totalPages > 1) {
+      pgEl.innerHTML =
+        '<span>Page ' + pg.page + ' of ' + pg.totalPages + '</span>' +
+        '<div class="pagination-btns">' +
+          '<button class="pg-btn" ' + (pg.page <= 1 ? 'disabled' : '') + ' onclick="Admin.loadActivity(' + (pg.page - 1) + ')">Prev</button>' +
+          '<button class="pg-btn" ' + (pg.page >= pg.totalPages ? 'disabled' : '') + ' onclick="Admin.loadActivity(' + (pg.page + 1) + ')">Next</button>' +
+        '</div>';
+    } else {
+      pgEl.innerHTML = '';
+    }
+  }
+
+  // ── CSV EXPORT ────────────────────────────────────────────────────
+
+  function exportCSV(type) {
+    var token = getToken();
+    if (!token) return;
+    // Open in new tab to trigger download
+    var url = API_BASE + '/admin/export?type=' + (type || 'users');
+    // We need auth header, so use fetch + blob
+    fetch(url, { headers: { 'Authorization': 'Bearer ' + token } })
+      .then(function (res) {
+        if (!res.ok) throw new Error('Export failed');
+        return res.blob();
+      })
+      .then(function (blob) {
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'peakher-' + (type || 'users') + '-' + new Date().toISOString().split('T')[0] + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast('CSV exported!', 'success');
+      })
+      .catch(function (err) { toast('Export failed: ' + err.message, 'error'); });
+  }
+
   // ── PUBLIC API ─────────────────────────────────────────────────────
 
   return {
@@ -1622,7 +1789,9 @@ var Admin = (function () {
     sendReminder: sendReminder,
     sendPasswordReset: sendPasswordReset,
     confirmDelete: confirmDelete,
-    closeConfirm: closeConfirm
+    closeConfirm: closeConfirm,
+    loadActivity: loadActivity,
+    exportCSV: exportCSV
   };
 
 })();

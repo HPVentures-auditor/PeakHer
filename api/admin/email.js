@@ -1,6 +1,7 @@
 const { requireAdmin } = require('../_lib/admin');
 const { sendError } = require('../_lib/auth');
 const { sendEmail, welcomeEmail, reminderEmail, customEmail, escapeHtml } = require('../_lib/email');
+const { logActivity } = require('../_lib/activity');
 
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -23,6 +24,7 @@ module.exports = async function handler(req, res) {
       var tpl = welcomeEmail(rows[0].name);
       await sendEmail({ to: rows[0].email, subject: tpl.subject, html: tpl.html });
       await sql`UPDATE users SET last_email_sent = now() WHERE id = ${body.userId}`;
+      logActivity(sql, ctx.userId, { action: 'send_welcome', targetType: 'user', targetId: body.userId, targetLabel: rows[0].email, details: 'Welcome email sent' });
 
       return res.status(200).json({ success: true, sent: 1 });
     }
@@ -40,6 +42,7 @@ module.exports = async function handler(req, res) {
       var tpl2 = reminderEmail(rows2[0].name, rows2[0].current_streak);
       await sendEmail({ to: rows2[0].email, subject: tpl2.subject, html: tpl2.html });
       await sql`UPDATE users SET last_email_sent = now() WHERE id = ${body.userId}`;
+      logActivity(sql, ctx.userId, { action: 'send_reminder', targetType: 'user', targetId: body.userId, targetLabel: rows2[0].email, details: 'Reminder email sent' });
 
       return res.status(200).json({ success: true, sent: 1 });
     }
@@ -56,21 +59,28 @@ module.exports = async function handler(req, res) {
         recipients = await sql`SELECT id, name, email FROM users WHERE email_opt_out = false`;
       }
 
-      var htmlBody = '<h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 16px;">' + escapeHtml(body.subject) + '</h1>' +
-        '<div style="color:#b0b0b0;font-size:15px;line-height:1.7;">' + body.body + '</div>';
-      var tpl3 = customEmail(body.subject, htmlBody);
-
       var sent = 0;
       var errors = [];
       for (var i = 0; i < recipients.length; i++) {
         try {
-          await sendEmail({ to: recipients[i].email, subject: tpl3.subject, html: tpl3.html });
+          var recipientName = recipients[i].name || '';
+          var recipientEmail = recipients[i].email || '';
+          var personalizedSubject = body.subject.replace(/\{\{name\}\}/g, recipientName).replace(/\{\{email\}\}/g, recipientEmail);
+          var personalizedBody = body.body.replace(/\{\{name\}\}/g, escapeHtml(recipientName)).replace(/\{\{email\}\}/g, escapeHtml(recipientEmail));
+
+          var htmlBody = '<h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 16px;">' + escapeHtml(personalizedSubject) + '</h1>' +
+            '<div style="color:#b0b0b0;font-size:15px;line-height:1.7;">' + personalizedBody + '</div>';
+          var tpl3 = customEmail(personalizedSubject, htmlBody);
+
+          await sendEmail({ to: recipientEmail, subject: tpl3.subject, html: tpl3.html });
           await sql`UPDATE users SET last_email_sent = now() WHERE id = ${recipients[i].id}`;
           sent++;
         } catch (emailErr) {
           errors.push({ email: recipients[i].email, error: emailErr.message });
         }
       }
+
+      logActivity(sql, ctx.userId, { action: 'send_custom_email', targetType: 'email', targetId: null, targetLabel: body.subject, details: 'Sent to ' + sent + '/' + recipients.length + ' recipients' });
 
       return res.status(200).json({ success: true, sent: sent, total: recipients.length, errors: errors });
     }
@@ -98,6 +108,8 @@ module.exports = async function handler(req, res) {
           errors2.push({ email: usersToRemind[j].email, error: emailErr2.message });
         }
       }
+
+      logActivity(sql, ctx.userId, { action: 'broadcast_reminders', targetType: 'email', targetId: null, targetLabel: 'Daily reminders', details: 'Sent to ' + sent2 + '/' + usersToRemind.length + ' users' });
 
       return res.status(200).json({ success: true, sent: sent2, total: usersToRemind.length, errors: errors2 });
     }

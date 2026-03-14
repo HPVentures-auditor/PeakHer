@@ -240,6 +240,30 @@
   }
   .switch-link button:hover { text-decoration: underline; }
 
+  .forgot-link {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    font-size: 14px;
+  }
+  .forgot-link button {
+    color: var(--teal);
+    background: none;
+    border: none;
+    font-size: inherit;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .forgot-link button:hover { text-decoration: underline; }
+
+  .reset-success {
+    font-size: 14px;
+    color: #5EC49A;
+    text-align: center;
+    min-height: 20px;
+  }
+
   /* Hide/show panels */
   .auth-panel { display: none; }
   .auth-panel.active { display: block; }
@@ -296,9 +320,24 @@
         <div class="error-msg" id="loginError"></div>
         <button type="submit" class="auth-btn" id="loginBtn">Log In</button>
       </form>
+      <p class="forgot-link"><button type="button" id="showForgot">Forgot your password?</button></p>
 
       <div class="auth-divider">or</div>
       <p class="switch-link">Don't have an account? <button type="button" id="showSignup">Sign up</button></p>
+    </div>
+
+    <!-- ===== FORGOT PASSWORD PANEL ===== -->
+    <div class="auth-panel" id="forgotPanel">
+      <form class="auth-form" id="forgotForm" novalidate>
+        <div class="form-group">
+          <label for="forgotEmail">Email</label>
+          <input type="email" id="forgotEmail" placeholder="your@email.com" autocomplete="email" required>
+        </div>
+        <div class="error-msg" id="forgotError"></div>
+        <div class="reset-success" id="forgotSuccess"></div>
+        <button type="submit" class="auth-btn" id="forgotBtn">Send Reset Link</button>
+      </form>
+      <p class="forgot-link" style="margin-top:20px;"><button type="button" id="backToLogin">Back to login</button></p>
     </div>
 
     <!-- ===== SIGNUP PANEL ===== -->
@@ -347,11 +386,13 @@
 
   var loginPanel = document.getElementById('loginPanel');
   var signupPanel = document.getElementById('signupPanel');
+  var forgotPanel = document.getElementById('forgotPanel');
   var authTitle = document.getElementById('authTitle');
   var authSubtitle = document.getElementById('authSubtitle');
 
   document.getElementById('showSignup').addEventListener('click', function () {
     loginPanel.classList.remove('active');
+    forgotPanel.classList.remove('active');
     signupPanel.classList.add('active');
     authTitle.textContent = 'Create Your Account';
     authSubtitle.textContent = 'Start tracking your performance rhythm';
@@ -360,9 +401,33 @@
 
   document.getElementById('showLogin').addEventListener('click', function () {
     signupPanel.classList.remove('active');
+    forgotPanel.classList.remove('active');
     loginPanel.classList.add('active');
     authTitle.textContent = 'Welcome Back';
     authSubtitle.textContent = 'Log in to continue tracking your performance rhythm';
+    document.getElementById('loginEmail').focus();
+  });
+
+  document.getElementById('showForgot').addEventListener('click', function () {
+    loginPanel.classList.remove('active');
+    signupPanel.classList.remove('active');
+    forgotPanel.classList.add('active');
+    authTitle.textContent = 'Reset Password';
+    authSubtitle.textContent = 'Enter your email and we\'ll send you a reset link';
+    document.getElementById('forgotEmail').focus();
+  });
+
+  document.getElementById('backToLogin').addEventListener('click', function () {
+    forgotPanel.classList.remove('active');
+    loginPanel.classList.add('active');
+    authTitle.textContent = 'Welcome Back';
+    authSubtitle.textContent = 'Log in to continue tracking your performance rhythm';
+    // Clear forgot form state
+    document.getElementById('forgotError').textContent = '';
+    document.getElementById('forgotSuccess').textContent = '';
+    document.getElementById('forgotForm').reset();
+    document.getElementById('forgotBtn').classList.remove('loading');
+    document.getElementById('forgotBtn').textContent = 'Send Reset Link';
     document.getElementById('loginEmail').focus();
   });
 
@@ -509,6 +574,61 @@
         } else {
           signupError.textContent = err.message || 'Something went wrong. Please try again.';
         }
+      });
+  });
+
+  // ── Forgot Password ──────────────────────────────────────────────
+
+  var forgotForm = document.getElementById('forgotForm');
+  var forgotError = document.getElementById('forgotError');
+  var forgotSuccess = document.getElementById('forgotSuccess');
+  var forgotBtn = document.getElementById('forgotBtn');
+
+  forgotForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = document.getElementById('forgotEmail').value.trim();
+
+    if (!email || email.indexOf('@') === -1) {
+      forgotError.textContent = 'Please enter a valid email address';
+      forgotSuccess.textContent = '';
+      return;
+    }
+
+    forgotBtn.classList.add('loading');
+    forgotBtn.textContent = 'Sending...';
+    forgotError.textContent = '';
+    forgotSuccess.textContent = '';
+
+    fetch('/api/auth/request-reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          if (!res.ok) {
+            var err = new Error(data.error || 'Request failed');
+            err.status = res.status;
+            throw err;
+          }
+          return data;
+        });
+      })
+      .then(function (result) {
+        forgotBtn.classList.remove('loading');
+        forgotBtn.textContent = 'Send Reset Link';
+        forgotSuccess.textContent = result.message || "If an account with that email exists, we've sent a reset link.";
+        forgotError.textContent = '';
+      })
+      .catch(function (err) {
+        forgotBtn.classList.remove('loading');
+        forgotBtn.textContent = 'Send Reset Link';
+        if (err.status === 429) {
+          forgotError.textContent = 'Too many reset requests. Please try again later.';
+        } else {
+          forgotError.textContent = err.message || 'Something went wrong. Please try again.';
+        }
+        forgotSuccess.textContent = '';
       });
   });
 

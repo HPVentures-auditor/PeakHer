@@ -64,19 +64,61 @@ module.exports = async function handler(req, res) {
         WHERE s.current_streak > 0
         ORDER BY s.current_streak DESC
         LIMIT 5
+      `,
+      // Never checked in (zero checkins)
+      sql`
+        SELECT COUNT(*)::int as count FROM users u
+        WHERE NOT EXISTS (SELECT 1 FROM checkins c WHERE c.user_id = u.id)
+      `,
+      // Slipping (last checkin 3-7 days ago)
+      sql`
+        SELECT COUNT(DISTINCT c.user_id)::int as count
+        FROM (
+          SELECT user_id, MAX(date) as last_date FROM checkins GROUP BY user_id
+        ) c
+        WHERE c.last_date < CURRENT_DATE - INTERVAL '2 days'
+          AND c.last_date >= CURRENT_DATE - INTERVAL '7 days'
+      `,
+      // Dormant (last checkin 7+ days ago, or never checked in)
+      sql`
+        SELECT COUNT(*)::int as count FROM users u
+        WHERE NOT EXISTS (
+          SELECT 1 FROM checkins c WHERE c.user_id = u.id AND c.date >= CURRENT_DATE - INTERVAL '7 days'
+        )
+      `,
+      // On fire (current_streak >= 7)
+      sql`
+        SELECT COUNT(*)::int as count FROM streaks WHERE current_streak >= 7
       `
     ]);
+
+    var neverCheckedIn = results[11][0].count;
+    var slipping = results[12][0].count;
+    var dormant = results[13][0].count;
+    var onFire = results[14][0].count;
+    var activeThisWeek = results[1][0].count;
 
     return res.status(200).json({
       overview: {
         totalUsers: results[0][0].count,
-        activeThisWeek: results[1][0].count,
+        activeThisWeek: activeThisWeek,
         totalCheckins: results[2][0].count,
         avgStreak: parseFloat(results[3][0].avg),
         signupsThisWeek: results[4][0].count,
         checkinsToday: results[5][0].count,
-        usersNeedingReminder: results[9][0].count
+        usersNeedingReminder: results[9][0].count,
+        neverCheckedIn: neverCheckedIn,
+        slipping: slipping,
+        dormant: dormant,
+        onFire: onFire
       },
+      segments: [
+        { label: 'On Fire (7+ day streak)', count: onFire, color: 'green' },
+        { label: 'Active (checked in this week)', count: activeThisWeek, color: 'teal' },
+        { label: 'Slipping (3-7 days)', count: slipping, color: 'yellow' },
+        { label: 'Dormant (7+ days)', count: dormant, color: 'coral' },
+        { label: 'Never Checked In', count: neverCheckedIn, color: 'gray' }
+      ],
       charts: {
         signupsPerDay: results[6].map(function (r) {
           return { date: formatDate(r.date), count: r.count };

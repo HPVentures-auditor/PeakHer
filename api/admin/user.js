@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const { requireAdmin } = require('../_lib/admin');
 const { sendError } = require('../_lib/auth');
 const { sendEmail, escapeHtml } = require('../_lib/email');
+const { logActivity } = require('../_lib/activity');
 
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -119,6 +120,14 @@ module.exports = async function handler(req, res) {
         await sql`UPDATE users SET password_hash = ${hash} WHERE id = ${userId}`;
       }
 
+      // Log activity
+      var changes = [];
+      if (body.name != null) changes.push('name');
+      if (body.email != null) changes.push('email');
+      if (body.newPassword != null) changes.push('password');
+      if (body.emailOptOut != null) changes.push('email_opt_out');
+      logActivity(sql, ctx.userId, { action: 'edit_user', targetType: 'user', targetId: userId, targetLabel: body.email || body.name || userId, details: 'Updated: ' + changes.join(', ') });
+
       return res.status(200).json({ success: true });
     } catch (err) {
       console.error('Admin user PUT error:', err.message);
@@ -138,6 +147,8 @@ module.exports = async function handler(req, res) {
       await sql`DELETE FROM streaks WHERE user_id = ${userId}`;
       await sql`DELETE FROM cycle_profiles WHERE user_id = ${userId}`;
       await sql`DELETE FROM users WHERE id = ${userId}`;
+
+      logActivity(sql, ctx.userId, { action: 'delete_user', targetType: 'user', targetId: userId, targetLabel: userId, details: 'Account permanently deleted' });
 
       return res.status(200).json({ success: true, deleted: userId });
     } catch (err) {
@@ -194,6 +205,8 @@ module.exports = async function handler(req, res) {
 
         await sendEmail({ to: user.email, subject: 'Reset your PeakHer password', html: emailHtml });
         await sql`UPDATE users SET last_email_sent = now() WHERE id = ${userId}`;
+
+        logActivity(sql, ctx.userId, { action: 'send_password_reset', targetType: 'user', targetId: userId, targetLabel: user.email, details: 'Password reset email sent' });
 
         return res.status(200).json({ success: true, message: 'Password reset email sent' });
       }
