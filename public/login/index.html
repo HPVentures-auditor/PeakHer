@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In - PeakHer</title>
+<meta name="description" content="Log in to your PeakHer account to track your performance rhythm.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --navy: #0a1628;
+    --navy-light: #0f2035;
+    --black: #000000;
+    --white: #ffffff;
+    --coral: #E87461;
+    --coral-hover: #d4634f;
+    --teal: #2d8a8a;
+    --teal-hover: #247474;
+    --gray-mid: #999;
+    --gray-text: #b0b0b0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---- NAV ---- */
+  .top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 64px;
+    background: rgba(10, 22, 40, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-logo {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.65);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--teal); }
+
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+  }
+
+  /* ---- LOGIN CONTAINER ---- */
+  .login-page {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px 60px;
+    background: linear-gradient(170deg, #0a1628 0%, #0f2035 40%, #0a1628 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .login-page::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(232,116,97,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .login-page::after {
+    content: '';
+    position: absolute;
+    bottom: -200px;
+    left: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(45,138,138,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .login-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+  }
+
+  .login-logo {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 32px;
+  }
+
+  .login-card h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .login-subtitle {
+    font-size: 16px;
+    color: var(--gray-text);
+    margin-bottom: 36px;
+    line-height: 1.5;
+  }
+
+  /* ---- FORM ---- */
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .form-group input {
+    padding: 14px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: white;
+    font-size: 16px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input::placeholder { color: rgba(255,255,255,0.3); }
+  .form-group input:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(45,138,138,0.2);
+  }
+
+  .error-msg {
+    font-size: 14px;
+    color: var(--coral);
+    text-align: center;
+    min-height: 20px;
+  }
+
+  .login-btn {
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: var(--coral);
+    color: white;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .login-btn:hover { background: var(--coral-hover); transform: translateY(-1px); }
+  .login-btn:active { transform: scale(0.98); }
+  .login-btn.loading { opacity: 0.6; pointer-events: none; }
+
+  .login-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 28px 0;
+    color: rgba(255,255,255,0.2);
+    font-size: 13px;
+  }
+  .login-divider::before,
+  .login-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .signup-link {
+    font-size: 15px;
+    color: var(--gray-text);
+    text-align: center;
+  }
+  .signup-link a {
+    color: var(--teal);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .signup-link a:hover { text-decoration: underline; }
+
+  /* ---- FOOTER ---- */
+  footer {
+    text-align: center;
+    padding: 24px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-size: 13px;
+    color: rgba(255,255,255,0.25);
+  }
+  footer a {
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 768px) {
+    .login-card h1 { font-size: 28px; }
+    .top-nav { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== NAV ==================== -->
+<nav class="top-nav">
+  <a href="/" class="nav-logo">PeakHer</a>
+  <ul class="nav-links">
+    <li><a href="/quiz/">Quiz</a></li>
+    <li><a href="/slides/">Slides</a></li>
+  </ul>
+</nav>
+
+<!-- ==================== LOGIN ==================== -->
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">PeakHer</div>
+    <h1>Welcome Back</h1>
+    <p class="login-subtitle">Log in to continue tracking your performance rhythm</p>
+
+    <form class="login-form" id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="your@email.com" autocomplete="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Your password" autocomplete="current-password" required>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <button type="submit" class="login-btn" id="loginBtn">Log In</button>
+    </form>
+
+    <div class="login-divider">or</div>
+
+    <p class="signup-link">Don't have an account? <a href="/app/">Sign up</a></p>
+  </div>
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <p>PeakHer &copy; 2026 High Performance Ventures LLC.</p>
+  <p style="margin-top: 6px;"><a href="/privacy/">Privacy Policy</a> &nbsp;|&nbsp; <a href="/terms/">Terms &amp; Conditions</a></p>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var form = document.getElementById('loginForm');
+  var emailInput = document.getElementById('email');
+  var passwordInput = document.getElementById('password');
+  var errorMsg = document.getElementById('errorMsg');
+  var loginBtn = document.getElementById('loginBtn');
+
+  // If already logged in, redirect to app
+  var token = localStorage.getItem('peakher_token');
+  if (token) {
+    window.location.href = '/app/';
+    return;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var email = emailInput.value.trim();
+    var password = passwordInput.value;
+
+    if (!email || !password) {
+      errorMsg.textContent = 'Please fill in both fields';
+      return;
+    }
+
+    // Show loading state
+    loginBtn.classList.add('loading');
+    loginBtn.textContent = 'Logging in...';
+    errorMsg.textContent = '';
+
+    fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password })
+    })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          if (!res.ok) {
+            var err = new Error(data.error || 'Login failed');
+            err.status = res.status;
+            throw err;
+          }
+          return data;
+        });
+      })
+      .then(function (result) {
+        // Store token and user data
+        localStorage.setItem('peakher_token', result.token);
+        localStorage.setItem('peakher_user', JSON.stringify({
+          id: result.user.id,
+          name: result.user.name,
+          email: result.user.email,
+          personas: result.user.personas,
+          onboardingComplete: result.user.onboardingComplete,
+          createdAt: result.user.createdAt
+        }));
+
+        if (result.cycleProfile) {
+          localStorage.setItem('peakher_cycle_profile', JSON.stringify(result.cycleProfile));
+        }
+        if (result.streak) {
+          localStorage.setItem('peakher_streak', JSON.stringify({
+            current: result.streak.current,
+            longest: result.streak.longest,
+            lastCheckinDate: result.streak.lastCheckinDate
+          }));
+        }
+
+        // Redirect to app
+        window.location.href = '/app/';
+      })
+      .catch(function (err) {
+        loginBtn.classList.remove('loading');
+        loginBtn.textContent = 'Log In';
+
+        if (err.status === 401) {
+          errorMsg.textContent = 'Invalid email or password';
+        } else if (err.status === 429) {
+          errorMsg.textContent = 'Too many attempts. Please wait a few minutes.';
+        } else {
+          errorMsg.textContent = err.message || 'Something went wrong. Please try again.';
+        }
+      });
+  });
+})();
+</script>
+</body>
+</html>
