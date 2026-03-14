@@ -934,14 +934,17 @@
 <!-- App Init -->
 <script>
 (function() {
-  // Initialize all modules
+  function safeInit(name, fn) {
+    try { fn(); } catch (e) { console.error('PeakHer.' + name + '.init() failed:', e); }
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
-    PeakHer.Onboarding.init();
-    PeakHer.Checkin.init();
-    PeakHer.History.init();
-    PeakHer.Patterns.init();
-    PeakHer.WeekAhead.init();
-    PeakHer.Router.init();
+    safeInit('Onboarding', function() { PeakHer.Onboarding.init(); });
+    safeInit('Checkin', function() { PeakHer.Checkin.init(); });
+    safeInit('History', function() { PeakHer.History.init(); });
+    safeInit('Patterns', function() { PeakHer.Patterns.init(); });
+    safeInit('WeekAhead', function() { PeakHer.WeekAhead.init(); });
+    safeInit('Router', function() { PeakHer.Router.init(); });
 
     // Sync with server if logged in
     if (PeakHer.API.isLoggedIn()) {

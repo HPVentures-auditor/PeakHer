@@ -496,8 +496,8 @@
           onboardingComplete: result.user.onboardingComplete,
           createdAt: result.user.createdAt
         }));
-        // Send to onboarding to pick hats + cycle preferences
-        window.location.href = '/app/#onboarding';
+        // Send to app — account is created, go to check-in
+        window.location.href = '/app/';
       })
       .catch(function (err) {
         signupBtn.classList.remove('loading');

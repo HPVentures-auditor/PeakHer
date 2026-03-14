@@ -19,10 +19,24 @@ window.PeakHer.Router = (function () {
   };
 
   var previousRoute = null;
+  var isFirstLoad = true;
 
   // ── Screen transitions ────────────────────────────────────────────
 
   function showScreen(screenId, direction) {
+    // On first load, show the screen instantly (no animation)
+    if (isFirstLoad) {
+      isFirstLoad = false;
+      var allScreens = document.querySelectorAll('.screen');
+      allScreens.forEach(function (s) { s.classList.remove('active'); s.style.cssText = ''; });
+      var target = document.getElementById(screenId);
+      if (target) {
+        target.classList.add('active');
+        target.style.opacity = '1';
+        target.style.transform = 'translateX(0)';
+      }
+      return;
+    }
     var allScreens = document.querySelectorAll('.screen');
     allScreens.forEach(function (s) {
       if (s.classList.contains('active')) {
