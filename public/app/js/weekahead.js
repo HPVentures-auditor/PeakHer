@@ -435,7 +435,16 @@ window.PeakHer.WeekAhead = (function () {
 
     // Render chart if Charts module is available
     if (window.PeakHer.Charts && typeof window.PeakHer.Charts.renderWeekAheadBars === 'function') {
-      window.PeakHer.Charts.renderWeekAheadBars();
+      var chartData = dates.map(function (d) {
+        var p = predictions[d];
+        var dateObj = Utils.parseDate(d);
+        return {
+          dayName: dateObj ? Utils.formatDayShort(dateObj) : d,
+          predictedEnergy: p.predictedEnergy,
+          predictedConfidence: p.predictedConfidence
+        };
+      });
+      window.PeakHer.Charts.renderWeekAheadBars('weekahead-chart', chartData);
     }
   }
 

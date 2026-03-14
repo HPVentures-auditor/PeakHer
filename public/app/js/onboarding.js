@@ -497,9 +497,9 @@ window.PeakHer.Onboarding = (function () {
 
       if (userData.cycleTracking) {
         Store.setCycleProfile({
-          tracking: true,
-          cycleLength: userData.cycleLength,
-          lastPeriodDate: userData.lastPeriodDate
+          trackingEnabled: true,
+          averageCycleLength: userData.cycleLength,
+          lastPeriodStart: userData.lastPeriodDate
         });
       }
 
@@ -515,9 +515,9 @@ window.PeakHer.Onboarding = (function () {
         password: userData.password,
         personas: userData.hats,
         cycleProfile: userData.cycleTracking ? {
-          tracking: true,
-          cycleLength: userData.cycleLength,
-          lastPeriodDate: userData.lastPeriodDate
+          trackingEnabled: true,
+          averageCycleLength: userData.cycleLength,
+          lastPeriodStart: userData.lastPeriodDate
         } : null
       };
 

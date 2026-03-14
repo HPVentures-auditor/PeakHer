@@ -287,9 +287,9 @@ window.PeakHer.History = (function () {
         // Cycle phase tint
         var bgStyle = '';
         if (cycleEnabled && cycleProfile) {
-          var cycleDay = Cycle.getCycleDay(cycleProfile.lastPeriodStart, cycleProfile.cycleLength, dateStr);
+          var cycleDay = Cycle.getCycleDay(cycleProfile.lastPeriodStart, cycleProfile.averageCycleLength, dateStr);
           if (cycleDay) {
-            var phase = Cycle.getPhase(cycleDay, cycleProfile.cycleLength);
+            var phase = Cycle.getPhase(cycleDay, cycleProfile.averageCycleLength);
             var mode  = Cycle.getPerformanceMode(phase);
             var modeColor = Cycle.getModeColor(mode);
             bgStyle = 'background:' + hexToRgba(modeColor, 0.08) + ';';
@@ -415,9 +415,9 @@ window.PeakHer.History = (function () {
 
     // Cycle info
     if (cycleEnabled && cycleProfile) {
-      var cycleDay = Cycle.getCycleDay(cycleProfile.lastPeriodStart, cycleProfile.cycleLength, dateStr);
+      var cycleDay = Cycle.getCycleDay(cycleProfile.lastPeriodStart, cycleProfile.averageCycleLength, dateStr);
       if (cycleDay) {
-        var phase = Cycle.getPhase(cycleDay, cycleProfile.cycleLength);
+        var phase = Cycle.getPhase(cycleDay, cycleProfile.averageCycleLength);
         var mode  = Cycle.getPerformanceMode(phase);
         var modeColor = Cycle.getModeColor(mode);
         var phaseName = phase.charAt(0).toUpperCase() + phase.slice(1);
@@ -432,11 +432,11 @@ window.PeakHer.History = (function () {
     panelHtml += '<div class="day-detail-metrics">';
     panelHtml += buildMetricCard('Energy', checkin.energy);
     panelHtml += buildMetricCard('Confidence', checkin.confidence);
-    if (checkin.sleep !== undefined && checkin.sleep !== null) {
-      panelHtml += buildMetricCard('Sleep', checkin.sleep);
+    if (checkin.sleepQuality !== undefined && checkin.sleepQuality !== null) {
+      panelHtml += buildMetricCard('Sleep', checkin.sleepQuality);
     }
-    if (checkin.stress !== undefined && checkin.stress !== null) {
-      panelHtml += buildMetricCard('Stress', checkin.stress);
+    if (checkin.stressLevel !== undefined && checkin.stressLevel !== null) {
+      panelHtml += buildMetricCard('Stress', checkin.stressLevel);
     }
     panelHtml += '</div>';
 

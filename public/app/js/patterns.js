@@ -246,12 +246,12 @@ window.PeakHer.Patterns = (function () {
       var c = checkins[i];
       // Determine phase from cycle engine
       var cycleDay = Cycle.getCycleDay(
-        cycleProfile.lastPeriodDate,
-        cycleProfile.cycleLength,
+        cycleProfile.lastPeriodStart,
+        cycleProfile.averageCycleLength,
         c.date
       );
       if (!cycleDay) continue;
-      var phase = Cycle.getPhase(cycleDay, cycleProfile.cycleLength);
+      var phase = Cycle.getPhase(cycleDay, cycleProfile.averageCycleLength);
       if (!phase) continue;
       var phaseKey = phase.charAt(0).toUpperCase() + phase.slice(1);
       if (phaseData[phaseKey]) {

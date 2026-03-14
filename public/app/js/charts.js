@@ -75,12 +75,12 @@ window.PeakHer.Charts = (function () {
     for (var i = 0; i < checkins.length; i++) {
       var c = checkins[i];
       var cycleDay = Cycle.getCycleDay(
-        cycleProfile.lastPeriodDate,
-        cycleProfile.cycleLength,
+        cycleProfile.lastPeriodStart,
+        cycleProfile.averageCycleLength,
         c.date
       );
       var phase = cycleDay
-        ? Cycle.getPhase(cycleDay, cycleProfile.cycleLength)
+        ? Cycle.getPhase(cycleDay, cycleProfile.averageCycleLength)
         : null;
 
       if (phase) {
