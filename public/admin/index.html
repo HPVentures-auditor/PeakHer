@@ -1511,8 +1511,9 @@ var Admin = (function () {
     state.confirmCallback = callback;
     document.getElementById('confirmDialog').classList.add('open');
     document.getElementById('confirmActionBtn').onclick = function () {
+      var cb = state.confirmCallback;
       closeConfirm();
-      if (state.confirmCallback) state.confirmCallback();
+      if (cb) cb();
     };
   }
 
