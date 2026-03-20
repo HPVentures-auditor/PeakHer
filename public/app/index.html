@@ -951,6 +951,11 @@
       PeakHer.API.fullSync();
     }
 
+    // Initialize push notifications if logged in
+    if (PeakHer.API.isLoggedIn()) {
+      PeakHer.API.initPushNotifications();
+    }
+
     // Show logout button if logged in
     if (PeakHer.API.isLoggedIn()) {
       var logoutBtn = document.getElementById('logoutBtn');

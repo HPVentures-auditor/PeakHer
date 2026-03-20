@@ -176,6 +176,75 @@ window.PeakHer.API = (function () {
       });
   }
 
+  // ── AI Insights ─────────────────────────────────────────────────
+
+  function getInsights() {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return request('GET', '/insights')
+      .then(function (result) {
+        if (result && result.ready) {
+          window.PeakHer.Store.setInsights(result);
+        }
+        return result;
+      })
+      .catch(function (err) {
+        console.warn('Fetch insights failed:', err.message);
+        return null;
+      });
+  }
+
+  // ── Events ─────────────────────────────────────────────────────
+
+  function getEvents(params) {
+    var qs = '';
+    if (params && typeof params === 'object') {
+      var parts = [];
+      if (params.start) parts.push('start=' + encodeURIComponent(params.start));
+      if (params.end) parts.push('end=' + encodeURIComponent(params.end));
+      if (params.type) parts.push('type=' + encodeURIComponent(params.type));
+      if (params.limit) parts.push('limit=' + encodeURIComponent(params.limit));
+      if (parts.length > 0) qs = '?' + parts.join('&');
+    }
+    if (!isLoggedIn()) return Promise.resolve({ events: [] });
+    return request('GET', '/events' + qs)
+      .then(function (result) {
+        if (result && result.events) {
+          window.PeakHer.Store.setEvents(result.events);
+        }
+        return result;
+      })
+      .catch(function (err) {
+        console.warn('Fetch events failed:', err.message);
+        return { events: [] };
+      });
+  }
+
+  function saveEvent(data) {
+    // Save locally first, then push to server
+    var Store = window.PeakHer.Store;
+    if (!isLoggedIn()) {
+      // Assign a temporary local id
+      var tempEvent = Object.assign({}, data, { id: Date.now() });
+      Store.addEvent(tempEvent);
+      return Promise.resolve(tempEvent);
+    }
+    return request('POST', '/events', data)
+      .then(function (result) {
+        Store.addEvent(result);
+        return result;
+      });
+  }
+
+  function deleteEvent(id) {
+    var Store = window.PeakHer.Store;
+    Store.removeEvent(id);
+    if (!isLoggedIn()) return Promise.resolve({ success: true });
+    return request('DELETE', '/events?id=' + encodeURIComponent(id))
+      .catch(function (err) {
+        console.warn('Delete event from server failed:', err.message);
+      });
+  }
+
   // Full sync — call on app load when logged in
   function fullSync() {
     if (!isLoggedIn()) return Promise.resolve();
@@ -185,6 +254,175 @@ window.PeakHer.API = (function () {
       })
       .catch(function (err) {
         console.warn('PeakHer: sync error:', err.message);
+      });
+  }
+
+  // ── Push Notifications ─────────────────────────────────────────
+
+  function getVapidKey() {
+    return fetch(BASE_URL + '/notifications/vapid-key')
+      .then(function (res) {
+        return res.json();
+      });
+  }
+
+  function subscribePush(subscription) {
+    return request('POST', '/notifications/subscribe', {
+      endpoint: subscription.endpoint,
+      keys: {
+        p256dh: subscription.toJSON().keys.p256dh,
+        auth: subscription.toJSON().keys.auth
+      }
+    });
+  }
+
+  function unsubscribePush(endpoint) {
+    var headers = { 'Content-Type': 'application/json' };
+    var token = getToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    return fetch(BASE_URL + '/notifications/subscribe', {
+      method: 'DELETE',
+      headers: headers,
+      body: JSON.stringify({ endpoint: endpoint })
+    }).then(function (res) {
+      return res.json();
+    });
+  }
+
+  /**
+   * Full push notification orchestration.
+   * Checks browser support, registers service worker, gets VAPID key,
+   * subscribes to push manager, and sends subscription to server.
+   * Silently skips if not supported or user denies permission.
+   */
+  function initPushNotifications() {
+    if (!isLoggedIn()) return Promise.resolve();
+
+    // Check browser support
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      console.log('PeakHer Push: not supported in this browser');
+      return Promise.resolve();
+    }
+
+    return navigator.serviceWorker.register('/sw.js')
+      .then(function (registration) {
+        console.log('PeakHer Push: service worker registered');
+        return registration;
+      })
+      .then(function (registration) {
+        return getVapidKey().then(function (data) {
+          if (!data.publicKey) {
+            console.warn('PeakHer Push: no VAPID public key configured');
+            return null;
+          }
+          return { registration: registration, publicKey: data.publicKey };
+        });
+      })
+      .then(function (context) {
+        if (!context) return null;
+
+        // Check for existing subscription first
+        return context.registration.pushManager.getSubscription().then(function (existing) {
+          if (existing) {
+            // Already subscribed, just ensure server knows about it
+            return subscribePush(existing).then(function () {
+              console.log('PeakHer Push: existing subscription synced');
+              return existing;
+            });
+          }
+
+          // Convert VAPID key from base64url to Uint8Array
+          var rawKey = context.publicKey;
+          var padding = '='.repeat((4 - rawKey.length % 4) % 4);
+          var base64 = (rawKey + padding).replace(/-/g, '+').replace(/_/g, '/');
+          var rawData = atob(base64);
+          var outputArray = new Uint8Array(rawData.length);
+          for (var i = 0; i < rawData.length; i++) {
+            outputArray[i] = rawData.charCodeAt(i);
+          }
+
+          return context.registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: outputArray
+          }).then(function (subscription) {
+            console.log('PeakHer Push: subscribed successfully');
+            return subscribePush(subscription);
+          });
+        });
+      })
+      .catch(function (err) {
+        // Silently handle — user may have denied permission or browser doesn't support
+        console.log('PeakHer Push: init skipped -', err.message || err);
+      });
+  }
+
+  // ── GDPR: Data Export ───────────────────────────────────────────
+
+  function exportData() {
+    var headers = {};
+    var token = getToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    return fetch(BASE_URL + '/export', { method: 'GET', headers: headers })
+      .then(function (res) {
+        if (res.status === 401) {
+          clearToken();
+          var err = new Error('Unauthorized');
+          err.status = 401;
+          throw err;
+        }
+        if (!res.ok) {
+          return res.json().then(function (data) {
+            var err = new Error(data.error || 'Export failed');
+            err.status = res.status;
+            throw err;
+          });
+        }
+        // Get the filename from Content-Disposition header or generate one
+        var disposition = res.headers.get('Content-Disposition');
+        var filename = 'peakher-data-export.json';
+        if (disposition) {
+          var match = disposition.match(/filename="?([^";\s]+)"?/);
+          if (match) filename = match[1];
+        }
+        return res.blob().then(function (blob) {
+          // Trigger download via temporary anchor element
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          // Clean up
+          setTimeout(function () {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 100);
+          return { success: true };
+        });
+      });
+  }
+
+  // ── GDPR: Account Deletion ────────────────────────────────────
+
+  function deleteAccount(confirmEmail) {
+    return request('POST', '/account/delete', { confirmEmail: confirmEmail })
+      .then(function (result) {
+        // Clear all localStorage keys starting with peakher_
+        var keysToRemove = [];
+        for (var i = 0; i < localStorage.length; i++) {
+          var key = localStorage.key(i);
+          if (key && key.indexOf('peakher_') === 0) {
+            keysToRemove.push(key);
+          }
+        }
+        for (var j = 0; j < keysToRemove.length; j++) {
+          localStorage.removeItem(keysToRemove[j]);
+        }
+        // Redirect to home page
+        window.location.href = '/';
+        return result;
       });
   }
 
@@ -199,6 +437,16 @@ window.PeakHer.API = (function () {
     saveCheckin: saveCheckin,
     syncCheckins: syncCheckins,
     fetchUserProfile: fetchUserProfile,
-    fullSync: fullSync
+    getInsights: getInsights,
+    getEvents: getEvents,
+    saveEvent: saveEvent,
+    deleteEvent: deleteEvent,
+    exportData: exportData,
+    deleteAccount: deleteAccount,
+    fullSync: fullSync,
+    getVapidKey: getVapidKey,
+    subscribePush: subscribePush,
+    unsubscribePush: unsubscribePush,
+    initPushNotifications: initPushNotifications
   };
 })();

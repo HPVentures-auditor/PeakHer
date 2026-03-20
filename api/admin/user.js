@@ -143,6 +143,9 @@ module.exports = async function handler(req, res) {
         return sendError(res, 400, 'Cannot delete your own account');
       }
 
+      await sql`DELETE FROM push_subscriptions WHERE user_id = ${userId}`;
+      await sql`DELETE FROM events WHERE user_id = ${userId}`;
+      await sql`DELETE FROM insights WHERE user_id = ${userId}`;
       await sql`DELETE FROM checkins WHERE user_id = ${userId}`;
       await sql`DELETE FROM streaks WHERE user_id = ${userId}`;
       await sql`DELETE FROM cycle_profiles WHERE user_id = ${userId}`;

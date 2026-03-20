@@ -5,6 +5,7 @@
  */
 const { getDb } = require('../_lib/db');
 const { sendEmail, reminderEmail } = require('../_lib/email');
+const { sendPushToUser } = require('../_lib/push');
 
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -43,13 +44,38 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    console.log('Cron reminders: sent ' + sent + '/' + users.length + ', errors: ' + errors.length);
+    // Send push notifications to the same users
+    var pushSent = 0;
+    var pushErrors = 0;
+    for (var j = 0; j < users.length; j++) {
+      try {
+        var pu = users[j];
+        var streakCount = pu.current_streak || 0;
+        var pushBody = streakCount > 0
+          ? 'You\'re on a ' + streakCount + '-day streak. Keep it going!'
+          : 'Start a new streak today — one check-in is all it takes.';
+        var pushResult = await sendPushToUser(sql, pu.id, {
+          title: 'Time for your check-in',
+          body: pushBody,
+          url: '/app/#checkin'
+        });
+        pushSent += pushResult.sent;
+      } catch (pushErr) {
+        pushErrors++;
+        console.error('Cron push error for user', users[j].id, pushErr.message);
+      }
+    }
+
+    console.log('Cron reminders: email sent ' + sent + '/' + users.length + ', errors: ' + errors.length);
+    console.log('Cron reminders: push sent ' + pushSent + ', push errors: ' + pushErrors);
 
     return res.status(200).json({
       success: true,
       sent: sent,
       total: users.length,
-      errors: errors.length
+      errors: errors.length,
+      pushSent: pushSent,
+      pushErrors: pushErrors
     });
   } catch (err) {
     console.error('Cron reminders error:', err.message);

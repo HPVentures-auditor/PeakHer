@@ -127,6 +127,40 @@ window.PeakHer.Store = (function () {
     return all[dateStr] || null;
   }
 
+  // ── Events ───────────────────────────────────────────────────────
+
+  function getEvents() {
+    return _get('events') || [];
+  }
+
+  function setEvents(events) {
+    _set('events', events);
+  }
+
+  function addEvent(event) {
+    var all = getEvents();
+    all.push(event);
+    _set('events', all);
+  }
+
+  function removeEvent(id) {
+    var all = getEvents();
+    var filtered = all.filter(function (e) {
+      return e.id !== id;
+    });
+    _set('events', filtered);
+  }
+
+  // ── AI Insights ─────────────────────────────────────────────────
+
+  function getInsights() {
+    return _get('insights');
+  }
+
+  function setInsights(data) {
+    _set('insights', data);
+  }
+
   // ── Streak ────────────────────────────────────────────────────────
 
   function getStreak() {
@@ -185,6 +219,7 @@ window.PeakHer.Store = (function () {
       user: getUser(),
       cycle_profile: getCycleProfile(),
       checkins: getCheckins(),
+      events: getEvents(),
       patterns: getPatterns(),
       predictions: getPredictions(),
       streak: getStreak()
@@ -197,6 +232,7 @@ window.PeakHer.Store = (function () {
     if (json.user) setUser(json.user);
     if (json.cycle_profile) setCycleProfile(json.cycle_profile);
     if (json.checkins) _set('checkins', json.checkins);
+    if (json.events) setEvents(json.events);
     if (json.patterns) setPatterns(json.patterns);
     if (json.predictions) setPredictions(json.predictions);
     if (json.streak) _set('streak', json.streak);
@@ -220,6 +256,12 @@ window.PeakHer.Store = (function () {
     getPredictions: getPredictions,
     setPredictions: setPredictions,
     getPrediction: getPrediction,
+    getEvents: getEvents,
+    setEvents: setEvents,
+    addEvent: addEvent,
+    removeEvent: removeEvent,
+    getInsights: getInsights,
+    setInsights: setInsights,
     getStreak: getStreak,
     updateStreak: updateStreak,
     clearAll: clearAll,
