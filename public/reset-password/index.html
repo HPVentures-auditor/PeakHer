@@ -9,13 +9,16 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
   :root {
     --navy: #0a1628; --navy-light: #0f2035; --white: #ffffff;
+    --cream: #faf8f5; --warm-gray: #f3f0ec;
     --coral: #E87461; --coral-hover: #d4634f; --teal: #2d8a8a;
-    --gray-text: #b0b0b0;
+    --gray-text: #6b7280; --gray-text-light: #9ca3af;
+    --text-dark: #1a1a2e; --text-body: #374151;
+    --border-light: rgba(0,0,0,0.06);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Inter', -apple-system, sans-serif;
-    background: var(--navy); color: var(--white);
+    background: var(--cream); color: var(--text-dark);
     -webkit-font-smoothing: antialiased; min-height: 100vh;
     display: flex; align-items: center; justify-content: center;
     padding: 24px;
@@ -30,21 +33,23 @@
   h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
   .sub { font-size: 15px; color: var(--gray-text); margin-bottom: 32px; }
   .form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
-  .form label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.7); }
+  .form label { font-size: 14px; font-weight: 500; color: var(--text-body); }
   .form input {
     width: 100%; padding: 14px 16px; border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06);
-    color: white; font-size: 16px; font-family: inherit; outline: none;
+    border: 1px solid var(--border-light); background: var(--white);
+    color: var(--text-dark); font-size: 16px; font-family: inherit; outline: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     transition: border-color 0.2s;
   }
   .form input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(45,138,138,0.2); }
-  .form input::placeholder { color: rgba(255,255,255,0.3); }
+  .form input::placeholder { color: var(--gray-text-light); }
   .error { font-size: 14px; color: var(--coral); text-align: center; min-height: 20px; }
   .success { font-size: 14px; color: #5EC49A; text-align: center; }
   .btn {
     width: 100%; padding: 16px; border-radius: 8px; font-size: 16px;
     font-weight: 700; font-family: inherit; cursor: pointer; border: none;
     background: var(--coral); color: white; transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(232,116,97,0.3);
     margin-top: 8px;
   }
   .btn:hover { background: var(--coral-hover); }

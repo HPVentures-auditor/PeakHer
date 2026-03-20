@@ -13,20 +13,28 @@
     --navy-light: #0f2035;
     --black: #000000;
     --white: #ffffff;
+    --cream: #faf8f5;
+    --warm-gray: #f3f0ec;
     --coral: #E87461;
     --coral-hover: #d4634f;
+    --coral-soft: #fdf0ee;
     --teal: #2d8a8a;
     --teal-hover: #247474;
+    --teal-soft: #eef7f7;
     --gray-mid: #999;
-    --gray-text: #b0b0b0;
+    --gray-text: #6b7280;
+    --gray-text-light: #9ca3af;
+    --text-dark: #1a1a2e;
+    --text-body: #374151;
+    --border-light: rgba(0,0,0,0.06);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--navy);
-    color: var(--white);
+    background: var(--cream);
+    color: var(--text-dark);
     -webkit-font-smoothing: antialiased;
     line-height: 1.6;
   }
@@ -43,9 +51,9 @@
     justify-content: space-between;
     padding: 0 32px;
     height: 64px;
-    background: rgba(10, 22, 40, 0.85);
+    background: rgba(250, 248, 245, 0.9);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid var(--border-light);
   }
   .nav-logo {
     font-size: 15px;
@@ -65,7 +73,7 @@
   .nav-links a {
     font-size: 14px;
     font-weight: 600;
-    color: rgba(255,255,255,0.65);
+    color: var(--gray-text);
     text-decoration: none;
     letter-spacing: 0.5px;
     transition: color 0.2s;
@@ -87,7 +95,7 @@
     display: block;
     width: 22px;
     height: 2px;
-    background: var(--white);
+    background: var(--text-dark);
     border-radius: 2px;
     transition: transform 0.3s, opacity 0.3s;
   }
@@ -99,7 +107,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(10, 22, 40, 0.95);
+    background: rgba(250, 248, 245, 0.97);
     backdrop-filter: blur(16px);
     z-index: 999;
     flex-direction: column;
@@ -111,7 +119,7 @@
   .nav-overlay a {
     font-size: 22px;
     font-weight: 700;
-    color: var(--white);
+    color: var(--text-dark);
     text-decoration: none;
     letter-spacing: 1px;
     transition: color 0.2s;
@@ -127,13 +135,14 @@
   .legal-header {
     padding: 120px 24px 40px;
     text-align: center;
-    background: linear-gradient(170deg, #0a1628 0%, #0f2035 40%, #0a1628 100%);
+    background: linear-gradient(170deg, var(--cream) 0%, var(--white) 40%, var(--teal-soft) 100%);
   }
   .legal-header h1 {
     font-size: 42px;
     font-weight: 800;
     letter-spacing: -1px;
     margin-bottom: 12px;
+    color: var(--text-dark);
   }
   .legal-header .effective-date {
     font-size: 15px;
@@ -192,25 +201,25 @@
   }
 
   .legal-body strong {
-    color: var(--white);
+    color: var(--text-dark);
     font-weight: 600;
   }
 
   .legal-body .section-number {
-    color: var(--white);
+    color: var(--text-dark);
   }
 
   /* ---- FOOTER ---- */
   footer {
     text-align: center;
     padding: 32px 24px;
-    border-top: 1px solid rgba(255,255,255,0.05);
+    border-top: 1px solid var(--border-light);
     font-size: 13px;
-    color: rgba(255,255,255,0.25);
+    color: var(--gray-text-light);
   }
 
   footer a {
-    color: rgba(255,255,255,0.35);
+    color: var(--gray-text-light);
     text-decoration: none;
     transition: color 0.2s;
   }
