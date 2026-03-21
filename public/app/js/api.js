@@ -176,6 +176,17 @@ window.PeakHer.API = (function () {
       });
   }
 
+  // ── Daily Briefing ─────────────────────────────────────────────
+
+  function getBriefing() {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return request('GET', '/briefing')
+      .catch(function (err) {
+        console.warn('Fetch briefing failed:', err.message);
+        return null;
+      });
+  }
+
   // ── AI Insights ─────────────────────────────────────────────────
 
   function getInsights() {
@@ -437,6 +448,7 @@ window.PeakHer.API = (function () {
     saveCheckin: saveCheckin,
     syncCheckins: syncCheckins,
     fetchUserProfile: fetchUserProfile,
+    getBriefing: getBriefing,
     getInsights: getInsights,
     getEvents: getEvents,
     saveEvent: saveEvent,

@@ -255,6 +255,11 @@ window.PeakHer.Checkin = (function () {
     var wrapper = document.createElement('div');
     wrapper.className = 'ph-checkin';
 
+    // ── Daily Briefing container (populated by Briefing module) ──
+    var briefingContainer = document.createElement('div');
+    briefingContainer.id = 'briefing-container';
+    wrapper.appendChild(briefingContainer);
+
     // ── Header ──────────────────────────────────────────────
 
     var greeting = document.createElement('div');

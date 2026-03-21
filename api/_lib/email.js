@@ -115,6 +115,112 @@ function reminderEmail(name, streak) {
   };
 }
 
+function betaInviteEmail(name, spotsLeft) {
+  var spotsText = spotsLeft <= 100
+    ? 'Only <strong style="color:#2d8a8a;">' + spotsLeft + ' spots</strong> remain'
+    : 'Spots are limited';
+
+  return {
+    subject: name !== 'there'
+      ? name + ', your early access to PeakHer is ready'
+      : 'Your early access to PeakHer is ready',
+    html: '<!DOCTYPE html>' +
+      '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>' +
+      '<body style="margin:0;padding:0;background:#0a1628;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;">' +
+      '<div style="max-width:560px;margin:0 auto;padding:40px 24px;">' +
+        '<div style="text-align:center;margin-bottom:32px;">' +
+          '<span style="font-size:15px;font-weight:800;letter-spacing:4px;color:#2d8a8a;text-transform:uppercase;">PEAKHER</span>' +
+        '</div>' +
+        '<div style="background:#0f2035;border-radius:12px;padding:32px 24px;border:1px solid rgba(255,255,255,0.06);">' +
+          '<h1 style="color:#ffffff;font-size:24px;font-weight:700;margin:0 0 12px;">You\'re In, ' + escapeHtml(name) + '.</h1>' +
+          '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 16px;">' +
+            'You signed up for PeakHer\'s beta waitlist — and your spot is ready.' +
+          '</p>' +
+          '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 16px;">' +
+            'PeakHer tracks your energy, confidence, and daily rhythm so you can see the patterns behind your performance. ' +
+            'No guessing. No generic advice. Just your data, showing you what actually works for <em style="color:#ffffff;">you</em>.' +
+          '</p>' +
+          '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 24px;">' +
+            spotsText + ' in our founding beta — create your account now and log your first check-in (takes 30 seconds).' +
+          '</p>' +
+          '<div style="text-align:center;">' +
+            '<a href="https://peakher.ai/login/?mode=signup" style="display:inline-block;background:#E87461;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;">Create Your Account</a>' +
+          '</div>' +
+          '<p style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;margin-top:20px;line-height:1.5;">' +
+            'You\'re receiving this because you joined the PeakHer waitlist. ' +
+            'If you\'re no longer interested, simply ignore this email.' +
+          '</p>' +
+        '</div>' +
+        '<div style="text-align:center;margin-top:32px;">' +
+          '<p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">PeakHer &copy; 2026 High Performance Ventures LLC.</p>' +
+          '<p style="margin:4px 0 0;"><a href="https://peakher.ai/privacy/" style="color:rgba(255,255,255,0.3);font-size:12px;text-decoration:none;">Privacy</a></p>' +
+        '</div>' +
+      '</div>' +
+      '</body></html>'
+  };
+}
+
+/**
+ * Reminder email with a mini cycle-phase briefing.
+ * Used when the user has cycle tracking enabled.
+ *
+ * @param {string} name — user's first name
+ * @param {number} streak — current streak count
+ * @param {{ phase: string, phaseName: string, phaseEmoji: string, miniPhrase: string }} briefing
+ */
+function briefingReminderEmail(name, streak, briefing) {
+  var streakLine = streak > 0
+    ? 'You\'re on a <strong style="color:#2d8a8a;">' + streak + '-day streak</strong>. Keep it going!'
+    : 'Start a new streak today — one check-in is all it takes.';
+
+  var phaseColors = {
+    reflect: '#7BA7C2',
+    build: '#5EC49A',
+    perform: '#E87461',
+    complete: '#C49A5E'
+  };
+  var phaseColor = phaseColors[briefing.phase] || '#2d8a8a';
+
+  return {
+    subject: streak > 0
+      ? briefing.phaseEmoji + ' ' + name + ', you\'re in ' + briefing.phaseName + ' — keep your ' + streak + '-day streak'
+      : briefing.phaseEmoji + ' ' + name + ', you\'re in ' + briefing.phaseName + ' today',
+    html: '<!DOCTYPE html>' +
+      '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>' +
+      '<body style="margin:0;padding:0;background:#0a1628;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;">' +
+      '<div style="max-width:560px;margin:0 auto;padding:40px 24px;">' +
+        '<div style="text-align:center;margin-bottom:32px;">' +
+          '<span style="font-size:15px;font-weight:800;letter-spacing:4px;color:#2d8a8a;text-transform:uppercase;">PEAKHER</span>' +
+        '</div>' +
+        '<div style="background:#0f2035;border-radius:12px;padding:32px 24px;border:1px solid rgba(255,255,255,0.06);">' +
+          '<h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 12px;">Hey ' + escapeHtml(name) + ',</h1>' +
+          '<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:16px;margin:0 0 20px;border-left:3px solid ' + phaseColor + ';">' +
+            '<p style="color:#ffffff;font-size:16px;font-weight:600;margin:0 0 6px;">' +
+              briefing.phaseEmoji + ' ' + escapeHtml(briefing.phaseName) +
+            '</p>' +
+            '<p style="color:#b0b0b0;font-size:14px;line-height:1.6;margin:0;">' +
+              escapeHtml(briefing.miniPhrase) +
+            '</p>' +
+          '</div>' +
+          '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 16px;">' +
+            streakLine +
+          '</p>' +
+          '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 24px;">' +
+            'Open your daily briefing for full recommendations on work, movement, fuel, and relationships.' +
+          '</p>' +
+          '<div style="text-align:center;">' +
+            '<a href="https://peakher.ai/app/" style="display:inline-block;background:#E87461;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;">See Today\'s Briefing</a>' +
+          '</div>' +
+        '</div>' +
+        '<div style="text-align:center;margin-top:32px;">' +
+          '<p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">PeakHer &copy; 2026 High Performance Ventures LLC.</p>' +
+          '<p style="margin:4px 0 0;"><a href="https://peakher.ai/privacy/" style="color:rgba(255,255,255,0.3);font-size:12px;text-decoration:none;">Privacy</a></p>' +
+        '</div>' +
+      '</div>' +
+      '</body></html>'
+  };
+}
+
 function customEmail(subject, bodyHtml) {
   return {
     subject: subject,
@@ -149,6 +255,8 @@ module.exports = {
   sendEmail: sendEmail,
   welcomeEmail: welcomeEmail,
   reminderEmail: reminderEmail,
+  briefingReminderEmail: briefingReminderEmail,
+  betaInviteEmail: betaInviteEmail,
   customEmail: customEmail,
   escapeHtml: escapeHtml
 };

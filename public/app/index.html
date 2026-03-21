@@ -860,6 +860,157 @@
   @media (min-width: 900px) {
     .screen { max-width: 800px; }
   }
+
+  /* ---- DAILY BRIEFING ---- */
+  .briefing-card {
+    background: var(--white, #ffffff);
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .briefing-phase-bar {
+    height: 4px;
+  }
+  .briefing-header {
+    padding: 20px 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .briefing-phase-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .briefing-cycle-day {
+    font-size: 13px;
+    color: var(--gray-text, #6b7280);
+    font-weight: 500;
+  }
+  .briefing-headline {
+    font-size: 22px;
+    font-weight: 800;
+    padding: 12px 20px 0;
+    line-height: 1.3;
+    color: var(--text-dark, #1a1a2e);
+  }
+  .briefing-summary {
+    font-size: 15px;
+    color: var(--gray-text, #6b7280);
+    padding: 8px 20px 16px;
+    line-height: 1.6;
+  }
+  .briefing-sections {
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+  .briefing-section {
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .briefing-section:last-child {
+    border-bottom: none;
+  }
+  .briefing-section-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    width: 100%;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark, #1a1a2e);
+    cursor: pointer;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .briefing-section-toggle .section-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+  }
+  .briefing-section-toggle .section-arrow {
+    margin-left: auto;
+    transition: transform 0.2s;
+    color: var(--gray-text-light, #9ca3af);
+    font-size: 12px;
+  }
+  .briefing-section-toggle.open .section-arrow {
+    transform: rotate(180deg);
+  }
+  .briefing-section-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .briefing-section-body.open {
+    max-height: 300px;
+  }
+  .briefing-section-content {
+    padding: 0 20px 16px 54px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-body, #374151);
+  }
+  .briefing-do-skip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .briefing-do, .briefing-skip {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .briefing-do {
+    background: rgba(45,138,138,0.08);
+    color: var(--teal, #2d8a8a);
+  }
+  .briefing-skip {
+    background: rgba(232,116,97,0.08);
+    color: var(--coral, #E87461);
+  }
+  .briefing-do strong, .briefing-skip strong {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .briefing-funfact {
+    padding: 14px 20px;
+    background: rgba(0,0,0,0.02);
+    font-size: 13px;
+    color: var(--gray-text, #6b7280);
+    line-height: 1.5;
+    border-top: 1px solid rgba(0,0,0,0.04);
+  }
+  .briefing-funfact strong {
+    color: var(--text-dark, #1a1a2e);
+  }
+  .briefing-streak {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--teal, #2d8a8a);
+    border-top: 1px solid rgba(0,0,0,0.04);
+  }
+  @media (max-width: 380px) {
+    .briefing-headline { font-size: 19px; }
+    .briefing-do-skip { grid-template-columns: 1fr; }
+    .briefing-section-content { padding-left: 44px; }
+  }
 </style>
 </head>
 <body>
@@ -939,6 +1090,7 @@
 <script src="js/charts.js"></script>
 <script src="js/onboarding.js"></script>
 <script src="js/checkin.js"></script>
+<script src="js/briefing.js"></script>
 <script src="js/history.js"></script>
 <script src="js/patterns.js"></script>
 <script src="js/weekahead.js"></script>
@@ -953,6 +1105,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     safeInit('Onboarding', function() { PeakHer.Onboarding.init(); });
     safeInit('Checkin', function() { PeakHer.Checkin.init(); });
+    safeInit('Briefing', function() { PeakHer.Briefing.init(); });
     safeInit('History', function() { PeakHer.History.init(); });
     safeInit('Patterns', function() { PeakHer.Patterns.init(); });
     safeInit('WeekAhead', function() { PeakHer.WeekAhead.init(); });
