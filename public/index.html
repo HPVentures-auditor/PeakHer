@@ -200,30 +200,6 @@
     line-height: 1.6;
   }
 
-  /* ---- FORM ---- */
-  .waitlist-form {
-    display: flex;
-    gap: 12px;
-    max-width: 500px;
-    width: 100%;
-    margin-bottom: 16px;
-  }
-  .waitlist-form input[type="email"] {
-    flex: 1;
-    padding: 16px 20px;
-    border-radius: 8px;
-    border: 1px solid var(--border-light);
-    background: var(--white);
-    color: var(--text-dark);
-    font-size: 16px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.2s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .waitlist-form input[type="email"]::placeholder { color: var(--gray-text-light); }
-  .waitlist-form input[type="email"]:focus { border-color: var(--teal); }
-
   .btn {
     padding: 16px 32px;
     border-radius: 8px;
@@ -262,21 +238,6 @@
     font-size: 13px;
     color: var(--gray-text-light);
     margin-bottom: 40px;
-  }
-
-  .success-msg {
-    display: none;
-    padding: 16px 24px;
-    background: var(--teal-soft);
-    border: 1px solid rgba(45,138,138,0.25);
-    border-radius: 8px;
-    color: var(--teal);
-    font-weight: 600;
-    font-size: 16px;
-    margin-bottom: 40px;
-    max-width: 500px;
-    width: 100%;
-    text-align: center;
   }
 
   .hero-divider {
@@ -536,8 +497,6 @@
   @media (max-width: 768px) {
     .hero h1 { font-size: 36px; }
     .hero .subtitle { font-size: 17px; }
-    .waitlist-form { flex-direction: column; }
-    .waitlist-form .btn { width: 100%; }
     .stats-bar { gap: 32px; }
     .stat-item .num { font-size: 28px; }
     section h2 { font-size: 30px; }
@@ -575,19 +534,16 @@
   <h1>Discover Your <span>Performance Rhythm</span></h1>
   <p class="subtitle">The first personal performance platform that understands women's biology and uses YOUR data to optimize every role you play.</p>
 
-  <form class="waitlist-form" id="waitlistForm">
-    <input type="email" id="emailInput" placeholder="Enter your email" required>
-    <button type="submit" class="btn btn-coral">Join the Waitlist</button>
-  </form>
-  <p class="form-note">Early access. Founding member rate locked for life. No spam, ever.</p>
-
-  <div class="success-msg" id="successMsg">You're on the list! Check your inbox for next steps.</div>
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px;">
+    <a href="/login/?mode=signup" class="btn btn-coral">Start Free — Sign Up Today</a>
+    <a href="/pricing/" class="btn btn-teal">See Pricing</a>
+  </div>
+  <p class="form-note">14-day free trial. Founding member rate locked for life. No credit card required to start.</p>
 
   <div class="hero-divider"></div>
 
   <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
-    <a href="/quiz/" class="btn btn-teal">Take the Quiz</a>
-    <a href="/slides/" class="btn btn-outline">View the Slides</a>
+    <a href="/quiz/" class="btn btn-outline">Take the Quiz</a>
   </div>
 </div>
 
@@ -720,13 +676,13 @@
 
 <!-- ==================== FINAL CTA ==================== -->
 <div class="final-cta">
-  <div class="section-label">Be First</div>
-  <h2>Join the Beta Waitlist</h2>
-  <p class="section-sub" style="max-width: 500px; margin: 0 auto 40px;">Early access. Help shape the product. Founding member rate locked for life.</p>
+  <div class="section-label">Get Started</div>
+  <h2>Start Tracking Your Rhythm Today</h2>
+  <p class="section-sub" style="max-width: 500px; margin: 0 auto 40px;">Free to start. 14-day Premium trial included. Founding member rate locked for life.</p>
 
   <div class="cta-buttons">
-    <a href="#" class="btn btn-coral" onclick="document.getElementById('emailInput').focus(); window.scrollTo({top:0,behavior:'smooth'}); return false;">Join the Waitlist</a>
-    <a href="/quiz/" class="btn btn-teal">Take the Quiz</a>
+    <a href="/login/?mode=signup" class="btn btn-coral">Sign Up Free</a>
+    <a href="/pricing/" class="btn btn-teal">See Plans</a>
   </div>
 
 </div>
@@ -766,39 +722,6 @@
   });
 })();
 
-// Waitlist form handler
-document.getElementById('waitlistForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const email = document.getElementById('emailInput').value;
-  if (!email) return;
-
-  const btn = this.querySelector('button[type="submit"]');
-  btn.disabled = true;
-  btn.textContent = 'Joining...';
-
-  try {
-    const resp = await fetch('/api/waitlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, source: 'landing' }),
-    });
-    const data = await resp.json();
-
-    if (resp.ok && data.success) {
-      this.style.display = 'none';
-      document.querySelector('.form-note').style.display = 'none';
-      document.getElementById('successMsg').style.display = 'block';
-    } else {
-      btn.disabled = false;
-      btn.textContent = 'Join the Waitlist';
-      alert(data.error || 'Something went wrong. Please try again.');
-    }
-  } catch (err) {
-    btn.disabled = false;
-    btn.textContent = 'Join the Waitlist';
-    alert('Network error. Please try again.');
-  }
-});
 </script>
 </body>
 </html>
