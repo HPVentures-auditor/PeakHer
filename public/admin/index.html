@@ -790,6 +790,7 @@
         <div class="panel">
           <div class="table-toolbar">
             <input type="text" class="search-input" id="userSearch" placeholder="Search by name or email...">
+            <button class="btn btn-ghost btn-sm" id="clearSearchBtn" style="display:none;">Clear</button>
             <button class="btn btn-ghost btn-sm" id="refreshUsersBtn">Refresh</button>
             <button class="btn btn-ghost btn-sm" onclick="Admin.exportCSV('users')">Export CSV</button>
           </div>
@@ -835,7 +836,7 @@
           <div class="panel">
             <div class="panel-header"><h3>Email Stats</h3></div>
             <div class="panel-body" style="padding:16px;">
-              <p style="color:var(--gray-text);font-size:14px;">Resend API: <strong id="emailApiStatus" style="color:var(--gray-mid);">checking...</strong></p>
+              <p style="color:var(--gray-text);font-size:14px;">Email Provider: <strong id="emailApiStatus" style="color:var(--teal);">GHL (GoHighLevel)</strong></p>
               <p style="color:var(--gray-text);font-size:14px;margin-top:4px;">From: <strong style="color:var(--white);">hello@peakher.ai</strong></p>
             </div>
           </div>
@@ -932,7 +933,7 @@
       </div>
       <div class="form-row">
         <label>New Password <span style="font-weight:400;color:var(--gray-mid);">(leave blank to keep current)</span></label>
-        <input type="text" id="editPassword" placeholder="Enter new password (8+ chars)">
+        <input type="password" id="editPassword" placeholder="Enter new password (8+ chars)">
       </div>
       <div class="form-row" style="display:flex;align-items:center;gap:10px;">
         <input type="checkbox" id="editEmailOptOut" style="width:auto;">
@@ -1279,14 +1280,23 @@ var Admin = (function () {
 
   function setupSearch() {
     var input = document.getElementById('userSearch');
+    var clearBtn = document.getElementById('clearSearchBtn');
     var debounceTimer = null;
     input.addEventListener('input', function () {
       clearTimeout(debounceTimer);
+      clearBtn.style.display = input.value.trim() ? 'inline-block' : 'none';
       debounceTimer = setTimeout(function () {
         state.search = input.value.trim();
         state.pagination.page = 1;
         loadUsers(1);
       }, 300);
+    });
+    clearBtn.addEventListener('click', function () {
+      input.value = '';
+      clearBtn.style.display = 'none';
+      state.search = '';
+      state.pagination.page = 1;
+      loadUsers(1);
     });
     document.getElementById('refreshUsersBtn').addEventListener('click', function () {
       loadUsers();
@@ -1687,9 +1697,9 @@ var Admin = (function () {
         '</div>';
     });
 
-    // Check if email API is configured
-    document.getElementById('emailApiStatus').textContent = 'Configure RESEND_API_KEY in Vercel env vars';
-    document.getElementById('emailApiStatus').style.color = 'var(--yellow)';
+    // Email provider status (GHL is always configured via env vars)
+    document.getElementById('emailApiStatus').textContent = 'GHL (GoHighLevel)';
+    document.getElementById('emailApiStatus').style.color = 'var(--teal)';
   }
 
   function updateReminderCount() {

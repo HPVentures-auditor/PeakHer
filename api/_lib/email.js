@@ -1,48 +1,21 @@
 /**
- * PeakHer Email Module — Resend integration
+ * PeakHer Email Module — GHL (GoHighLevel) integration
  *
- * Requires RESEND_API_KEY env var.
- * Until peakher.ai domain is verified in Resend, uses onboarding@resend.dev as sender.
- * After verification, switch FROM_EMAIL to 'PeakHer <hello@peakher.ai>'.
+ * Sends emails via GHL conversations API using the PeakHer location.
+ * Requires GHL_PEAKHER_API_KEY + GHL_PEAKHER_LOCATION_ID env vars.
  */
 
-var FROM_EMAIL = process.env.PEAKHER_FROM_EMAIL || 'PeakHer <onboarding@resend.dev>';
-
-function getResendKey() {
-  return process.env.RESEND_API_KEY || null;
-}
+var ghl = require('./ghl');
 
 /**
- * Send an email via Resend HTTP API (no SDK dependency needed).
+ * Send an email via GHL.
+ * options: { to, subject, html, firstName?, contactOptions? }
  */
 async function sendEmail(options) {
-  var apiKey = getResendKey();
-  if (!apiKey) {
-    console.warn('PeakHer Email: RESEND_API_KEY not set, skipping email');
-    return { skipped: true };
-  }
-
-  var resp = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + apiKey,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from: options.from || FROM_EMAIL,
-      to: Array.isArray(options.to) ? options.to : [options.to],
-      subject: options.subject,
-      html: options.html
-    })
-  });
-
-  if (!resp.ok) {
-    var errorBody = await resp.text();
-    console.error('PeakHer Email: Resend error', resp.status, errorBody);
-    throw new Error('Email send failed: ' + resp.status);
-  }
-
-  return resp.json();
+  var to = Array.isArray(options.to) ? options.to[0] : options.to;
+  var contactOpts = options.contactOptions || {};
+  if (options.firstName) contactOpts.firstName = options.firstName;
+  return ghl.sendEmailToAddress(to, options.subject, options.html, contactOpts);
 }
 
 // ── Email Templates ──────────────────────────────────────────────────

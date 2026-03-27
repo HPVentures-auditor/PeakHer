@@ -118,9 +118,9 @@ window.PeakHer.History = (function () {
 
       /* --- Month nav --- */
       '.history-month-nav{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 20px 8px}' +
-      '.history-month-nav button{width:44px;height:44px;border:none;background:rgba(255,255,255,0.06);' +
-        'color:#fff;font-size:20px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s}' +
-      '.history-month-nav button:active{background:rgba(255,255,255,0.12)}' +
+      '.history-month-nav button{width:44px;height:44px;border:none;background:var(--warm-gray,#f3f0ec);' +
+        'color:var(--text-dark,#1a1a2e);font-size:20px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s}' +
+      '.history-month-nav button:active{background:rgba(0,0,0,0.08)}' +
       '.history-month-nav button:disabled{opacity:0.25;cursor:default}' +
       '.history-month-label{font-size:18px;font-weight:600;min-width:170px;text-align:center}' +
 
@@ -129,12 +129,12 @@ window.PeakHer.History = (function () {
       '.history-cal-header{font-size:11px;color:var(--gray-text,#b0b0b0);text-align:center;padding:4px 0;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}' +
       '.history-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;' +
         'border-radius:8px;cursor:pointer;position:relative;min-height:42px;transition:background 0.15s}' +
-      '.history-day:active{background:rgba(255,255,255,0.06)}' +
+      '.history-day:active{background:rgba(0,0,0,0.04)}' +
       '.history-day.empty{cursor:default;pointer-events:none}' +
       '.history-day.future{opacity:0.3;cursor:default;pointer-events:none}' +
       '.history-day.other-month{opacity:0.12;cursor:default;pointer-events:none}' +
       '.history-day-num{font-size:13px;color:var(--gray-text,#b0b0b0);line-height:1;z-index:1}' +
-      '.history-day.today{box-shadow:inset 0 0 0 2px #fff;border-radius:8px}' +
+      '.history-day.today{box-shadow:inset 0 0 0 2px var(--text-dark,#1a1a2e);border-radius:8px}' +
       '.history-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;z-index:1}' +
 
       /* --- Empty state --- */
@@ -150,31 +150,32 @@ window.PeakHer.History = (function () {
       '.day-detail-overlay.active{display:block;opacity:1}' +
 
       /* --- Day detail panel --- */
-      '.day-detail-panel{position:fixed;bottom:0;left:0;right:0;background:var(--navy-light,#0f2035);' +
+      '.day-detail-panel{position:fixed;bottom:0;left:0;right:0;background:#faf8f5;' +
         'border-radius:20px 20px 0 0;padding:24px 20px calc(24px + 72px);z-index:501;' +
-        'transform:translateY(100%);transition:transform 0.3s ease;max-height:70vh;overflow-y:auto}' +
+        'transform:translateY(100%);transition:transform 0.3s ease;max-height:70vh;overflow-y:auto;' +
+        'border-top:1px solid var(--border-light,rgba(0,0,0,0.06))}' +
       '.day-detail-panel.active{transform:translateY(0)}' +
-      '.day-detail-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);margin:0 auto 16px}' +
+      '.day-detail-handle{width:36px;height:4px;border-radius:2px;background:rgba(0,0,0,0.12);margin:0 auto 16px}' +
       '.day-detail-date{font-size:18px;font-weight:700;margin-bottom:6px}' +
       '.day-detail-cycle{display:inline-flex;align-items:center;gap:8px;font-size:13px;' +
         'padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600}' +
 
       /* --- Metrics grid --- */
       '.day-detail-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}' +
-      '.day-metric{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);' +
+      '.day-metric{background:var(--warm-gray,#f3f0ec);border:1px solid var(--border-light,rgba(0,0,0,0.06));' +
         'border-radius:10px;padding:14px}' +
       '.day-metric-label{font-size:11px;color:var(--gray-text,#b0b0b0);text-transform:uppercase;' +
         'letter-spacing:0.5px;margin-bottom:6px;font-weight:600}' +
       '.day-metric-value{font-size:22px;font-weight:700;margin-bottom:6px}' +
-      '.day-metric-bar{width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden}' +
+      '.day-metric-bar{width:100%;height:4px;background:rgba(0,0,0,0.08);border-radius:2px;overflow:hidden}' +
       '.day-metric-bar-fill{height:100%;border-radius:2px;transition:width 0.3s ease}' +
 
       /* --- Notes --- */
-      '.day-detail-notes{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);' +
+      '.day-detail-notes{background:var(--warm-gray,#f3f0ec);border:1px solid var(--border-light,rgba(0,0,0,0.06));' +
         'border-radius:10px;padding:14px;margin-bottom:16px}' +
       '.day-detail-notes-label{font-size:11px;color:var(--gray-text,#b0b0b0);text-transform:uppercase;' +
         'letter-spacing:0.5px;margin-bottom:6px;font-weight:600}' +
-      '.day-detail-notes p{font-size:14px;color:rgba(255,255,255,0.8);line-height:1.5}' +
+      '.day-detail-notes p{font-size:14px;color:var(--text-body,#374151);line-height:1.5}' +
 
       /* --- Action buttons --- */
       '.day-detail-actions{display:flex;gap:10px}' +
@@ -182,7 +183,7 @@ window.PeakHer.History = (function () {
         'font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:transform 0.2s}' +
       '.day-detail-actions button:active{transform:scale(0.97)}' +
       '.day-detail-btn-edit{background:var(--coral,#E87461);color:#fff}' +
-      '.day-detail-btn-close{background:rgba(255,255,255,0.08);color:#fff}' +
+      '.day-detail-btn-close{background:var(--warm-gray,#f3f0ec);color:var(--text-dark,#1a1a2e)}' +
 
       /* --- Responsive: ensure day cells scale --- */
       '@media(min-width:500px){.history-day{min-height:48px}}' +

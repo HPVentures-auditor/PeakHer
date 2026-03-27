@@ -116,6 +116,9 @@ module.exports = async function handler(req, res) {
         if (typeof body.newPassword !== 'string' || body.newPassword.length < 8) {
           return sendError(res, 400, 'Password must be at least 8 characters');
         }
+        if (!/[a-zA-Z]/.test(body.newPassword) || !/[0-9]/.test(body.newPassword)) {
+          return sendError(res, 400, 'Password must contain at least one letter and one number');
+        }
         var hash = await bcrypt.hash(body.newPassword, 10);
         await sql`UPDATE users SET password_hash = ${hash} WHERE id = ${userId}`;
       }

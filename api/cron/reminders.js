@@ -17,7 +17,11 @@ module.exports = async function handler(req, res) {
   // Verify cron secret (Vercel sets this header automatically for cron jobs)
   var authHeader = req.headers['authorization'];
   var cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader !== 'Bearer ' + cronSecret) {
+  if (!cronSecret) {
+    console.error('CRON_SECRET not configured — rejecting request');
+    return res.status(500).json({ error: 'Cron not configured' });
+  }
+  if (authHeader !== 'Bearer ' + cronSecret) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

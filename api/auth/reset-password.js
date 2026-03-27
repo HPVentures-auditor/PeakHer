@@ -9,6 +9,9 @@ module.exports = async function handler(req, res) {
   var { token, password } = req.body;
   if (!token || !password) return sendError(res, 400, 'Token and password are required');
   if (password.length < 8) return sendError(res, 400, 'Password must be at least 8 characters');
+  if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+    return sendError(res, 400, 'Password must contain at least one letter and one number');
+  }
 
   var sql = getDb();
 

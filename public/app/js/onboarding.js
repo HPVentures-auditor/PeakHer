@@ -34,25 +34,25 @@ window.PeakHer.Onboarding = (function () {
 
     /* Progress dots */
     '.ob-progress { display: flex; justify-content: center; gap: 10px; padding: 16px 0 24px; }',
-    '.ob-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: background 0.3s; }',
+    '.ob-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.15); transition: background 0.3s; }',
     '.ob-dot.completed, .ob-dot.active { background: var(--teal); }',
 
     /* Back arrow */
-    '.ob-back { position: absolute; top: 18px; left: 16px; background: none; border: none; color: rgba(255,255,255,0.5); font-size: 22px; cursor: pointer; padding: 4px 8px; transition: color 0.2s; z-index: 2; }',
-    '.ob-back:hover { color: #fff; }',
+    '.ob-back { position: absolute; top: 18px; left: 16px; background: none; border: none; color: var(--gray-text); font-size: 22px; cursor: pointer; padding: 4px 8px; transition: color 0.2s; z-index: 2; }',
+    '.ob-back:hover { color: var(--text-dark); }',
 
     /* Step containers */
     '.onboarding-step { display: none; flex-direction: column; align-items: center; flex: 1; }',
     '.onboarding-step.active { display: flex; }',
 
     /* Typography */
-    '.ob-heading { font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 8px; letter-spacing: -0.5px; color: #fff; }',
+    '.ob-heading { font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 8px; letter-spacing: -0.5px; color: var(--text-dark); }',
     '.ob-subtext { font-size: 16px; color: var(--gray-text); text-align: center; margin-bottom: 32px; line-height: 1.5; }',
 
     /* Inputs */
-    '.ob-input { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 14px 16px; font-size: 16px; width: 100%; font-family: inherit; margin-bottom: 16px; transition: border-color 0.2s, box-shadow 0.2s; }',
+    '.ob-input { background: var(--warm-gray); border: 1px solid var(--border-light); border-radius: 8px; color: var(--text-dark); padding: 14px 16px; font-size: 16px; width: 100%; font-family: inherit; margin-bottom: 16px; transition: border-color 0.2s, box-shadow 0.2s; }',
     '.ob-input:focus { border-color: var(--teal); outline: none; box-shadow: 0 0 0 3px rgba(45,138,138,0.2); }',
-    '.ob-input::placeholder { color: rgba(255,255,255,0.3); }',
+    '.ob-input::placeholder { color: var(--gray-text); }',
 
     /* Buttons */
     '.ob-btn { background: var(--coral); color: white; border: none; border-radius: 8px; padding: 16px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; font-family: inherit; transition: background 0.2s, transform 0.15s; margin-top: auto; }',
@@ -66,17 +66,17 @@ window.PeakHer.Onboarding = (function () {
     /* Hat tiles */
     '.ob-hats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin-bottom: 24px; }',
     '@media (max-width: 360px) { .ob-hats-grid { grid-template-columns: repeat(2, 1fr); } }',
-    '.ob-hat-tile { min-width: 120px; background: var(--navy-light); border: 2px solid transparent; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; user-select: none; -webkit-user-select: none; }',
+    '.ob-hat-tile { min-width: 120px; background: var(--warm-gray); border: 2px solid transparent; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; user-select: none; -webkit-user-select: none; }',
     '.ob-hat-tile .ob-hat-emoji { font-size: 28px; display: block; margin-bottom: 6px; }',
-    '.ob-hat-tile .ob-hat-label { font-size: 14px; font-weight: 600; color: #fff; }',
+    '.ob-hat-tile .ob-hat-label { font-size: 14px; font-weight: 600; color: var(--text-dark); }',
     '.ob-hat-tile.selected { border-color: var(--teal); background: rgba(45,138,138,0.1); }',
 
     /* Toggle switch */
     '.ob-toggle-row { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; width: 100%; }',
-    '.ob-toggle-label { font-size: 16px; font-weight: 500; color: #fff; }',
+    '.ob-toggle-label { font-size: 16px; font-weight: 500; color: var(--text-dark); }',
     '.ob-toggle { position: relative; width: 52px; height: 28px; flex-shrink: 0; }',
     '.ob-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }',
-    '.ob-toggle-track { position: absolute; inset: 0; background: rgba(255,255,255,0.12); border-radius: 14px; cursor: pointer; transition: background 0.25s; }',
+    '.ob-toggle-track { position: absolute; inset: 0; background: rgba(0,0,0,0.12); border-radius: 14px; cursor: pointer; transition: background 0.25s; }',
     '.ob-toggle-track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: #fff; border-radius: 50%; transition: transform 0.25s; }',
     '.ob-toggle input:checked + .ob-toggle-track { background: var(--teal); }',
     '.ob-toggle input:checked + .ob-toggle-track::after { transform: translateX(24px); }',
@@ -85,15 +85,15 @@ window.PeakHer.Onboarding = (function () {
     '.ob-cycle-fields { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease; width: 100%; }',
     '.ob-cycle-fields.open { max-height: 200px; opacity: 1; }',
     '.ob-cycle-off-msg { font-size: 14px; color: var(--gray-text); text-align: center; line-height: 1.5; margin-bottom: 16px; }',
-    '.ob-field-label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.7); margin-bottom: 6px; display: block; width: 100%; }',
+    '.ob-field-label { font-size: 14px; font-weight: 500; color: var(--gray-text); margin-bottom: 6px; display: block; width: 100%; }',
 
     /* Integration cards */
     '.ob-integrations { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-bottom: 24px; }',
-    '.ob-int-card { background: var(--navy-light); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; opacity: 0.5; }',
+    '.ob-int-card { background: var(--warm-gray); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; opacity: 0.5; }',
     '.ob-int-icon { font-size: 28px; flex-shrink: 0; width: 40px; text-align: center; }',
     '.ob-int-info { flex: 1; }',
-    '.ob-int-name { font-size: 15px; font-weight: 600; color: #fff; }',
-    '.ob-int-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-text); background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; }',
+    '.ob-int-name { font-size: 15px; font-weight: 600; color: var(--text-dark); }',
+    '.ob-int-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-text); background: rgba(0,0,0,0.06); padding: 3px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; }',
     '.ob-int-lock { font-size: 20px; flex-shrink: 0; opacity: 0.4; }',
 
     /* Checkmark animation */
@@ -251,8 +251,12 @@ window.PeakHer.Onboarding = (function () {
         validation.textContent = 'Please enter a valid email address';
         return;
       }
-      if (password.length < 6) {
-        validation.textContent = 'Password must be at least 6 characters';
+      if (password.length < 8) {
+        validation.textContent = 'Password must be at least 8 characters';
+        return;
+      }
+      if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+        validation.textContent = 'Password must contain at least one letter and one number';
         return;
       }
       validation.textContent = '';

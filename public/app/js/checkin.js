@@ -104,11 +104,11 @@ window.PeakHer.Checkin = (function () {
       /* Notes textarea */
       '.ph-notes{' +
         'width:100%;padding:14px 16px;border-radius:8px;' +
-        'border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);' +
-        'color:#fff;font-size:15px;font-family:inherit;line-height:1.5;' +
+        'border:1px solid var(--border-light);background:var(--warm-gray);' +
+        'color:var(--text-dark);font-size:15px;font-family:inherit;line-height:1.5;' +
         'resize:vertical;outline:none;transition:border-color 0.2s;min-height:44px;' +
       '}\n' +
-      '.ph-notes::placeholder{color:rgba(255,255,255,0.35);}\n' +
+      '.ph-notes::placeholder{color:var(--gray-text);}\n' +
       '.ph-notes:focus{border-color:var(--teal);}\n' +
 
       /* Cycle day display */
@@ -161,7 +161,7 @@ window.PeakHer.Checkin = (function () {
       '.ph-progress-wrap{margin-bottom:20px;}\n' +
       '.ph-progress-label{font-size:14px;color:var(--gray-text);text-align:center;margin-bottom:8px;}\n' +
       '.ph-progress-bar{' +
-        'height:8px;border-radius:4px;background:rgba(255,255,255,0.1);overflow:hidden;' +
+        'height:8px;border-radius:4px;background:rgba(0,0,0,0.04);overflow:hidden;' +
       '}\n' +
       '.ph-progress-fill{height:100%;border-radius:4px;background:var(--teal);transition:width 0.4s ease;}\n' +
 

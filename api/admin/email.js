@@ -22,7 +22,7 @@ module.exports = async function handler(req, res) {
       if (!rows.length) return sendError(res, 404, 'User not found');
 
       var tpl = welcomeEmail(rows[0].name);
-      await sendEmail({ to: rows[0].email, subject: tpl.subject, html: tpl.html });
+      await sendEmail({ to: rows[0].email, subject: tpl.subject, html: tpl.html, firstName: rows[0].name });
       await sql`UPDATE users SET last_email_sent = now() WHERE id = ${body.userId}`;
       logActivity(sql, ctx.userId, { action: 'send_welcome', targetType: 'user', targetId: body.userId, targetLabel: rows[0].email, details: 'Welcome email sent' });
 
@@ -40,7 +40,7 @@ module.exports = async function handler(req, res) {
       if (!rows2.length) return sendError(res, 404, 'User not found');
 
       var tpl2 = reminderEmail(rows2[0].name, rows2[0].current_streak);
-      await sendEmail({ to: rows2[0].email, subject: tpl2.subject, html: tpl2.html });
+      await sendEmail({ to: rows2[0].email, subject: tpl2.subject, html: tpl2.html, firstName: rows2[0].name });
       await sql`UPDATE users SET last_email_sent = now() WHERE id = ${body.userId}`;
       logActivity(sql, ctx.userId, { action: 'send_reminder', targetType: 'user', targetId: body.userId, targetLabel: rows2[0].email, details: 'Reminder email sent' });
 

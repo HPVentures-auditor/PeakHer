@@ -11,8 +11,8 @@ window.PeakHer.Charts = (function () {
   // ── Chart.js global defaults ──────────────────────────────────────
 
   if (window.Chart) {
-    Chart.defaults.color = 'rgba(255,255,255,0.7)';
-    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+    Chart.defaults.color = '#374151';
+    Chart.defaults.borderColor = 'rgba(0,0,0,0.08)';
     Chart.defaults.font.family = 'Inter, sans-serif';
   }
 
@@ -42,19 +42,19 @@ window.PeakHer.Charts = (function () {
     return chartInstances[canvasId];
   }
 
-  // ── Dark-theme base options ───────────────────────────────────────
+  // ── Light-theme base options ──────────────────────────────────────
 
   function darkScaleOptions(yMin, yMax) {
     return {
       x: {
-        ticks: { color: 'rgba(255,255,255,0.5)', maxRotation: 45 },
-        grid:  { color: 'rgba(255,255,255,0.05)' }
+        ticks: { color: '#374151', maxRotation: 45 },
+        grid:  { color: 'rgba(0,0,0,0.08)' }
       },
       y: {
         min: yMin !== undefined ? yMin : 0,
         max: yMax !== undefined ? yMax : 10,
-        ticks: { color: 'rgba(255,255,255,0.5)', stepSize: 2 },
-        grid:  { color: 'rgba(255,255,255,0.05)' }
+        ticks: { color: '#374151', stepSize: 2 },
+        grid:  { color: 'rgba(0,0,0,0.08)' }
       }
     };
   }
@@ -171,7 +171,7 @@ window.PeakHer.Charts = (function () {
         plugins: {
           legend: {
             position: 'top',
-            labels: { color: 'rgba(255,255,255,0.7)', usePointStyle: true, padding: 16 }
+            labels: { color: '#374151', usePointStyle: true, padding: 16 }
           },
           tooltip: {
             callbacks: {
@@ -236,7 +236,7 @@ window.PeakHer.Charts = (function () {
         plugins: {
           legend: {
             position: 'top',
-            labels: { color: 'rgba(255,255,255,0.7)', usePointStyle: true, padding: 16 }
+            labels: { color: '#374151', usePointStyle: true, padding: 16 }
           }
         },
         scales: darkScaleOptions(0, 10)
@@ -290,7 +290,7 @@ window.PeakHer.Charts = (function () {
         plugins: {
           legend: {
             position: 'top',
-            labels: { color: 'rgba(255,255,255,0.7)', usePointStyle: true, padding: 16 }
+            labels: { color: '#374151', usePointStyle: true, padding: 16 }
           }
         },
         scales: darkScaleOptions(0, 10)

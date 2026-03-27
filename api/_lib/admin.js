@@ -6,7 +6,9 @@ const { getUserId, sendError } = require('./auth');
  * regardless of the is_admin flag in the database.
  */
 var ADMIN_EMAILS = [
-  'results@jairekrobbins.com'
+  'results@jairekrobbins.com',
+  'jairekr@mac.com',
+  'jairekr@me.com'
 ];
 
 /**

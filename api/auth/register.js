@@ -77,14 +77,24 @@ module.exports = async function handler(req, res) {
 
     const token = createToken(user.id);
 
-    // Send welcome email (fire-and-forget, don't block registration)
+    // Create GHL contact + send welcome email (fire-and-forget, don't block registration)
     try {
+      var ghl = require('../_lib/ghl');
+      var tags = ['peakher_user', 'registered'];
+      if (cycleProfile && cycleProfile.trackingEnabled) tags.push('cycle_tracking');
+      ghl.upsertContact({
+        email: user.email,
+        firstName: user.name.split(' ')[0],
+        tags: tags,
+        source: 'PeakHer Registration'
+      }).catch(function (ghlErr) { console.warn('GHL contact creation failed:', ghlErr.message); });
+
       var emailLib = require('../_lib/email');
       var tpl = emailLib.welcomeEmail(user.name);
       emailLib.sendEmail({ to: user.email, subject: tpl.subject, html: tpl.html })
         .catch(function (emailErr) { console.warn('Welcome email failed:', emailErr.message); });
     } catch (emailInitErr) {
-      console.warn('Email module not available:', emailInitErr.message);
+      console.warn('Email/GHL module not available:', emailInitErr.message);
     }
 
     return res.status(201).json({

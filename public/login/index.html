@@ -585,8 +585,8 @@
           onboardingComplete: result.user.onboardingComplete,
           createdAt: result.user.createdAt
         }));
-        // Send to app — account is created, go to check-in
-        window.location.href = '/app/';
+        // Send new user to pricing page to pick a plan
+        window.location.href = '/pricing/?welcome=1';
       })
       .catch(function (err) {
         signupBtn.classList.remove('loading');

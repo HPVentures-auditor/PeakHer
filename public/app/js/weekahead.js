@@ -29,16 +29,16 @@ window.PeakHer.WeekAhead = (function () {
     '.wa-wrap { max-width: 520px; margin: 0 auto; padding: 24px 16px 40px; }',
 
     /* Header */
-    '.wa-heading { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: #fff; margin-bottom: 4px; }',
+    '.wa-heading { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-dark); margin-bottom: 4px; }',
     '.wa-subtext { font-size: 15px; color: var(--gray-text); margin-bottom: 4px; line-height: 1.4; }',
-    '.wa-updated { font-size: 12px; color: rgba(255,255,255,0.3); margin-bottom: 24px; }',
+    '.wa-updated { font-size: 12px; color: var(--gray-text); margin-bottom: 24px; }',
 
     /* Pre-activation state */
     '.wa-preact { text-align: center; padding: 48px 16px; }',
     '.wa-preact-icon { font-size: 48px; margin-bottom: 16px; }',
-    '.wa-preact-heading { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 8px; }',
+    '.wa-preact-heading { font-size: 22px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }',
     '.wa-preact-msg { font-size: 15px; color: var(--gray-text); line-height: 1.5; margin-bottom: 24px; max-width: 320px; margin-left: auto; margin-right: auto; }',
-    '.wa-progress-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.1); overflow: hidden; max-width: 300px; margin: 0 auto 8px; }',
+    '.wa-progress-bar { height: 8px; border-radius: 4px; background: rgba(0,0,0,0.08); overflow: hidden; max-width: 300px; margin: 0 auto 8px; }',
     '.wa-progress-fill { height: 100%; border-radius: 4px; background: var(--teal); transition: width 0.4s ease; }',
     '.wa-progress-label { font-size: 13px; color: var(--gray-text); }',
 
@@ -46,20 +46,20 @@ window.PeakHer.WeekAhead = (function () {
     '.wa-cards { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }',
     '.wa-cards::-webkit-scrollbar { height: 4px; }',
     '.wa-cards::-webkit-scrollbar-track { background: transparent; }',
-    '.wa-cards::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }',
+    '.wa-cards::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 2px; }',
 
     /* Day card */
-    '.wa-card { flex-shrink: 0; width: 140px; background: var(--navy-light); border-radius: 12px; padding: 16px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.25s, box-shadow 0.25s, max-height 0.35s ease; scroll-snap-align: start; overflow: hidden; max-height: 260px; }',
+    '.wa-card { flex-shrink: 0; width: 140px; background: var(--warm-gray); border-radius: 12px; padding: 16px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.25s, box-shadow 0.25s, max-height 0.35s ease; scroll-snap-align: start; overflow: hidden; max-height: 260px; }',
     '.wa-card.best { border-color: var(--teal); box-shadow: 0 0 12px rgba(45,138,138,0.15); }',
     '.wa-card.expanded { max-height: 600px; }',
 
     /* Card top */
-    '.wa-card-day { font-size: 16px; font-weight: 700; color: #fff; }',
+    '.wa-card-day { font-size: 16px; font-weight: 700; color: var(--text-dark); }',
     '.wa-card-date { font-size: 13px; color: var(--gray-text); margin-bottom: 12px; }',
 
     /* Mini bars */
     '.wa-bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }',
-    '.wa-bar-track { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }',
+    '.wa-bar-track { flex: 1; height: 6px; border-radius: 3px; background: rgba(0,0,0,0.06); overflow: hidden; }',
     '.wa-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }',
     '.wa-bar-fill.energy { background: var(--teal); }',
     '.wa-bar-fill.confidence { background: var(--coral); }',
@@ -68,7 +68,7 @@ window.PeakHer.WeekAhead = (function () {
     '.wa-bar-val.confidence { color: var(--coral); }',
 
     /* Phase badge */
-    '.wa-phase-badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 10px; margin-top: 8px; background: rgba(255,255,255,0.06); }',
+    '.wa-phase-badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 10px; margin-top: 8px; background: rgba(0,0,0,0.04); }',
 
     /* Signal badge */
     '.wa-signal { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 8px; margin-top: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }',
@@ -77,11 +77,11 @@ window.PeakHer.WeekAhead = (function () {
     '.wa-signal.gold { background: rgba(196,154,94,0.15); color: #C49A5E; }',
 
     /* Expanded detail section */
-    '.wa-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); opacity: 0; transition: opacity 0.25s ease 0.1s; }',
+    '.wa-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light); opacity: 0; transition: opacity 0.25s ease 0.1s; }',
     '.wa-card.expanded .wa-detail { opacity: 1; }',
     '.wa-detail-row { font-size: 12px; color: var(--gray-text); margin-bottom: 4px; line-height: 1.4; }',
-    '.wa-detail-label { color: rgba(255,255,255,0.5); }',
-    '.wa-detail-value { color: #fff; font-weight: 600; }',
+    '.wa-detail-label { color: var(--gray-text); }',
+    '.wa-detail-value { color: var(--text-dark); font-weight: 600; }',
     '.wa-detail-phase-desc { font-size: 12px; color: var(--gray-text); margin-top: 6px; font-style: italic; line-height: 1.4; }',
     '.wa-confidence-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-top: 6px; }',
     '.wa-confidence-badge.high { background: rgba(45,138,138,0.15); color: var(--teal); }',
@@ -90,13 +90,30 @@ window.PeakHer.WeekAhead = (function () {
 
     /* Best day callout */
     '.wa-best-callout { text-align: center; padding: 16px; margin: 20px 0; background: rgba(45,138,138,0.08); border-radius: 12px; border: 1px solid rgba(45,138,138,0.15); }',
-    '.wa-best-callout-text { font-size: 16px; font-weight: 600; color: #fff; }',
+    '.wa-best-callout-text { font-size: 16px; font-weight: 600; color: var(--text-dark); }',
     '.wa-best-callout-text span { color: var(--teal); }',
 
     /* Chart section */
     '.wa-chart-section { margin-top: 28px; }',
-    '.wa-chart-heading { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 12px; }',
-    '.wa-chart-canvas { width: 100%; height: 200px; background: var(--navy-light); border-radius: 12px; }'
+    '.wa-chart-heading { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }',
+    '.wa-chart-canvas { width: 100%; height: 200px; background: var(--warm-gray); border-radius: 12px; }',
+
+    /* AI Narrative card */
+    '.wa-ai-section { margin-bottom: 20px; }',
+    '.wa-ai-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }',
+    '.wa-ai-badge { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; background: linear-gradient(135deg, rgba(45,138,138,0.25), rgba(232,116,97,0.25)); color: #5EC49A; }',
+    '.wa-ai-narrative { background: linear-gradient(135deg, rgba(45,138,138,0.08), rgba(232,116,97,0.05)); border: 1px solid rgba(45,138,138,0.15); border-radius: 12px; padding: 16px; }',
+    '.wa-ai-summary { font-size: 15px; color: var(--text-body); line-height: 1.55; margin-bottom: 12px; }',
+    '.wa-ai-detail-item { margin-bottom: 10px; }',
+    '.wa-ai-detail-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--teal, #2D8A8A); margin-bottom: 3px; }',
+    '.wa-ai-detail-text { font-size: 14px; color: var(--text-body); line-height: 1.45; }',
+
+    /* AI shimmer for weekahead */
+    '.wa-ai-shimmer { border-radius: 12px; padding: 16px; margin-bottom: 20px; background: var(--warm-gray); overflow: hidden; position: relative; }',
+    '.wa-ai-shimmer::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent); animation: wa-shimmer 1.5s infinite; }',
+    '@keyframes wa-shimmer { 0% { left: -100%; } 100% { left: 100%; } }',
+    '.wa-ai-shimmer-line { height: 14px; border-radius: 4px; background: rgba(0,0,0,0.06); margin-bottom: 8px; }',
+    '.wa-ai-shimmer-line:last-child { width: 70%; margin-bottom: 0; }'
   ].join('\n');
 
   function injectStyles() {
@@ -377,6 +394,110 @@ window.PeakHer.WeekAhead = (function () {
     container.appendChild(wrap);
   }
 
+  // ── AI Narrative rendering ───────────────────────────────────────
+
+  var aiNarrativeLoading = false;
+
+  function renderNarrativeShimmer() {
+    var section = el('div', 'wa-ai-section');
+    section.id = 'wa-ai-section';
+
+    var headingRow = el('div', 'wa-ai-heading');
+    headingRow.appendChild(el('div', 'wa-chart-heading', 'AI Week Preview'));
+    headingRow.appendChild(el('span', 'wa-ai-badge', 'AI'));
+    section.appendChild(headingRow);
+
+    var shimmer = el('div', 'wa-ai-shimmer');
+    shimmer.appendChild(el('div', 'wa-ai-shimmer-line'));
+    shimmer.appendChild(el('div', 'wa-ai-shimmer-line'));
+    shimmer.appendChild(el('div', 'wa-ai-shimmer-line'));
+    shimmer.appendChild(el('div', 'wa-ai-shimmer-line'));
+    section.appendChild(shimmer);
+
+    return section;
+  }
+
+  function renderNarrativeCard(narrative) {
+    var section = el('div', 'wa-ai-section');
+    section.id = 'wa-ai-section';
+
+    var headingRow = el('div', 'wa-ai-heading');
+    headingRow.appendChild(el('div', 'wa-chart-heading', 'AI Week Preview'));
+    headingRow.appendChild(el('span', 'wa-ai-badge', 'AI'));
+    section.appendChild(headingRow);
+
+    var card = el('div', 'wa-ai-narrative');
+
+    // Summary
+    if (narrative.summary) {
+      card.appendChild(el('div', 'wa-ai-summary', narrative.summary));
+    }
+
+    // Best day tip
+    if (narrative.bestDayTip) {
+      var bestItem = el('div', 'wa-ai-detail-item');
+      bestItem.appendChild(el('div', 'wa-ai-detail-label', 'Best Day'));
+      bestItem.appendChild(el('div', 'wa-ai-detail-text', narrative.bestDayTip));
+      card.appendChild(bestItem);
+    }
+
+    // Watch out
+    if (narrative.watchOut) {
+      var watchItem = el('div', 'wa-ai-detail-item');
+      watchItem.appendChild(el('div', 'wa-ai-detail-label', 'Watch Out'));
+      watchItem.appendChild(el('div', 'wa-ai-detail-text', narrative.watchOut));
+      card.appendChild(watchItem);
+    }
+
+    // Cycle context
+    if (narrative.cycleContext) {
+      var cycleItem = el('div', 'wa-ai-detail-item');
+      cycleItem.appendChild(el('div', 'wa-ai-detail-label', 'Cycle Context'));
+      cycleItem.appendChild(el('div', 'wa-ai-detail-text', narrative.cycleContext));
+      card.appendChild(cycleItem);
+    }
+
+    section.appendChild(card);
+    return section;
+  }
+
+  function fetchAndRenderNarrative() {
+    if (aiNarrativeLoading) return;
+    aiNarrativeLoading = true;
+
+    var Store = window.PeakHer.Store;
+
+    // Check localStorage cache first
+    var cached = Store.getInsights();
+    if (cached && cached.ready && cached.weekAheadNarrative && cached.weekAheadNarrative.summary) {
+      replaceNarrativeSection(renderNarrativeCard(cached.weekAheadNarrative));
+      aiNarrativeLoading = false;
+      return;
+    }
+
+    // Fetch from server
+    if (!window.PeakHer.API || !window.PeakHer.API.getInsights) {
+      aiNarrativeLoading = false;
+      return;
+    }
+
+    window.PeakHer.API.getInsights().then(function (result) {
+      aiNarrativeLoading = false;
+      if (!result || !result.ready || !result.weekAheadNarrative) return;
+
+      replaceNarrativeSection(renderNarrativeCard(result.weekAheadNarrative));
+    }).catch(function () {
+      aiNarrativeLoading = false;
+    });
+  }
+
+  function replaceNarrativeSection(newSection) {
+    var existing = document.getElementById('wa-ai-section');
+    if (existing) {
+      existing.parentNode.replaceChild(newSection, existing);
+    }
+  }
+
   // ── Render: active state ──────────────────────────────────────────
 
   function renderActive(predictions) {
@@ -392,6 +513,9 @@ window.PeakHer.WeekAhead = (function () {
 
     var updated = el('div', 'wa-updated', 'Updated at ' + formatTimestamp());
     wrap.appendChild(updated);
+
+    // AI Narrative (shimmer while loading)
+    wrap.appendChild(renderNarrativeShimmer());
 
     // Find best day
     var bestDate = findBestDay(predictions);
@@ -526,7 +650,7 @@ window.PeakHer.WeekAhead = (function () {
 
     // Energy breakdown
     var energyTitle = el('div', 'wa-detail-row');
-    energyTitle.innerHTML = '<strong style="color:#fff;">Energy Breakdown</strong>';
+    energyTitle.innerHTML = '<strong style="color:var(--text-dark);">Energy Breakdown</strong>';
     detail.appendChild(energyTitle);
 
     var rollingRow = el('div', 'wa-detail-row');
@@ -552,7 +676,7 @@ window.PeakHer.WeekAhead = (function () {
     // Confidence breakdown
     var confTitle = el('div', 'wa-detail-row');
     confTitle.style.marginTop = '8px';
-    confTitle.innerHTML = '<strong style="color:#fff;">Confidence Breakdown</strong>';
+    confTitle.innerHTML = '<strong style="color:var(--text-dark);">Confidence Breakdown</strong>';
     detail.appendChild(confTitle);
 
     var rollingConfRow = el('div', 'wa-detail-row');
@@ -627,6 +751,11 @@ window.PeakHer.WeekAhead = (function () {
 
     var predictions = generateForecast();
     renderActive(predictions);
+
+    // Fetch AI narrative after DOM is ready
+    requestAnimationFrame(function () {
+      fetchAndRenderNarrative();
+    });
   }
 
   function refresh() {
@@ -635,6 +764,7 @@ window.PeakHer.WeekAhead = (function () {
 
     injectStyles();
     expandedCard = null;
+    aiNarrativeLoading = false;
 
     if (!isActivated()) {
       renderPreActivation();
@@ -643,6 +773,10 @@ window.PeakHer.WeekAhead = (function () {
 
     var predictions = generateForecast();
     renderActive(predictions);
+
+    requestAnimationFrame(function () {
+      fetchAndRenderNarrative();
+    });
   }
 
   return {

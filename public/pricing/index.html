@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PeakHer - Pricing</title>
 <meta name="description" content="Choose your PeakHer plan. Founding member rates locked for life. Start with a 14-day free trial.">
+<meta property="og:title" content="PeakHer - Pricing">
+<meta property="og:description" content="Choose your PeakHer plan. Founding member rates locked for life. Start with a 14-day free trial.">
+<meta property="og:url" content="https://peakher.ai/pricing/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PeakHer">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PeakHer - Pricing">
+<meta name="twitter:description" content="Founding member rates locked for life. Start with a 14-day free trial.">
+<link rel="canonical" href="https://peakher.ai/pricing/">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -690,7 +699,7 @@
         </li>
       </ul>
 
-      <a href="/login/?mode=signup" class="btn btn-outline">Get Started Free</a>
+      <a href="/login/?mode=signup" class="btn btn-outline" id="freeBtn">Get Started Free</a>
     </div>
 
     <!-- PREMIUM (featured) -->
@@ -750,7 +759,7 @@
       </ul>
 
       <button class="btn btn-teal" id="checkoutBtn">Start 14-Day Free Trial</button>
-      <div class="btn-trial-note">No credit card required to start</div>
+      <div class="btn-trial-note">Cancel anytime during your trial</div>
     </div>
 
     <!-- TEAMS -->
@@ -869,7 +878,7 @@
 <div class="final-cta">
   <div class="section-label">Get Started</div>
   <h2>Start your free trial today</h2>
-  <p class="section-sub">14 days free. No credit card required. Cancel anytime.</p>
+  <p class="section-sub">14 days free. Cancel anytime before your trial ends.</p>
 
   <div class="cta-buttons">
     <button class="btn btn-teal" id="ctaCheckoutBtn">Start 14-Day Free Trial</button>
@@ -1023,6 +1032,25 @@
 
   checkoutBtn.addEventListener('click', handleCheckout);
   ctaCheckoutBtn.addEventListener('click', handleCheckout);
+
+  // ---- Welcome banner for new signups ----
+  var welcomeParams = new URLSearchParams(window.location.search);
+  if (welcomeParams.get('welcome') === '1') {
+    var welcomeBanner = document.createElement('div');
+    welcomeBanner.style.cssText = 'background:var(--teal-soft);border:1px solid var(--teal);border-radius:12px;padding:20px 24px;text-align:center;max-width:720px;margin:0 auto 32px;';
+    welcomeBanner.innerHTML = '<p style="font-size:18px;font-weight:700;color:var(--teal);margin-bottom:4px;">Account created!</p><p style="font-size:15px;color:var(--text-body);">Choose a plan below to get started. You can always upgrade later.</p>';
+    var pricingSection = document.querySelector('.pricing-section');
+    if (pricingSection) {
+      pricingSection.insertBefore(welcomeBanner, pricingSection.firstChild);
+    }
+  }
+
+  // ---- Free plan button: go to app if logged in ----
+  var freeBtn = document.getElementById('freeBtn');
+  if (freeBtn && localStorage.getItem('peakher_token')) {
+    freeBtn.href = '/app/';
+    freeBtn.textContent = 'Continue with Free';
+  }
 
   // ---- FAQ accordion ----
   var faqItems = document.querySelectorAll('.faq-item');
