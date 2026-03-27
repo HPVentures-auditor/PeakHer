@@ -1,0 +1,521 @@
+/**
+ * Settings Tab
+ *
+ * Profile info, coach voice, notification preferences, cycle settings,
+ * logout, delete account.
+ */
+
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Switch,
+  RefreshControl,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors, Typography, Spacing, BorderRadius } from '../../src/constants/theme';
+import { useAuthStore } from '../../src/stores/authStore';
+import { useBriefingStore } from '../../src/stores/briefingStore';
+import { deleteAccount, exportData } from '../../src/services/api';
+import { Button } from '../../src/components/Button';
+import { Input } from '../../src/components/Input';
+import { Slider } from '../../src/components/Slider';
+
+export default function SettingsScreen() {
+  const { user, cycleProfile, streak, checkinCount, updateProfile, logout, loadProfile } =
+    useAuthStore();
+  const { clear: clearBriefing } = useBriefingStore();
+  const router = useRouter();
+
+  // Edit states
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState(user?.name || '');
+  const [editingCycle, setEditingCycle] = useState(false);
+  const [cycleEnabled, setCycleEnabled] = useState(
+    cycleProfile?.trackingEnabled ?? false,
+  );
+  const [cycleLength, setCycleLength] = useState(
+    cycleProfile?.averageCycleLength ?? 28,
+  );
+  const [saving, setSaving] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadProfile();
+    setRefreshing(false);
+  }, []);
+
+  async function handleSaveName() {
+    if (!newName.trim()) return;
+    setSaving(true);
+    try {
+      await updateProfile({ name: newName.trim() });
+      setEditingName(false);
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to update');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleSaveCycle() {
+    setSaving(true);
+    try {
+      await updateProfile({
+        cycleProfile: {
+          trackingEnabled: cycleEnabled,
+          averageCycleLength: cycleLength,
+          lastPeriodStart: cycleProfile?.lastPeriodStart || null,
+        },
+      });
+      setEditingCycle(false);
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to update');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleLogout() {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          clearBriefing();
+          await logout();
+          router.replace('/(auth)/login');
+        },
+      },
+    ]);
+  }
+
+  function handleDeleteAccount() {
+    Alert.alert(
+      'Delete Account',
+      'This will permanently delete your account and all data. This cannot be undone.\n\nType your email to confirm.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            // Show a second confirmation with email input
+            Alert.prompt(
+              'Confirm Delete',
+              `Type "${user?.email}" to confirm deletion:`,
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete Forever',
+                  style: 'destructive',
+                  onPress: async (email?: string) => {
+                    if (!email) return;
+                    try {
+                      await deleteAccount(email);
+                      clearBriefing();
+                      await logout();
+                      router.replace('/(auth)/login');
+                    } catch (err) {
+                      Alert.alert(
+                        'Error',
+                        err instanceof Error ? err.message : 'Failed to delete account',
+                      );
+                    }
+                  },
+                },
+              ],
+              'plain-text',
+            );
+          },
+        },
+      ],
+    );
+  }
+
+  async function handleExport() {
+    try {
+      const data = await exportData();
+      Alert.alert('Export Complete', 'Your data export has been generated.');
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Export failed');
+    }
+  }
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.coral}
+          />
+        }
+      >
+        <Text style={styles.title}>Settings</Text>
+
+        {/* Profile Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Profile</Text>
+
+          <View style={styles.card}>
+            {/* Name */}
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Name</Text>
+              {editingName ? (
+                <View style={styles.editRow}>
+                  <Input
+                    value={newName}
+                    onChangeText={setNewName}
+                    placeholder="Your name"
+                    style={styles.editInput}
+                  />
+                  <View style={styles.editButtons}>
+                    <Button
+                      title="Save"
+                      onPress={handleSaveName}
+                      loading={saving}
+                      size="sm"
+                    />
+                    <Button
+                      title="Cancel"
+                      onPress={() => {
+                        setEditingName(false);
+                        setNewName(user?.name || '');
+                      }}
+                      variant="ghost"
+                      size="sm"
+                    />
+                  </View>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => setEditingName(true)}
+                  style={styles.settingValue}
+                >
+                  <Text style={styles.valueText}>{user?.name}</Text>
+                  <Text style={styles.editIcon}>Edit</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Email */}
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Email</Text>
+              <Text style={styles.valueText}>{user?.email}</Text>
+            </View>
+
+            {/* Personas */}
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Personas</Text>
+              <Text style={styles.valueText}>
+                {user?.personas?.length
+                  ? user.personas.join(', ')
+                  : 'Not set'}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Stats */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Your stats</Text>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{checkinCount}</Text>
+              <Text style={styles.statLabel}>Check-ins</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={[styles.statValue, { color: Colors.coral }]}>
+                {streak?.current || 0}
+              </Text>
+              <Text style={styles.statLabel}>Streak</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{streak?.longest || 0}</Text>
+              <Text style={styles.statLabel}>Best streak</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Cycle Settings */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Cycle tracking</Text>
+          <View style={styles.card}>
+            {editingCycle ? (
+              <>
+                <View style={styles.toggleRow}>
+                  <Text style={styles.settingLabel}>Track cycle</Text>
+                  <Switch
+                    value={cycleEnabled}
+                    onValueChange={setCycleEnabled}
+                    trackColor={{
+                      false: Colors.surfaceLight,
+                      true: Colors.teal,
+                    }}
+                    thumbColor={Colors.white}
+                  />
+                </View>
+                {cycleEnabled && (
+                  <Slider
+                    label="Cycle length"
+                    value={cycleLength}
+                    onValueChange={(v) => setCycleLength(Math.round(v))}
+                    min={21}
+                    max={40}
+                    step={1}
+                    color={Colors.teal}
+                  />
+                )}
+                <View style={styles.editButtons}>
+                  <Button
+                    title="Save"
+                    onPress={handleSaveCycle}
+                    loading={saving}
+                    size="sm"
+                  />
+                  <Button
+                    title="Cancel"
+                    onPress={() => {
+                      setEditingCycle(false);
+                      setCycleEnabled(cycleProfile?.trackingEnabled ?? false);
+                      setCycleLength(cycleProfile?.averageCycleLength ?? 28);
+                    }}
+                    variant="ghost"
+                    size="sm"
+                  />
+                </View>
+              </>
+            ) : (
+              <>
+                <View style={styles.settingRow}>
+                  <Text style={styles.settingLabel}>Tracking</Text>
+                  <Text style={styles.valueText}>
+                    {cycleProfile?.trackingEnabled ? 'Enabled' : 'Disabled'}
+                  </Text>
+                </View>
+                {cycleProfile?.trackingEnabled && (
+                  <>
+                    <View style={styles.settingRow}>
+                      <Text style={styles.settingLabel}>Cycle length</Text>
+                      <Text style={styles.valueText}>
+                        {cycleProfile.averageCycleLength} days
+                      </Text>
+                    </View>
+                    {cycleProfile.lastPeriodStart && (
+                      <View style={styles.settingRow}>
+                        <Text style={styles.settingLabel}>
+                          Last period start
+                        </Text>
+                        <Text style={styles.valueText}>
+                          {cycleProfile.lastPeriodStart}
+                        </Text>
+                      </View>
+                    )}
+                  </>
+                )}
+                <TouchableOpacity
+                  onPress={() => setEditingCycle(true)}
+                  style={styles.editButton}
+                >
+                  <Text style={styles.editButtonText}>Edit cycle settings</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </View>
+
+        {/* Data */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Your data</Text>
+          <View style={styles.card}>
+            <TouchableOpacity
+              onPress={handleExport}
+              style={styles.actionRow}
+            >
+              <Text style={styles.actionText}>Export my data</Text>
+              <Text style={styles.actionChevron}>{'\u203A'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Account actions */}
+        <View style={styles.section}>
+          <Button
+            title="Sign Out"
+            onPress={handleLogout}
+            variant="outline"
+            size="md"
+            style={styles.logoutButton}
+          />
+
+          <TouchableOpacity
+            onPress={handleDeleteAccount}
+            style={styles.deleteButton}
+          >
+            <Text style={styles.deleteText}>Delete account</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* App info */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>PeakHer v1.0.0</Text>
+          <Text style={styles.footerText}>
+            {'\u00A9'} 2026 High Performance Ventures LLC
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: Colors.darkNavy,
+  },
+  scroll: {
+    padding: Spacing.xl,
+    paddingBottom: Spacing['5xl'],
+  },
+  title: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: Typography.fontSize.xl,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xl,
+  },
+  section: {
+    marginBottom: Spacing.xl,
+  },
+  sectionTitle: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textTertiary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: Spacing.md,
+  },
+  card: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.base,
+  },
+  settingRow: {
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.surfaceBorder,
+  },
+  settingLabel: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textTertiary,
+    marginBottom: Spacing.xs,
+  },
+  settingValue: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  valueText: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.base,
+    color: Colors.textPrimary,
+  },
+  editIcon: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.teal,
+  },
+  editRow: {
+    marginTop: Spacing.sm,
+  },
+  editInput: {
+    marginBottom: 0,
+  },
+  editButtons: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+  },
+  editButton: {
+    paddingVertical: Spacing.md,
+  },
+  editButtonText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.teal,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.base,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statValue: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: Typography.fontSize.xl,
+    color: Colors.textPrimary,
+  },
+  statLabel: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textTertiary,
+    marginTop: Spacing.xs,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+  },
+  actionText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.base,
+    color: Colors.textPrimary,
+  },
+  actionChevron: {
+    fontSize: 20,
+    color: Colors.textTertiary,
+  },
+  logoutButton: {
+    marginBottom: Spacing.base,
+  },
+  deleteButton: {
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+  },
+  deleteText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.error,
+  },
+  footer: {
+    alignItems: 'center',
+    paddingVertical: Spacing.xl,
+    gap: Spacing.xs,
+  },
+  footerText: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textMuted,
+  },
+});
