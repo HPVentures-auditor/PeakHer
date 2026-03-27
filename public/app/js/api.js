@@ -56,7 +56,7 @@ window.PeakHer.API = (function () {
   // ── Auth ──────────────────────────────────────────────────────────
 
   function register(data) {
-    // data: { name, email, password, personas, cycleProfile }
+    // data: { name, email, password, personas, cycleProfile, coachVoice }
     return request('POST', '/auth/register', data)
       .then(function (result) {
         setToken(result.token);
@@ -68,6 +68,7 @@ window.PeakHer.API = (function () {
           email: result.user.email,
           personas: result.user.personas,
           onboardingComplete: result.user.onboardingComplete,
+          coachVoice: result.user.coachVoice || 'sassy',
           createdAt: result.user.createdAt
         });
         return result;
@@ -86,6 +87,7 @@ window.PeakHer.API = (function () {
           email: result.user.email,
           personas: result.user.personas,
           onboardingComplete: result.user.onboardingComplete,
+          coachVoice: result.user.coachVoice || 'sassy',
           createdAt: result.user.createdAt
         });
         if (result.cycleProfile) {
@@ -156,6 +158,7 @@ window.PeakHer.API = (function () {
           email: result.user.email,
           personas: result.user.personas,
           onboardingComplete: result.user.onboardingComplete,
+          coachVoice: result.user.coachVoice || 'sassy',
           createdAt: result.user.createdAt
         });
         if (result.cycleProfile) {
@@ -173,6 +176,27 @@ window.PeakHer.API = (function () {
       .catch(function (err) {
         console.warn('Fetch user profile failed:', err.message);
         return null;
+      });
+  }
+
+  // ── User Profile Update ──────────────────────────────────────
+
+  function updateUser(data) {
+    // data: { name?, personas?, coachVoice?, cycleProfile? }
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return request('PUT', '/user', data)
+      .then(function (result) {
+        // Update local store with the changed fields
+        var Store = window.PeakHer.Store;
+        var current = Store.getUser() || {};
+        if (data.name) current.name = data.name;
+        if (data.personas) current.personas = data.personas;
+        if (data.coachVoice) current.coachVoice = data.coachVoice;
+        Store.setUser(current);
+        if (data.cycleProfile) {
+          Store.setCycleProfile(data.cycleProfile);
+        }
+        return result;
       });
   }
 
@@ -437,6 +461,39 @@ window.PeakHer.API = (function () {
       });
   }
 
+  // ── SMS Settings ─────────────────────────────────────────────────
+
+  function getSmsSettings() {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return request('GET', '/sms/subscribe')
+      .catch(function (err) {
+        console.warn('Fetch SMS settings failed:', err.message);
+        return null;
+      });
+  }
+
+  function addPhoneNumber(phoneNumber) {
+    return request('POST', '/sms/subscribe', { phoneNumber: phoneNumber });
+  }
+
+  function verifyPhoneCode(code) {
+    return request('POST', '/sms/verify', { code: code });
+  }
+
+  function updateSmsSettings(settings) {
+    return request('PUT', '/sms/subscribe', settings);
+  }
+
+  function removePhoneNumber() {
+    var headers = { 'Content-Type': 'application/json' };
+    var token = getToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    return fetch(BASE_URL + '/sms/subscribe', {
+      method: 'DELETE',
+      headers: headers
+    }).then(function (res) { return res.json(); });
+  }
+
   // ── Public API ───────────────────────────────────────────────────
 
   return {
@@ -445,6 +502,7 @@ window.PeakHer.API = (function () {
     register: register,
     login: login,
     logout: logout,
+    updateUser: updateUser,
     saveCheckin: saveCheckin,
     syncCheckins: syncCheckins,
     fetchUserProfile: fetchUserProfile,
@@ -459,6 +517,11 @@ window.PeakHer.API = (function () {
     getVapidKey: getVapidKey,
     subscribePush: subscribePush,
     unsubscribePush: unsubscribePush,
-    initPushNotifications: initPushNotifications
+    initPushNotifications: initPushNotifications,
+    getSmsSettings: getSmsSettings,
+    addPhoneNumber: addPhoneNumber,
+    verifyPhoneCode: verifyPhoneCode,
+    updateSmsSettings: updateSmsSettings,
+    removePhoneNumber: removePhoneNumber
   };
 })();

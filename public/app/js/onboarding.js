@@ -1,6 +1,6 @@
 /**
  * PeakHer Onboarding Module
- * 5-step onboarding flow: Welcome, Hats, Cycle, Integrations, Ready.
+ * 6-step onboarding flow: Welcome, Hats, Cycle, Voice, Integrations, Ready.
  * Renders dynamically into #screen-onboarding.
  */
 window.PeakHer = window.PeakHer || {};
@@ -11,7 +11,7 @@ window.PeakHer.Onboarding = (function () {
   var Store  = window.PeakHer.Store;
   var Router = window.PeakHer.Router;
 
-  var TOTAL_STEPS = 5;
+  var TOTAL_STEPS = 6;
   var currentStep = 1;
   var container;   // #screen-onboarding
 
@@ -24,6 +24,8 @@ window.PeakHer.Onboarding = (function () {
     cycleTracking: false,
     cycleLength: 28,
     lastPeriodDate: '',
+    cycleDateConfidence: 'exact',
+    coachVoice: 'sassy',
     onboardingComplete: false
   };
 
@@ -83,7 +85,7 @@ window.PeakHer.Onboarding = (function () {
 
     /* Cycle fields (slide reveal) */
     '.ob-cycle-fields { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease; width: 100%; }',
-    '.ob-cycle-fields.open { max-height: 200px; opacity: 1; }',
+    '.ob-cycle-fields.open { max-height: 800px; opacity: 1; }',
     '.ob-cycle-off-msg { font-size: 14px; color: var(--gray-text); text-align: center; line-height: 1.5; margin-bottom: 16px; }',
     '.ob-field-label { font-size: 14px; font-weight: 500; color: var(--gray-text); margin-bottom: 6px; display: block; width: 100%; }',
 
@@ -120,7 +122,45 @@ window.PeakHer.Onboarding = (function () {
 
     /* Login step */
     '.ob-login-step { display: none; flex-direction: column; align-items: center; flex: 1; }',
-    '.ob-login-step.active { display: flex; }'
+    '.ob-login-step.active { display: flex; }',
+
+    /* ── Day 1 Education Panel ─────────────────────────────────── */
+    '.ob-edu-panel { background: var(--teal-soft); border: 1px solid rgba(45,138,138,0.2); border-radius: 12px; padding: 20px; width: 100%; margin-bottom: 24px; }',
+    '.ob-edu-title { font-size: 16px; font-weight: 700; color: var(--teal); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }',
+    '.ob-edu-icon { font-size: 24px; }',
+    '.ob-edu-list { list-style: none; padding: 0; margin: 0; }',
+    '.ob-edu-list li { font-size: 14px; color: var(--text-body); line-height: 1.6; padding: 4px 0 4px 24px; position: relative; }',
+    '.ob-edu-list li::before { content: ""; position: absolute; left: 6px; top: 12px; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }',
+
+    /* ── Input Mode Toggle ─────────────────────────────────────── */
+    '.ob-mode-toggle { display: flex; background: var(--warm-gray); border-radius: 8px; padding: 3px; width: 100%; margin-bottom: 20px; }',
+    '.ob-mode-btn { flex: 1; padding: 10px 8px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.25s; background: transparent; color: var(--gray-text); text-align: center; }',
+    '.ob-mode-btn.active { background: var(--white); color: var(--text-dark); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }',
+
+    /* ── Estimation Questions ──────────────────────────────────── */
+    '.ob-estimate-group { width: 100%; margin-bottom: 16px; }',
+    '.ob-estimate-label { font-size: 14px; font-weight: 500; color: var(--text-dark); margin-bottom: 8px; display: block; }',
+    '.ob-estimate-options { display: flex; flex-wrap: wrap; gap: 8px; }',
+    '.ob-estimate-chip { background: var(--warm-gray); border: 2px solid transparent; border-radius: 8px; padding: 10px 16px; font-size: 14px; font-weight: 500; color: var(--text-dark); cursor: pointer; transition: all 0.2s; font-family: inherit; }',
+    '.ob-estimate-chip.selected { border-color: var(--teal); background: rgba(45,138,138,0.1); color: var(--teal); }',
+
+    /* ── Confidence Disclaimer ─────────────────────────────────── */
+    '.ob-confidence-card { background: var(--warm-gray); border-radius: 12px; padding: 16px 20px; width: 100%; margin-top: 16px; margin-bottom: 16px; display: none; }',
+    '.ob-confidence-card.visible { display: block; }',
+    '.ob-confidence-card.exact { background: rgba(94,196,154,0.1); border: 1px solid rgba(94,196,154,0.2); }',
+    '.ob-confidence-card.estimated { background: rgba(232,169,97,0.1); border: 1px solid rgba(232,169,97,0.2); }',
+    '.ob-confidence-icon { font-size: 18px; margin-right: 8px; }',
+    '.ob-confidence-text { font-size: 14px; line-height: 1.5; color: var(--text-body); }',
+
+    /* ── Voice Selector (Step 4) ───────────────────────────────── */
+    '.ob-voice-grid { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-bottom: 24px; }',
+    '.ob-voice-card { background: var(--warm-gray); border: 2px solid transparent; border-radius: 12px; padding: 16px 20px; cursor: pointer; transition: border-color 0.2s, background 0.2s, transform 0.15s; user-select: none; -webkit-user-select: none; }',
+    '.ob-voice-card:active { transform: scale(0.98); }',
+    '.ob-voice-card.selected { border-color: var(--teal); background: rgba(45,138,138,0.08); }',
+    '.ob-voice-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }',
+    '.ob-voice-emoji { font-size: 24px; }',
+    '.ob-voice-name { font-size: 16px; font-weight: 700; color: var(--text-dark); }',
+    '.ob-voice-preview { font-size: 13px; line-height: 1.5; color: var(--gray-text); font-style: italic; }'
   ].join('\n');
 
   function injectStyles() {
@@ -355,7 +395,7 @@ window.PeakHer.Onboarding = (function () {
     return step;
   }
 
-  // ── Step 3: Cycle Context ───────────────────────────────────────────
+  // ── Step 3: Cycle Context (Overhauled) ────────────────────────────
 
   function buildStep3() {
     var step = el('div', 'onboarding-step');
@@ -376,28 +416,222 @@ window.PeakHer.Onboarding = (function () {
     toggleRow.appendChild(toggleLabel);
     toggleRow.appendChild(toggleWrap);
 
-    // Cycle fields container
+    // Off message
+    var offMsg = el('p', 'ob-cycle-off-msg', "No problem! You'll still get great insights from your daily data.");
+
+    // Cycle fields container (everything that shows when toggle is on)
     var cycleFields = el('div', 'ob-cycle-fields');
 
+    // ── Day 1 Education Panel ──
+    var eduPanel = el('div', 'ob-edu-panel');
+    eduPanel.innerHTML =
+      '<div class="ob-edu-title"><span class="ob-edu-icon">\uD83D\uDCA1</span> What counts as Day 1?</div>' +
+      '<ul class="ob-edu-list">' +
+        '<li>Day 1 = the first day of <strong>full flow</strong> (not spotting)</li>' +
+        '<li>Spotting or light brown discharge before full flow does <strong>NOT</strong> count as Day 1</li>' +
+        '<li>If unsure, pick the day bleeding became <strong>steady and red</strong></li>' +
+      '</ul>';
+    cycleFields.appendChild(eduPanel);
+
+    // ── Average cycle length ──
     var lengthLabel = el('label', 'ob-field-label', 'Average cycle length');
     var lengthInput = createInput('number', '');
     lengthInput.value = '28';
     lengthInput.min = '21';
     lengthInput.max = '45';
     lengthInput.id = 'ob-cycle-length';
+    cycleFields.appendChild(lengthLabel);
+    cycleFields.appendChild(lengthInput);
 
+    // ── Input Mode Toggle ──
+    var modeToggle = el('div', 'ob-mode-toggle');
+    var modeBtnExact = el('button', 'ob-mode-btn active', 'I know my start date');
+    modeBtnExact.type = 'button';
+    var modeBtnEstimate = el('button', 'ob-mode-btn', 'Help me estimate');
+    modeBtnEstimate.type = 'button';
+    modeToggle.appendChild(modeBtnExact);
+    modeToggle.appendChild(modeBtnEstimate);
+    cycleFields.appendChild(modeToggle);
+
+    // Current mode tracker
+    var currentMode = 'exact';
+
+    // ── Exact Mode: Date picker ──
+    var exactContainer = el('div', '');
+    exactContainer.id = 'ob-exact-container';
     var dateLabel = el('label', 'ob-field-label', 'First day of last period');
     dateLabel.style.marginTop = '4px';
     var dateInput = createInput('date', '');
     dateInput.id = 'ob-last-period';
+    exactContainer.appendChild(dateLabel);
+    exactContainer.appendChild(dateInput);
+    cycleFields.appendChild(exactContainer);
 
-    cycleFields.appendChild(lengthLabel);
-    cycleFields.appendChild(lengthInput);
-    cycleFields.appendChild(dateLabel);
-    cycleFields.appendChild(dateInput);
+    // ── Estimate Mode: Guided questions ──
+    var estimateContainer = el('div', '');
+    estimateContainer.id = 'ob-estimate-container';
+    estimateContainer.style.display = 'none';
 
-    // Off message
-    var offMsg = el('p', 'ob-cycle-off-msg', "No problem! You'll still get great insights from your daily data.");
+    // Question 1: How many weeks ago?
+    var weeksGroup = el('div', 'ob-estimate-group');
+    weeksGroup.appendChild(el('label', 'ob-estimate-label', 'Roughly how long ago did your last period start?'));
+    var weeksOptions = el('div', 'ob-estimate-options');
+    var weekChoices = [
+      { label: 'This week', value: 0.5 },
+      { label: '1 week ago', value: 1 },
+      { label: '2 weeks ago', value: 2 },
+      { label: '3 weeks ago', value: 3 },
+      { label: '4+ weeks ago', value: 4 }
+    ];
+    var selectedWeeks = null;
+
+    weekChoices.forEach(function (choice) {
+      var chip = el('button', 'ob-estimate-chip', choice.label);
+      chip.type = 'button';
+      chip.setAttribute('data-weeks', choice.value);
+      chip.addEventListener('click', function () {
+        weeksOptions.querySelectorAll('.ob-estimate-chip').forEach(function (c) {
+          c.classList.remove('selected');
+        });
+        chip.classList.add('selected');
+        selectedWeeks = choice.value;
+        updateEstimatedDate();
+      });
+      weeksOptions.appendChild(chip);
+    });
+    weeksGroup.appendChild(weeksOptions);
+    estimateContainer.appendChild(weeksGroup);
+
+    // Question 2: Any spotting recently?
+    var spottingGroup = el('div', 'ob-estimate-group');
+    spottingGroup.appendChild(el('label', 'ob-estimate-label', 'Have you had any spotting or bleeding in the last few days?'));
+    var spottingOptions = el('div', 'ob-estimate-options');
+    var spottingChoices = [
+      { label: 'Yes, full flow now', value: 'full' },
+      { label: 'Light spotting', value: 'spotting' },
+      { label: 'No bleeding', value: 'none' }
+    ];
+    var selectedSpotting = null;
+
+    spottingChoices.forEach(function (choice) {
+      var chip = el('button', 'ob-estimate-chip', choice.label);
+      chip.type = 'button';
+      chip.setAttribute('data-spotting', choice.value);
+      chip.addEventListener('click', function () {
+        spottingOptions.querySelectorAll('.ob-estimate-chip').forEach(function (c) {
+          c.classList.remove('selected');
+        });
+        chip.classList.add('selected');
+        selectedSpotting = choice.value;
+        updateEstimatedDate();
+      });
+      spottingOptions.appendChild(chip);
+    });
+    spottingGroup.appendChild(spottingOptions);
+    estimateContainer.appendChild(spottingGroup);
+
+    // Estimated date display
+    var estimatedResult = el('div', 'ob-field-label', '');
+    estimatedResult.id = 'ob-estimated-result';
+    estimatedResult.style.fontWeight = '600';
+    estimatedResult.style.color = 'var(--teal)';
+    estimatedResult.style.textAlign = 'center';
+    estimatedResult.style.marginTop = '12px';
+    estimatedResult.style.minHeight = '20px';
+    estimateContainer.appendChild(estimatedResult);
+
+    cycleFields.appendChild(estimateContainer);
+
+    // Hidden field to store the calculated estimated date
+    var estimatedDateValue = '';
+
+    function updateEstimatedDate() {
+      if (selectedWeeks === null) return;
+      var today = new Date();
+      var daysAgo = Math.round(selectedWeeks * 7);
+
+      // Adjust for spotting context
+      if (selectedSpotting === 'full') {
+        // They're in their period now — Day 1 was likely 1-2 days ago if just started
+        // or use the weeks-ago answer adjusted
+        if (selectedWeeks <= 0.5) {
+          daysAgo = 1; // just started
+        }
+      } else if (selectedSpotting === 'spotting') {
+        // Spotting could mean period is about to start, don't change the weeks-ago estimate
+        // just keep it as is
+      }
+
+      var estimated = new Date(today);
+      estimated.setDate(estimated.getDate() - daysAgo);
+
+      var yyyy = estimated.getFullYear();
+      var mm = String(estimated.getMonth() + 1).padStart(2, '0');
+      var dd = String(estimated.getDate()).padStart(2, '0');
+      estimatedDateValue = yyyy + '-' + mm + '-' + dd;
+
+      var display = estimated.toLocaleDateString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric'
+      });
+      estimatedResult.textContent = 'Estimated start: ' + display;
+
+      // Show confidence card for estimated
+      showConfidenceCard('estimated');
+    }
+
+    // ── Confidence Disclaimer Card ──
+    var confidenceCard = el('div', 'ob-confidence-card');
+    confidenceCard.id = 'ob-confidence-card';
+    cycleFields.appendChild(confidenceCard);
+
+    function showConfidenceCard(type) {
+      confidenceCard.className = 'ob-confidence-card visible ' + type;
+      if (type === 'estimated') {
+        confidenceCard.innerHTML =
+          '<span class="ob-confidence-icon">\uD83D\uDCA1</span>' +
+          '<span class="ob-confidence-text">Based on your estimate, predictions are accurate to <strong>+/- 2-3 days</strong>. ' +
+          'After one full tracked cycle (~28 days), accuracy improves significantly.</span>';
+      } else {
+        confidenceCard.innerHTML =
+          '<span class="ob-confidence-icon">\u2705</span>' +
+          '<span class="ob-confidence-text">Great! Your predictions will be <strong>accurate from day one</strong>, ' +
+          'and improve further as you track.</span>';
+      }
+    }
+
+    // Listen for exact date changes to show confidence card
+    dateInput.addEventListener('change', function () {
+      if (dateInput.value) {
+        showConfidenceCard('exact');
+      }
+    });
+
+    // ── Mode Toggle Behavior ──
+    modeBtnExact.addEventListener('click', function () {
+      currentMode = 'exact';
+      modeBtnExact.classList.add('active');
+      modeBtnEstimate.classList.remove('active');
+      exactContainer.style.display = '';
+      estimateContainer.style.display = 'none';
+      // Reset confidence card
+      confidenceCard.className = 'ob-confidence-card';
+      if (dateInput.value) {
+        showConfidenceCard('exact');
+      }
+    });
+
+    modeBtnEstimate.addEventListener('click', function () {
+      currentMode = 'estimated';
+      modeBtnEstimate.classList.add('active');
+      modeBtnExact.classList.remove('active');
+      exactContainer.style.display = 'none';
+      estimateContainer.style.display = '';
+      // Reset confidence card
+      confidenceCard.className = 'ob-confidence-card';
+      if (estimatedDateValue) {
+        showConfidenceCard('estimated');
+      }
+    });
 
     // Toggle behavior
     toggleInput.addEventListener('change', function () {
@@ -418,7 +652,14 @@ window.PeakHer.Onboarding = (function () {
         var len = parseInt(lengthInput.value, 10);
         if (isNaN(len) || len < 21 || len > 45) len = 28;
         userData.cycleLength = len;
-        userData.lastPeriodDate = dateInput.value || '';
+
+        if (currentMode === 'exact') {
+          userData.lastPeriodDate = dateInput.value || '';
+          userData.cycleDateConfidence = 'exact';
+        } else {
+          userData.lastPeriodDate = estimatedDateValue || '';
+          userData.cycleDateConfidence = 'estimated';
+        }
       }
       showStep(4);
     });
@@ -432,7 +673,81 @@ window.PeakHer.Onboarding = (function () {
     return step;
   }
 
-  // ── Step 4: Integrations (Coming Soon) ──────────────────────────────
+  // ── Step 4: Voice Persona Selector (NEW) ──────────────────────────
+
+  var VOICES = [
+    {
+      id: 'sassy',
+      name: 'Sassy Bestie',
+      emoji: '\uD83D\uDC85',
+      preview: "Girl, you're on day 14. Go get that raise and eat a steak tonight. This is YOUR window."
+    },
+    {
+      id: 'scientific',
+      name: 'Science-Backed & Precise',
+      emoji: '\uD83D\uDD2C',
+      preview: 'Estrogen peaks around ovulation, day 14. Verbal fluency and spatial reasoning are elevated. Optimal for high-stakes communication.'
+    },
+    {
+      id: 'spiritual',
+      name: 'Spiritually Centered',
+      emoji: '\uD83C\uDF19',
+      preview: "You're entering your inner summer. Your energy wants to expand outward. Honor that flow and let your light radiate today."
+    },
+    {
+      id: 'hype',
+      name: 'Hyped Motivator',
+      emoji: '\uD83D\uDD25',
+      preview: 'THIS IS YOUR WINDOW! Day 14! You are MAGNETIC right now! Go crush that meeting, hit the gym hard, OWN today!'
+    }
+  ];
+
+  function buildStep4() {
+    var step = el('div', 'onboarding-step');
+    step.setAttribute('data-step', '4');
+
+    step.appendChild(el('h2', 'ob-heading', 'Choose Your Coach Voice'));
+    step.appendChild(el('p', 'ob-subtext', 'How should your daily briefings sound? You can change this anytime.'));
+
+    var grid = el('div', 'ob-voice-grid');
+    var selectedVoice = 'sassy'; // default
+
+    VOICES.forEach(function (voice) {
+      var card = el('div', 'ob-voice-card' + (voice.id === selectedVoice ? ' selected' : ''));
+      card.setAttribute('data-voice', voice.id);
+      card.innerHTML =
+        '<div class="ob-voice-header">' +
+          '<span class="ob-voice-emoji">' + voice.emoji + '</span>' +
+          '<span class="ob-voice-name">' + voice.name + '</span>' +
+        '</div>' +
+        '<div class="ob-voice-preview">"' + voice.preview + '"</div>';
+
+      card.addEventListener('click', function () {
+        grid.querySelectorAll('.ob-voice-card').forEach(function (c) {
+          c.classList.remove('selected');
+        });
+        card.classList.add('selected');
+        selectedVoice = voice.id;
+      });
+
+      grid.appendChild(card);
+    });
+
+    var btn = el('button', 'ob-btn', 'Continue');
+    btn.type = 'button';
+    btn.addEventListener('click', function () {
+      userData.coachVoice = selectedVoice;
+      showStep(5);
+    });
+
+    step.appendChild(grid);
+    step.appendChild(el('div', 'ob-spacer'));
+    step.appendChild(btn);
+
+    return step;
+  }
+
+  // ── Step 5: Integrations (Coming Soon) ──────────────────────────────
 
   var INTEGRATIONS = [
     { name: 'Apple Health',  icon: '\u2764\uFE0F' },
@@ -440,9 +755,9 @@ window.PeakHer.Onboarding = (function () {
     { name: 'Oura',          icon: '\uD83D\uDCAD' }
   ];
 
-  function buildStep4() {
+  function buildStep5() {
     var step = el('div', 'onboarding-step');
-    step.setAttribute('data-step', '4');
+    step.setAttribute('data-step', '5');
 
     step.appendChild(el('h2', 'ob-heading', 'Integrations'));
     step.appendChild(el('p', 'ob-subtext', 'Coming soon \u2014 connect your favorite tools'));
@@ -464,7 +779,7 @@ window.PeakHer.Onboarding = (function () {
     var btn = el('button', 'ob-btn', 'Continue');
     btn.type = 'button';
     btn.addEventListener('click', function () {
-      showStep(5);
+      showStep(6);
     });
 
     step.appendChild(list);
@@ -474,11 +789,11 @@ window.PeakHer.Onboarding = (function () {
     return step;
   }
 
-  // ── Step 5: Ready to Go ─────────────────────────────────────────────
+  // ── Step 6: Ready to Go ─────────────────────────────────────────────
 
-  function buildStep5() {
+  function buildStep6() {
     var step = el('div', 'onboarding-step');
-    step.setAttribute('data-step', '5');
+    step.setAttribute('data-step', '6');
 
     // Animated checkmark
     var circle = el('div', 'ob-checkmark-circle');
@@ -503,7 +818,8 @@ window.PeakHer.Onboarding = (function () {
         Store.setCycleProfile({
           trackingEnabled: true,
           averageCycleLength: userData.cycleLength,
-          lastPeriodStart: userData.lastPeriodDate
+          lastPeriodStart: userData.lastPeriodDate,
+          cycleDateConfidence: userData.cycleDateConfidence
         });
       }
 
@@ -518,10 +834,12 @@ window.PeakHer.Onboarding = (function () {
         email: userData.email,
         password: userData.password,
         personas: userData.hats,
+        coachVoice: userData.coachVoice,
         cycleProfile: userData.cycleTracking ? {
           trackingEnabled: true,
           averageCycleLength: userData.cycleLength,
-          lastPeriodStart: userData.lastPeriodDate
+          lastPeriodStart: userData.lastPeriodDate,
+          cycleDateConfidence: userData.cycleDateConfidence
         } : null
       };
 
@@ -688,8 +1006,9 @@ window.PeakHer.Onboarding = (function () {
     wrap.appendChild(buildStep1());
     wrap.appendChild(buildStep2());
     wrap.appendChild(buildStep3());
-    wrap.appendChild(buildStep4());
-    wrap.appendChild(buildStep5());
+    wrap.appendChild(buildStep4());  // NEW: Voice selector
+    wrap.appendChild(buildStep5());  // Was step 4 (Integrations)
+    wrap.appendChild(buildStep6());  // Was step 5 (Ready)
 
     // Login step (hidden by default)
     loginStepEl = buildLoginStep();

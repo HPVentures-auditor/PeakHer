@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
     return sendError(res, 429, 'Too many registration attempts. Please try again later.');
   }
 
-  const { name, email, password, personas, cycleProfile } = req.body;
+  const { name, email, password, personas, cycleProfile, coachVoice } = req.body;
 
   if (!name || !email || !password) {
     return sendError(res, 400, 'Name, email, and password are required');
@@ -53,22 +53,29 @@ module.exports = async function handler(req, res) {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // Validate coach_voice if provided
+    const validVoices = ['sassy', 'scientific', 'spiritual', 'hype'];
+    const voice = coachVoice && validVoices.indexOf(coachVoice) !== -1 ? coachVoice : 'sassy';
+
     const [user] = await sql`
-      INSERT INTO users (name, email, password_hash, personas, onboarding_complete)
-      VALUES (${name.trim()}, ${email.toLowerCase().trim()}, ${passwordHash}, ${personas || []}, true)
-      RETURNING id, name, email, personas, onboarding_complete, created_at
+      INSERT INTO users (name, email, password_hash, personas, onboarding_complete, coach_voice)
+      VALUES (${name.trim()}, ${email.toLowerCase().trim()}, ${passwordHash}, ${personas || []}, true, ${voice})
+      RETURNING id, name, email, personas, onboarding_complete, coach_voice, created_at
     `;
 
     // Create cycle profile if provided
     if (cycleProfile && cycleProfile.trackingEnabled) {
+      const validConfidence = ['exact', 'estimated'];
+      const confidence = cycleProfile.cycleDateConfidence && validConfidence.indexOf(cycleProfile.cycleDateConfidence) !== -1
+        ? cycleProfile.cycleDateConfidence : 'estimated';
       await sql`
-        INSERT INTO cycle_profiles (user_id, tracking_enabled, average_cycle_length, last_period_start)
-        VALUES (${user.id}, ${cycleProfile.trackingEnabled}, ${cycleProfile.averageCycleLength || 28}, ${cycleProfile.lastPeriodStart || null})
+        INSERT INTO cycle_profiles (user_id, tracking_enabled, average_cycle_length, last_period_start, cycle_date_confidence, coach_voice)
+        VALUES (${user.id}, ${cycleProfile.trackingEnabled}, ${cycleProfile.averageCycleLength || 28}, ${cycleProfile.lastPeriodStart || null}, ${confidence}, ${voice})
       `;
     } else {
       await sql`
-        INSERT INTO cycle_profiles (user_id, tracking_enabled)
-        VALUES (${user.id}, false)
+        INSERT INTO cycle_profiles (user_id, tracking_enabled, coach_voice)
+        VALUES (${user.id}, false, ${voice})
       `;
     }
 
@@ -105,6 +112,7 @@ module.exports = async function handler(req, res) {
         email: user.email,
         personas: user.personas,
         onboardingComplete: user.onboarding_complete,
+        coachVoice: user.coach_voice || 'sassy',
         createdAt: user.created_at
       }
     });

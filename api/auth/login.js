@@ -46,9 +46,9 @@ module.exports = async function handler(req, res) {
 
     const token = createToken(user.id);
 
-    // Get cycle profile
+    // Get cycle profile (includes coach_voice and cycle_date_confidence)
     const [cycleProfile] = await sql`
-      SELECT tracking_enabled, average_cycle_length, last_period_start
+      SELECT tracking_enabled, average_cycle_length, last_period_start, cycle_date_confidence, coach_voice
       FROM cycle_profiles WHERE user_id = ${user.id}
     `;
 
@@ -71,7 +71,9 @@ module.exports = async function handler(req, res) {
       cycleProfile: cycleProfile ? {
         trackingEnabled: cycleProfile.tracking_enabled,
         averageCycleLength: cycleProfile.average_cycle_length,
-        lastPeriodStart: cycleProfile.last_period_start
+        lastPeriodStart: cycleProfile.last_period_start,
+        cycleDateConfidence: cycleProfile.cycle_date_confidence || 'estimated',
+        coachVoice: cycleProfile.coach_voice || 'sassy'
       } : null,
       streak: streak ? {
         current: streak.current_streak,

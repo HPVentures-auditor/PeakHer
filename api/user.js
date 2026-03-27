@@ -18,7 +18,8 @@ module.exports = async function handler(req, res) {
       if (!user) return sendError(res, 404, 'User not found');
 
       const [cycleProfile] = await sql`
-        SELECT tracking_enabled, average_cycle_length, last_period_start
+        SELECT tracking_enabled, average_cycle_length, last_period_start,
+               cycle_date_confidence
         FROM cycle_profiles WHERE user_id = ${userId}
       `;
 
@@ -43,7 +44,9 @@ module.exports = async function handler(req, res) {
         cycleProfile: cycleProfile ? {
           trackingEnabled: cycleProfile.tracking_enabled,
           averageCycleLength: cycleProfile.average_cycle_length,
-          lastPeriodStart: cycleProfile.last_period_start
+          lastPeriodStart: cycleProfile.last_period_start,
+          cycleDateConfidence: cycleProfile.cycle_date_confidence || 'estimated',
+          coachVoice: cycleProfile.coach_voice || 'sassy'
         } : null,
         streak: streak ? {
           current: streak.current_streak,
@@ -60,7 +63,7 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'PUT') {
     try {
-      const { name, personas, cycleProfile } = req.body;
+      const { name, personas, cycleProfile, coachVoice } = req.body;
 
       // Validate PUT inputs
       if (name != null) {
@@ -78,6 +81,12 @@ module.exports = async function handler(req, res) {
           }
         }
       }
+      if (coachVoice != null) {
+        var validVoices = ['sassy', 'scientific', 'spiritual', 'hype'];
+        if (validVoices.indexOf(coachVoice) === -1) {
+          return sendError(res, 400, 'Coach voice must be one of: sassy, scientific, spiritual, hype');
+        }
+      }
       if (cycleProfile != null) {
         if (typeof cycleProfile !== 'object') {
           return sendError(res, 400, 'Cycle profile must be an object');
@@ -88,6 +97,12 @@ module.exports = async function handler(req, res) {
             return sendError(res, 400, 'Average cycle length must be between 15 and 60');
           }
         }
+        if (cycleProfile.cycleDateConfidence != null) {
+          var validConfidence = ['exact', 'estimated'];
+          if (validConfidence.indexOf(cycleProfile.cycleDateConfidence) === -1) {
+            return sendError(res, 400, 'Cycle date confidence must be one of: exact, estimated');
+          }
+        }
       }
 
       if (name) {
@@ -96,12 +111,17 @@ module.exports = async function handler(req, res) {
       if (personas) {
         await sql`UPDATE users SET personas = ${personas} WHERE id = ${userId}`;
       }
+      if (coachVoice) {
+        await sql`UPDATE cycle_profiles SET coach_voice = ${coachVoice}, updated_at = now() WHERE user_id = ${userId}`;
+      }
       if (cycleProfile) {
+        var confidence = cycleProfile.cycleDateConfidence || 'estimated';
         await sql`
           UPDATE cycle_profiles SET
             tracking_enabled = ${cycleProfile.trackingEnabled || false},
             average_cycle_length = ${cycleProfile.averageCycleLength || 28},
             last_period_start = ${cycleProfile.lastPeriodStart || null},
+            cycle_date_confidence = ${confidence},
             updated_at = now()
           WHERE user_id = ${userId}
         `;

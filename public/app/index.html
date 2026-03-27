@@ -953,7 +953,7 @@
     transition: max-height 0.3s ease;
   }
   .briefing-section-body.open {
-    max-height: 300px;
+    max-height: 600px;
   }
   .briefing-section-content {
     padding: 0 20px 16px 54px;
@@ -999,6 +999,28 @@
   .briefing-funfact strong {
     color: var(--text-dark, #1a1a2e);
   }
+  /* v2: Key Insight section */
+  .briefing-key-insight {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(45,138,138,0.06) 0%, rgba(45,138,138,0.02) 100%);
+    border-top: 1px solid rgba(45,138,138,0.12);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .briefing-key-insight-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--teal, #2d8a8a);
+    margin-bottom: 6px;
+  }
+  .briefing-key-insight-text {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text-dark, #1a1a2e);
+  }
+
   .briefing-streak {
     padding: 12px 20px;
     font-size: 14px;
@@ -1094,6 +1116,7 @@
 <script src="js/history.js"></script>
 <script src="js/patterns.js"></script>
 <script src="js/weekahead.js"></script>
+<script src="js/settings.js"></script>
 
 <!-- App Init -->
 <script>
@@ -1109,6 +1132,7 @@
     safeInit('History', function() { PeakHer.History.init(); });
     safeInit('Patterns', function() { PeakHer.Patterns.init(); });
     safeInit('WeekAhead', function() { PeakHer.WeekAhead.init(); });
+    safeInit('Settings', function() { PeakHer.Settings.init(); });
     safeInit('Router', function() { PeakHer.Router.init(); });
 
     // Sync with server if logged in
