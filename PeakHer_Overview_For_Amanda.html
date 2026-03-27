@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeakHer.ai — How It Works</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --navy: #0a1628;
+            --navy-light: #0f1f3a;
+            --navy-mid: #162a4a;
+            --coral: #E87461;
+            --coral-light: #f09383;
+            --teal: #2d8a8a;
+            --teal-light: #3aadad;
+            --reflect: #7BA7C2;
+            --build: #5EC49A;
+            --perform: #E87461;
+            --complete: #C49A5E;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255,255,255,0.7);
+            --text-muted: rgba(255,255,255,0.45);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--navy);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ─── HERO ─── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 24px;
+            background: radial-gradient(ellipse at 50% 30%, rgba(232,116,97,0.12) 0%, transparent 60%),
+                        radial-gradient(ellipse at 20% 80%, rgba(45,138,138,0.08) 0%, transparent 50%),
+                        var(--navy);
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(232,116,97,0.12);
+            border: 1px solid rgba(232,116,97,0.25);
+            border-radius: 100px;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--coral-light);
+            letter-spacing: 0.5px;
+            margin-bottom: 32px;
+        }
+
+        .hero-badge .dot {
+            width: 8px; height: 8px;
+            background: var(--coral);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .hero h1 {
+            font-size: clamp(48px, 8vw, 80px);
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1.05;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 span { color: var(--coral); }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 620px;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .hero-url {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--navy-light);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 14px 28px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--teal-light);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .hero-url:hover {
+            border-color: var(--teal);
+            background: var(--navy-mid);
+            transform: translateY(-2px);
+        }
+
+        .hero-url .arrow { font-size: 14px; opacity: 0.6; }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: bobble 2s ease-in-out infinite;
+        }
+
+        @keyframes bobble {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
+        }
+
+        .scroll-hint svg { width: 20px; height: 20px; opacity: 0.4; }
+
+        /* ─── SECTIONS ─── */
+        section {
+            padding: 100px 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-light {
+            background: #f7f5f2;
+            color: #1a1a2e;
+            max-width: 100%;
+            padding: 100px 24px;
+        }
+
+        .section-light .inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--coral);
+            margin-bottom: 16px;
+        }
+
+        .section-light .section-tag { color: var(--coral); }
+
+        .section-title {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 680px;
+            font-weight: 300;
+            margin-bottom: 60px;
+        }
+
+        .section-light .section-subtitle { color: #555; }
+
+        /* ─── THE PROBLEM ─── */
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 48px;
+        }
+
+        .problem-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .problem-card .icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .problem-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .problem-card p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ─── FOUR MODES ─── */
+        .modes-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 48px;
+        }
+
+        @media (max-width: 768px) {
+            .modes-container { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .modes-container { grid-template-columns: 1fr; }
+        }
+
+        .mode-card {
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0.08;
+            border-radius: 20px;
+        }
+
+        .mode-reflect { background: rgba(123,167,194,0.12); border: 1px solid rgba(123,167,194,0.25); }
+        .mode-build { background: rgba(94,196,154,0.12); border: 1px solid rgba(94,196,154,0.25); }
+        .mode-perform { background: rgba(232,116,97,0.12); border: 1px solid rgba(232,116,97,0.25); }
+        .mode-complete { background: rgba(196,154,94,0.12); border: 1px solid rgba(196,154,94,0.25); }
+
+        .mode-phase {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 16px;
+        }
+
+        .mode-reflect .mode-phase { background: rgba(123,167,194,0.2); }
+        .mode-build .mode-phase { background: rgba(94,196,154,0.2); }
+        .mode-perform .mode-phase { background: rgba(232,116,97,0.2); }
+        .mode-complete .mode-phase { background: rgba(196,154,94,0.2); }
+
+        .mode-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .mode-reflect h3 { color: var(--reflect); }
+        .mode-build h3 { color: var(--build); }
+        .mode-perform h3 { color: var(--perform); }
+        .mode-complete h3 { color: var(--complete); }
+
+        .mode-days {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+
+        .mode-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .mode-energy {
+            display: inline-block;
+            margin-top: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 100px;
+        }
+
+        .mode-reflect .mode-energy { color: var(--reflect); background: rgba(123,167,194,0.15); }
+        .mode-build .mode-energy { color: var(--build); background: rgba(94,196,154,0.15); }
+        .mode-perform .mode-energy { color: var(--perform); background: rgba(232,116,97,0.15); }
+        .mode-complete .mode-energy { color: var(--complete); background: rgba(196,154,94,0.15); }
+
+        /* ─── CYCLE VISUAL ─── */
+        .cycle-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 60px auto 20px;
+            max-width: 700px;
+        }
+
+        .cycle-bar {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .cycle-bar.reflect { background: linear-gradient(90deg, var(--reflect), #9abdd4); }
+        .cycle-bar.build { background: linear-gradient(90deg, #9abdd4, var(--build)); flex: 1.8; }
+        .cycle-bar.perform { background: linear-gradient(90deg, var(--build), var(--perform)); flex: 0.5; }
+        .cycle-bar.complete { background: linear-gradient(90deg, var(--perform), var(--complete)); flex: 2.2; }
+
+        .cycle-label {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ─── HOW IT WORKS (DEMO) ─── */
+        .demo-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-top: 48px;
+            position: relative;
+        }
+
+        .demo-step {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+            padding: 48px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .demo-step:last-child { border-bottom: none; }
+
+        @media (max-width: 768px) {
+            .demo-step {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .step-number {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: var(--coral);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .step-content .time-badge {
+            display: inline-block;
+            background: rgba(232,116,97,0.1);
+            color: var(--coral);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 100px;
+            margin-bottom: 14px;
+        }
+
+        .step-content p {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .step-mockup {
+            background: var(--navy);
+            border-radius: 24px;
+            padding: 28px 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            min-height: 260px;
+        }
+
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .mockup-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* Onboarding mockup */
+        .persona-tiles {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .persona-tile {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .persona-tile.active {
+            background: rgba(232,116,97,0.15);
+            border-color: var(--coral);
+            color: var(--coral-light);
+        }
+
+        .persona-tile .emoji { font-size: 22px; display: block; margin-bottom: 4px; }
+
+        /* Check-in mockup */
+        .slider-group {
+            margin-bottom: 18px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .slider-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .slider-fill {
+            height: 100%;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .slider-fill::after {
+            content: '';
+            position: absolute;
+            right: -8px; top: -5px;
+            width: 16px; height: 16px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .slider-fill.energy { background: var(--coral); width: 78%; }
+        .slider-fill.confidence { background: var(--teal); width: 65%; }
+
+        .optional-fields {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .opt-field {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Briefing mockup */
+        .briefing-phase {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(94,196,154,0.15);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--build);
+            margin-bottom: 16px;
+        }
+
+        .briefing-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .briefing-text strong { color: var(--text-primary); font-weight: 600; }
+
+        .briefing-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .briefing-action {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .briefing-action .check {
+            width: 18px; height: 18px;
+            border: 2px solid var(--teal);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Patterns mockup */
+        .pattern-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            height: 100px;
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            min-width: 12px;
+        }
+
+        .chart-bar .day-label {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .insight-pill {
+            background: rgba(45,138,138,0.15);
+            border: 1px solid rgba(45,138,138,0.25);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--teal-light);
+            line-height: 1.5;
+        }
+
+        .insight-pill .label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--teal);
+            margin-bottom: 4px;
+        }
+
+        /* Week-ahead mockup */
+        .week-forecast {
+            display: flex;
+            gap: 6px;
+        }
+
+        .forecast-day {
+            flex: 1;
+            text-align: center;
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 12px 6px;
+        }
+
+        .forecast-day.best {
+            background: rgba(232,116,97,0.15);
+            border: 1px solid rgba(232,116,97,0.3);
+        }
+
+        .forecast-day .day-name {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .forecast-day .energy-dot {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            margin: 0 auto 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .forecast-day .phase-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            margin: 0 auto;
+        }
+
+        .forecast-day.best .best-label {
+            font-size: 9px;
+            color: var(--coral);
+            font-weight: 700;
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ─── STATUS SECTION ─── */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 48px;
+        }
+
+        .status-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 28px 24px;
+            text-align: center;
+        }
+
+        .status-card .status-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .status-card h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .status-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .status-card .status-badge {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 100px;
+        }
+
+        .badge-live { background: rgba(94,196,154,0.15); color: var(--build); }
+        .badge-ready { background: rgba(45,138,138,0.15); color: var(--teal-light); }
+        .badge-next { background: rgba(196,154,94,0.15); color: var(--complete); }
+
+        /* ─── FEATURE CHECKLIST ─── */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 12px;
+            margin-top: 40px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        .feature-check {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: rgba(94,196,154,0.15);
+            color: var(--build);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .feature-pending .feature-check {
+            background: rgba(196,154,94,0.15);
+            color: var(--complete);
+        }
+
+        /* ─── TECH STACK ─── */
+        .tech-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .tech-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 100px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .tech-pill .tech-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+        }
+
+        /* ─── BUSINESS MODEL ─── */
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 48px;
+            max-width: 700px;
+        }
+
+        @media (max-width: 600px) {
+            .pricing-cards { grid-template-columns: 1fr; }
+        }
+
+        .pricing-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 36px 28px;
+        }
+
+        .pricing-card.premium {
+            background: linear-gradient(135deg, rgba(232,116,97,0.12), rgba(45,138,138,0.08));
+            border-color: rgba(232,116,97,0.3);
+        }
+
+        .pricing-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .pricing-card .price {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .pricing-card .premium-badge {
+            display: inline-block;
+            background: var(--coral);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 100px;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .pricing-features {
+            list-style: none;
+        }
+
+        .pricing-features li {
+            font-size: 14px;
+            color: var(--text-secondary);
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pricing-features li::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            flex-shrink: 0;
+        }
+
+        /* ─── TIMELINE ─── */
+        .timeline {
+            margin-top: 48px;
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 36px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -29px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--coral);
+            border: 3px solid var(--navy);
+        }
+
+        .timeline-item.done::before { background: var(--build); }
+        .timeline-item.current::before {
+            background: var(--coral);
+            box-shadow: 0 0 0 4px rgba(232,116,97,0.25);
+        }
+        .timeline-item.future::before { background: var(--text-muted); }
+
+        .timeline-item h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .timeline-item p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .timeline-item .timeline-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 100px;
+            margin-top: 6px;
+        }
+
+        .tag-complete { background: rgba(94,196,154,0.15); color: var(--build); }
+        .tag-now { background: rgba(232,116,97,0.15); color: var(--coral); }
+        .tag-next { background: rgba(196,154,94,0.15); color: var(--complete); }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            text-align: center;
+            padding: 60px 24px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .footer p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: var(--coral);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            section { padding: 60px 20px; }
+            .section-light { padding: 60px 20px; }
+            .demo-step { grid-template-columns: 1fr; }
+            .step-number { width: 44px; height: 44px; font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── HERO ─── -->
+    <div class="hero">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            LIVE &amp; RUNNING
+        </div>
+        <h1>Peak<span>Her</span>.ai</h1>
+        <p>The first personal performance platform that understands women's biology and uses your unique data to optimize every role you play.</p>
+        <a href="https://peakher.ai" target="_blank" class="hero-url">
+            peakher.ai <span class="arrow">&rarr;</span>
+        </a>
+        <div class="scroll-hint">
+            SCROLL
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+    </div>
+
+    <!-- ─── THE IDEA ─── -->
+    <section>
+        <div class="section-tag">The Insight</div>
+        <h2 class="section-title">Women's performance isn't random.<br>It has a rhythm.</h2>
+        <p class="section-subtitle">Every woman has a unique "Performance Fingerprint" — a pattern of energy, confidence, and capability that repeats in cycles. PeakHer helps her discover it, then use it to plan her life around her best days.</p>
+
+        <div class="problem-grid">
+            <div class="problem-card">
+                <div class="icon">&#x1F50D;</div>
+                <h3>Not a Period Tracker</h3>
+                <p>Period trackers stop at symptoms. PeakHer correlates biology with real-world performance — sales calls, workouts, parenting energy, creative output.</p>
+            </div>
+            <div class="problem-card">
+                <div class="icon">&#x1F9E0;</div>
+                <h3>AI-Powered Intelligence</h3>
+                <p>Claude AI reads her patterns and generates a personalized daily briefing: what to expect, what to schedule, what to protect.</p>
+            </div>
+            <div class="problem-card">
+                <div class="icon">&#x1F3AF;</div>
+                <h3>Every Hat She Wears</h3>
+                <p>Saleswoman. Athlete. Mom. Entrepreneur. Leader. Creative. She picks her roles and gets insights tailored to each one.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── THE 4 MODES ─── -->
+    <section>
+        <div class="section-tag">The Framework</div>
+        <h2 class="section-title">4 Performance Modes</h2>
+        <p class="section-subtitle">Instead of good days and bad days, PeakHer maps a woman's cycle into four distinct performance modes — each with its own superpower.</p>
+
+        <div class="modes-container">
+            <div class="mode-card mode-reflect">
+                <div class="mode-phase">&#x1F30A;</div>
+                <h3>Reflect</h3>
+                <div class="mode-days">Days 1–5</div>
+                <p>Intuition peaks. Best time for strategic review, journaling, and deep thinking. Protect your energy.</p>
+                <div class="mode-energy">Recharge</div>
+            </div>
+            <div class="mode-card mode-build">
+                <div class="mode-phase">&#x1F331;</div>
+                <h3>Build</h3>
+                <div class="mode-days">Days 6–14</div>
+                <p>Energy rises steadily. Creativity and learning are supercharged. Start new projects here.</p>
+                <div class="mode-energy">Rising</div>
+            </div>
+            <div class="mode-card mode-perform">
+                <div class="mode-phase">&#x1F525;</div>
+                <h3>Perform</h3>
+                <div class="mode-days">Days 15–17</div>
+                <p>Peak confidence. Best for pitching, presenting, negotiating, and big asks. Your magnetic window.</p>
+                <div class="mode-energy">Peak</div>
+            </div>
+            <div class="mode-card mode-complete">
+                <div class="mode-phase">&#x1F343;</div>
+                <h3>Complete</h3>
+                <div class="mode-days">Days 18–28</div>
+                <p>Detail-oriented focus. Perfect for finishing, organizing, editing, and tying up loose ends.</p>
+                <div class="mode-energy">Focused</div>
+            </div>
+        </div>
+
+        <!-- cycle bar -->
+        <div class="cycle-visual">
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+                <div class="cycle-bar reflect" style="width:100%;"></div>
+                <div class="cycle-label" style="color:var(--reflect);">Reflect</div>
+            </div>
+            <div style="flex:1.8; display:flex; flex-direction:column; align-items:center;">
+                <div class="cycle-bar build" style="width:100%;"></div>
+                <div class="cycle-label" style="color:var(--build);">Build</div>
+            </div>
+            <div style="flex:0.5; display:flex; flex-direction:column; align-items:center;">
+                <div class="cycle-bar perform" style="width:100%;"></div>
+                <div class="cycle-label" style="color:var(--perform);">Perform</div>
+            </div>
+            <div style="flex:2.2; display:flex; flex-direction:column; align-items:center;">
+                <div class="cycle-bar complete" style="width:100%;"></div>
+                <div class="cycle-label" style="color:var(--complete);">Complete</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── HOW IT WORKS (DEMO WALKTHROUGH) ─── -->
+    <div class="section-light">
+        <div class="inner">
+            <div class="section-tag">Demo Walkthrough</div>
+            <h2 class="section-title" style="color:#1a1a2e;">What she actually sees & does</h2>
+            <p class="section-subtitle">From signup to daily use — here's the real experience, screen by screen.</p>
+
+            <div class="demo-steps">
+
+                <!-- Step 1: Onboarding -->
+                <div class="demo-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Pick Your Hats</h3>
+                        <div class="time-badge">90 seconds to complete</div>
+                        <p>She signs up, then picks the roles she plays in life. Each "hat" unlocks personalized insights for that domain. Cycle tracking is optional — the app works without it.</p>
+                    </div>
+                    <div class="step-mockup">
+                        <div class="mockup-header">
+                            <span>Step 2 of 5</span>
+                            <span style="font-size:11px;">&#x25CF; &#x25CF; &#x25CB; &#x25CB; &#x25CB;</span>
+                        </div>
+                        <div class="mockup-title">What hats do you wear?</div>
+                        <div class="persona-tiles">
+                            <div class="persona-tile active"><span class="emoji">&#x1F4BC;</span>Entrepreneur</div>
+                            <div class="persona-tile"><span class="emoji">&#x1F4B0;</span>Saleswoman</div>
+                            <div class="persona-tile active"><span class="emoji">&#x1F3CB;&#xFE0F;</span>Athlete</div>
+                            <div class="persona-tile active"><span class="emoji">&#x1F469;&#x200D;&#x1F37C;</span>Mom</div>
+                            <div class="persona-tile"><span class="emoji">&#x1F451;</span>Executive</div>
+                            <div class="persona-tile"><span class="emoji">&#x1F3A8;</span>Creative</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Daily Check-In -->
+                <div class="demo-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>10-Second Daily Check-In</h3>
+                        <div class="time-badge">Once per day</div>
+                        <p>Two quick sliders: <strong>Energy</strong> and <strong>Confidence</strong>. That's it. Optional fields for sleep, stress, cycle day, and notes. Builds a streak counter to keep her consistent.</p>
+                    </div>
+                    <div class="step-mockup">
+                        <div class="mockup-header">
+                            <span>Daily Check-In</span>
+                            <span style="color:var(--coral);">&#x1F525; 12 day streak</span>
+                        </div>
+                        <div class="slider-group">
+                            <div class="slider-label"><span>Energy</span><span style="color:var(--coral);font-weight:600;">7.8</span></div>
+                            <div class="slider-track"><div class="slider-fill energy"></div></div>
+                        </div>
+                        <div class="slider-group">
+                            <div class="slider-label"><span>Confidence</span><span style="color:var(--teal);font-weight:600;">6.5</span></div>
+                            <div class="slider-track"><div class="slider-fill confidence"></div></div>
+                        </div>
+                        <div class="optional-fields">
+                            <div class="opt-field">&#x1F4A4; Sleep: 7.5hrs</div>
+                            <div class="opt-field">&#x1F9D8; Stress: Low</div>
+                            <div class="opt-field">&#x1F4C5; Cycle Day 11</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: AI Briefing -->
+                <div class="demo-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>AI Daily Briefing</h3>
+                        <div class="time-badge">Personalized by Claude AI</div>
+                        <p>Every day she gets a "performance weather report" — written by AI based on her specific data, her cycle phase, and the roles she plays. Actionable guidance, not generic tips.</p>
+                    </div>
+                    <div class="step-mockup">
+                        <div class="mockup-header">
+                            <span>Today's Briefing</span>
+                            <span>March 27</span>
+                        </div>
+                        <div class="briefing-phase">&#x1F331; Build Mode &middot; Day 11</div>
+                        <div class="briefing-text">
+                            Good morning! <strong>Your energy is trending 18% above your average</strong> — and historically, days 10-13 are your creative sweet spot. This is your window.
+                        </div>
+                        <div class="briefing-actions">
+                            <div class="briefing-action">
+                                <div class="check"></div>
+                                Schedule that pitch meeting today
+                            </div>
+                            <div class="briefing-action">
+                                <div class="check"></div>
+                                Hit leg day — your gym performance peaks now
+                            </div>
+                            <div class="briefing-action">
+                                <div class="check"></div>
+                                Batch creative work this afternoon
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Patterns -->
+                <div class="demo-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Pattern Dashboard</h3>
+                        <div class="time-badge">Unlocks after 25 check-ins</div>
+                        <p>This is the magic. After enough data, PeakHer shows her <strong>when her best days are</strong> — by cycle day, day of week, and correlation with sleep/stress. Real patterns, not guesses.</p>
+                    </div>
+                    <div class="step-mockup">
+                        <div class="mockup-header">
+                            <span>Your Patterns</span>
+                            <span>32 check-ins</span>
+                        </div>
+                        <div class="pattern-chart">
+                            <div class="chart-bar" style="height:35%;background:var(--reflect);"><span class="day-label">M</span></div>
+                            <div class="chart-bar" style="height:52%;background:var(--reflect);"><span class="day-label">T</span></div>
+                            <div class="chart-bar" style="height:65%;background:var(--build);"><span class="day-label">W</span></div>
+                            <div class="chart-bar" style="height:88%;background:var(--build);"><span class="day-label">T</span></div>
+                            <div class="chart-bar" style="height:95%;background:var(--perform);"><span class="day-label">F</span></div>
+                            <div class="chart-bar" style="height:72%;background:var(--complete);"><span class="day-label">S</span></div>
+                            <div class="chart-bar" style="height:48%;background:var(--complete);"><span class="day-label">S</span></div>
+                        </div>
+                        <div style="height:20px;"></div>
+                        <div class="insight-pill">
+                            <div class="label">AI Insight</div>
+                            Your energy averaged <strong style="color:white;">8.2 on cycle days 10–16</strong> and drops to 5.4 on days 24–28. Schedule big asks in your Build &amp; Perform window.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Week Ahead -->
+                <div class="demo-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Week-Ahead Forecast</h3>
+                        <div class="time-badge">Unlocks after 30 check-ins</div>
+                        <p>A 7-day performance forecast based on her historical patterns. Shows predicted energy, confidence, and cycle phase for each day — so she can <strong>plan her week around her biology</strong>.</p>
+                    </div>
+                    <div class="step-mockup">
+                        <div class="mockup-header">
+                            <span>Next 7 Days</span>
+                            <span>Forecast</span>
+                        </div>
+                        <div class="week-forecast">
+                            <div class="forecast-day">
+                                <div class="day-name">MON</div>
+                                <div class="energy-dot" style="background:rgba(94,196,154,0.2);color:var(--build);">7</div>
+                                <div class="phase-dot" style="background:var(--build);"></div>
+                            </div>
+                            <div class="forecast-day">
+                                <div class="day-name">TUE</div>
+                                <div class="energy-dot" style="background:rgba(94,196,154,0.2);color:var(--build);">8</div>
+                                <div class="phase-dot" style="background:var(--build);"></div>
+                            </div>
+                            <div class="forecast-day best">
+                                <div class="day-name">WED</div>
+                                <div class="energy-dot" style="background:rgba(232,116,97,0.25);color:var(--coral);">9</div>
+                                <div class="phase-dot" style="background:var(--perform);"></div>
+                                <div class="best-label">BEST DAY</div>
+                            </div>
+                            <div class="forecast-day">
+                                <div class="day-name">THU</div>
+                                <div class="energy-dot" style="background:rgba(232,116,97,0.2);color:var(--coral);">8</div>
+                                <div class="phase-dot" style="background:var(--perform);"></div>
+                            </div>
+                            <div class="forecast-day">
+                                <div class="day-name">FRI</div>
+                                <div class="energy-dot" style="background:rgba(196,154,94,0.2);color:var(--complete);">6</div>
+                                <div class="phase-dot" style="background:var(--complete);"></div>
+                            </div>
+                            <div class="forecast-day">
+                                <div class="day-name">SAT</div>
+                                <div class="energy-dot" style="background:rgba(196,154,94,0.2);color:var(--complete);">5</div>
+                                <div class="phase-dot" style="background:var(--complete);"></div>
+                            </div>
+                            <div class="forecast-day">
+                                <div class="day-name">SUN</div>
+                                <div class="energy-dot" style="background:rgba(196,154,94,0.15);color:var(--complete);">5</div>
+                                <div class="phase-dot" style="background:var(--complete);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── WHAT'S BUILT ─── -->
+    <section>
+        <div class="section-tag">Current Status</div>
+        <h2 class="section-title">What's built & live right now</h2>
+        <p class="section-subtitle">PeakHer is a fully functional product deployed at peakher.ai. Here's everything that's working today.</p>
+
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>User signup & login (JWT auth)</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>5-step onboarding flow</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Daily check-in with streak tracking</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>AI daily briefing (Claude)</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Quick-log events by persona</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Pattern dashboard & trend lines</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Week-ahead forecast</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Calendar / history view</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Optional cycle tracking</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Push notifications & reminders</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Stripe billing (Free + Premium)</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Admin dashboard</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>GHL integration for emails</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Data export (GDPR-compliant)</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Full database (15+ tables, Neon PostgreSQL)</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">&#x2713;</div>
+                <span>Deployed on Vercel with cron jobs</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── TECH / STATUS ─── -->
+    <div class="section-light">
+        <div class="inner">
+            <div class="section-tag">Under the Hood</div>
+            <h2 class="section-title" style="color:#1a1a2e;">How it's built</h2>
+            <p class="section-subtitle">Simple, modern, production-grade stack. No over-engineering.</p>
+
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="status-icon">&#x1F310;</div>
+                    <h4 style="color:#1a1a2e;">Frontend</h4>
+                    <p style="color:#555;">Vanilla JS single-page app. Mobile-first. Works offline via Service Worker.</p>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">&#x26A1;</div>
+                    <h4 style="color:#1a1a2e;">Backend</h4>
+                    <p style="color:#555;">Vercel serverless functions. Auto-scales. Zero server management.</p>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">&#x1F5C4;&#xFE0F;</div>
+                    <h4 style="color:#1a1a2e;">Database</h4>
+                    <p style="color:#555;">Neon PostgreSQL (serverless). 15+ tables. Proper indexes & constraints.</p>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">&#x1F916;</div>
+                    <h4 style="color:#1a1a2e;">AI</h4>
+                    <p style="color:#555;">Claude Haiku for briefings & insights. Statistical engine for pattern detection.</p>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">&#x1F4B3;</div>
+                    <h4 style="color:#1a1a2e;">Billing</h4>
+                    <p style="color:#555;">Stripe live. Subscriptions, trials, founding member pricing, customer portal.</p>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">&#x1F4E7;</div>
+                    <h4 style="color:#1a1a2e;">CRM</h4>
+                    <p style="color:#555;">GoHighLevel integration for contact management and email campaigns.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── BUSINESS MODEL ─── -->
+    <section>
+        <div class="section-tag">Business Model</div>
+        <h2 class="section-title">How it makes money</h2>
+        <p class="section-subtitle">Freemium SaaS. Free tier builds the habit. Premium unlocks the AI intelligence layer.</p>
+
+        <div class="pricing-cards">
+            <div class="pricing-card">
+                <h3>Free</h3>
+                <div class="price">Always free</div>
+                <ul class="pricing-features">
+                    <li>Unlimited daily check-ins</li>
+                    <li>Unlimited event logging</li>
+                    <li>Basic template briefing</li>
+                    <li>Streak tracking</li>
+                    <li>Calendar view</li>
+                </ul>
+            </div>
+            <div class="pricing-card premium">
+                <div class="premium-badge">FOUNDING MEMBER RATE</div>
+                <h3>Premium</h3>
+                <div class="price">14-day free trial &middot; Monthly or Annual</div>
+                <ul class="pricing-features">
+                    <li>Everything in Free</li>
+                    <li>AI-powered daily briefings</li>
+                    <li>Advanced pattern insights</li>
+                    <li>Week-ahead predictions</li>
+                    <li>Full data export</li>
+                    <li>Priority support</li>
+                    <li>Price locked for life</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── ROADMAP ─── -->
+    <section>
+        <div class="section-tag">What's Next</div>
+        <h2 class="section-title">Roadmap</h2>
+        <p class="section-subtitle">MVP is done. Now it's about growth, retention, and expanding the intelligence.</p>
+
+        <div class="timeline">
+            <div class="timeline-item done">
+                <h4>MVP Launch</h4>
+                <p>Full app live at peakher.ai — check-ins, AI briefings, patterns, billing, admin.</p>
+                <span class="timeline-tag tag-complete">Complete</span>
+            </div>
+            <div class="timeline-item done">
+                <h4>Brand &amp; Positioning</h4>
+                <p>Renamed from Cadence to PeakHer. Domain purchased. Full rebrand across all files.</p>
+                <span class="timeline-tag tag-complete">Complete</span>
+            </div>
+            <div class="timeline-item done">
+                <h4>Landing Page &amp; 52-Slide Pitch Deck</h4>
+                <p>Marketing site and investor/partnership presentation built.</p>
+                <span class="timeline-tag tag-complete">Complete</span>
+            </div>
+            <div class="timeline-item current">
+                <h4>Early Users &amp; Validation</h4>
+                <p>Get first 50 women using it daily. Validate habit loop and insight value. Iterate on AI briefing quality.</p>
+                <span class="timeline-tag tag-now">Now</span>
+            </div>
+            <div class="timeline-item future">
+                <h4>Integrations (Phase 2)</h4>
+                <p>Apple Health, Garmin, Whoop, Oura, Google Calendar, HubSpot — auto-import data instead of manual logging.</p>
+                <span class="timeline-tag tag-next">Next</span>
+            </div>
+            <div class="timeline-item future">
+                <h4>Team &amp; Coach Mode</h4>
+                <p>Let coaches and managers see (opt-in) team performance patterns. B2B expansion.</p>
+                <span class="timeline-tag tag-next">Future</span>
+            </div>
+            <div class="timeline-item future">
+                <h4>ML Pattern Engine</h4>
+                <p>Replace statistical analysis with machine learning once enough user data exists.</p>
+                <span class="timeline-tag tag-next">Future</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── TL;DR ─── -->
+    <div class="section-light">
+        <div class="inner" style="text-align:center;">
+            <div class="section-tag">TL;DR</div>
+            <h2 class="section-title" style="color:#1a1a2e; max-width:700px; margin: 0 auto 24px;">
+                It's live. It works. She signs up, checks in daily, and the AI learns her rhythm.
+            </h2>
+            <p class="section-subtitle" style="margin:0 auto 40px; text-align:center;">
+                10 seconds a day &rarr; patterns emerge in a month &rarr; she can predict and plan around her best days. No other app does this.
+            </p>
+            <a href="https://peakher.ai" target="_blank" style="display:inline-flex; align-items:center; gap:10px; background:var(--coral); color:white; text-decoration:none; font-weight:700; font-size:18px; padding:16px 36px; border-radius:14px; transition: transform 0.2s;">
+                Try it &rarr; peakher.ai
+            </a>
+        </div>
+    </div>
+
+    <!-- ─── FOOTER ─── -->
+    <div class="footer">
+        <p>Built by Jairek &middot; Powered by Claude AI &middot; <a href="https://peakher.ai" target="_blank">peakher.ai</a></p>
+    </div>
+
+</body>
+</html>
