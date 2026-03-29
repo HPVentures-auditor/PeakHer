@@ -223,6 +223,9 @@ window.PeakHer.Settings = (function () {
     // ── Coach Voice Section ───────────────────────────────────────
     html += renderCoachVoiceSection();
 
+    // ── Cycle Tracking Section ───────────────────────────────────
+    html += renderCycleSection();
+
     // ── Account Section ─────────────────────────────────────────
     html += '<div class="ph-settings-section">';
     html += '<h3>Account</h3>';
@@ -249,6 +252,7 @@ window.PeakHer.Settings = (function () {
     bindSmsEvents();
     bindAccountEvents();
     bindVoiceEvents();
+    bindCycleEvents();
   }
 
   // ── Coach Voice ────────────────────────────────────────────────────
@@ -748,10 +752,166 @@ window.PeakHer.Settings = (function () {
     }
   }
 
-  // ── Coach Voice Section (placeholder for future coach persona setting) ──
+  // ── Cycle Tracking Section ────────────────────────────────────────
 
-  function renderCoachVoiceSection() {
-    return ''; // Coach voice selection coming soon
+  function renderCycleSection() {
+    var cp = Store.getCycleProfile() || {};
+    var enabled = cp.trackingEnabled || false;
+    var length = cp.averageCycleLength || 28;
+    var lastStart = cp.lastPeriodStart || '';
+
+    var html = '<div class="ph-settings-section">';
+    html += '<h3>\uD83D\uDD04 Cycle Tracking</h3>';
+    html += '<p>Track your cycle to unlock phase-based insights for energy, focus, and performance.</p>';
+
+    // Enable toggle
+    html += '<div class="ph-sms-toggle-row" style="border-top:none;">';
+    html += '<div>';
+    html += '<div class="ph-sms-toggle-label">Track my cycle</div>';
+    html += '</div>';
+    html += '<label class="ph-toggle">';
+    html += '<input type="checkbox" id="cycleEnabledToggle" ' + (enabled ? 'checked' : '') + '>';
+    html += '<span class="ph-toggle-track"></span>';
+    html += '<span class="ph-toggle-thumb"></span>';
+    html += '</label>';
+    html += '</div>';
+
+    html += '<div id="cycleDetails" style="' + (enabled ? '' : 'display:none;') + '">';
+
+    // Cycle length
+    html += '<div class="ph-sms-toggle-row">';
+    html += '<div style="flex:1;">';
+    html += '<div class="ph-sms-toggle-label">Cycle Length</div>';
+    html += '<div class="ph-sms-toggle-desc">Most cycles are 26-32 days</div>';
+    html += '</div>';
+    html += '<select class="ph-sms-select" id="cycleLengthSelect" style="width:100px;">';
+    for (var i = 21; i <= 40; i++) {
+      var sel = (i === length) ? ' selected' : '';
+      html += '<option value="' + i + '"' + sel + '>' + i + ' days</option>';
+    }
+    html += '</select>';
+    html += '</div>';
+
+    // Last period start — "days ago" chips
+    html += '<div style="padding:12px 0;border-top:1px solid var(--border-light,rgba(0,0,0,0.06));">';
+    html += '<div class="ph-sms-toggle-label">Last period start</div>';
+    html += '<div class="ph-sms-toggle-desc" style="margin-bottom:10px;">Day 1 = first day of full flow (not spotting)</div>';
+
+    // Calculate current selection
+    var selectedDay = -1;
+    if (lastStart) {
+      var diff = Math.round((new Date().setHours(0,0,0,0) - new Date(lastStart + 'T00:00:00').getTime()) / 86400000);
+      if (diff >= 0 && diff < 35) selectedDay = diff;
+    }
+
+    html += '<div id="cycleDayChips" style="display:flex;flex-wrap:wrap;gap:6px;">';
+    for (var d = 0; d < 35; d++) {
+      var label = d === 0 ? 'Today' : d === 1 ? 'Yesterday' : d + 'd ago';
+      var isActive = d === selectedDay;
+      var chipStyle = isActive
+        ? 'background:rgba(45,138,138,0.15);border-color:var(--teal,#2d8a8a);color:var(--teal,#2d8a8a);font-weight:600;'
+        : 'background:#fff;border-color:var(--border-light,rgba(0,0,0,0.1));color:var(--text-body,#374151);';
+      html += '<button class="ph-cycle-day-chip" data-day="' + d + '" style="' +
+        'padding:6px 12px;border-radius:20px;border:1px solid;font-size:13px;cursor:pointer;transition:all 0.2s;font-family:inherit;' +
+        chipStyle + '">' + label + '</button>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>'; // end cycleDetails
+
+    html += '<div id="cycleMessage" style="font-size:13px;text-align:center;min-height:20px;margin-top:8px;"></div>';
+    html += '</div>'; // end section
+
+    return html;
+  }
+
+  function bindCycleEvents() {
+    var toggle = document.getElementById('cycleEnabledToggle');
+    var details = document.getElementById('cycleDetails');
+
+    if (toggle) {
+      toggle.addEventListener('change', function () {
+        if (details) details.style.display = toggle.checked ? '' : 'none';
+        saveCycleSettings();
+      });
+    }
+
+    var lengthSelect = document.getElementById('cycleLengthSelect');
+    if (lengthSelect) {
+      lengthSelect.addEventListener('change', function () {
+        saveCycleSettings();
+      });
+    }
+
+    var chips = document.querySelectorAll('.ph-cycle-day-chip');
+    for (var i = 0; i < chips.length; i++) {
+      (function (chip) {
+        chip.addEventListener('click', function () {
+          // Update visual state
+          var allChips = document.querySelectorAll('.ph-cycle-day-chip');
+          for (var j = 0; j < allChips.length; j++) {
+            allChips[j].style.background = '#fff';
+            allChips[j].style.borderColor = 'var(--border-light,rgba(0,0,0,0.1))';
+            allChips[j].style.color = 'var(--text-body,#374151)';
+            allChips[j].style.fontWeight = 'normal';
+          }
+          chip.style.background = 'rgba(45,138,138,0.15)';
+          chip.style.borderColor = 'var(--teal,#2d8a8a)';
+          chip.style.color = 'var(--teal,#2d8a8a)';
+          chip.style.fontWeight = '600';
+
+          saveCycleSettings();
+        });
+      })(chips[i]);
+    }
+  }
+
+  function saveCycleSettings() {
+    var toggle = document.getElementById('cycleEnabledToggle');
+    var lengthSelect = document.getElementById('cycleLengthSelect');
+    var enabled = toggle ? toggle.checked : false;
+
+    var cycleProfile = {
+      trackingEnabled: enabled
+    };
+
+    if (enabled) {
+      cycleProfile.averageCycleLength = lengthSelect ? parseInt(lengthSelect.value) : 28;
+
+      // Find selected day chip
+      var activeChip = document.querySelector('.ph-cycle-day-chip[style*="rgba(45,138,138"]');
+      if (activeChip) {
+        var daysAgo = parseInt(activeChip.getAttribute('data-day'));
+        var d = new Date();
+        d.setDate(d.getDate() - daysAgo);
+        cycleProfile.lastPeriodStart = d.toISOString().split('T')[0];
+      }
+    }
+
+    var statusEl = document.getElementById('cycleMessage');
+    if (statusEl) {
+      statusEl.textContent = 'Saving...';
+      statusEl.style.color = 'var(--gray-text,#6b7280)';
+    }
+
+    API.updateUser({ cycleProfile: cycleProfile })
+      .then(function () {
+        Store.setCycleProfile(cycleProfile);
+        if (statusEl) {
+          statusEl.textContent = 'Saved!';
+          statusEl.style.color = 'var(--teal,#2d8a8a)';
+        }
+        setTimeout(function () {
+          if (statusEl) statusEl.textContent = '';
+        }, 3000);
+      })
+      .catch(function (err) {
+        if (statusEl) {
+          statusEl.textContent = 'Failed to save: ' + (err.message || 'Unknown error');
+          statusEl.style.color = '#ef4444';
+        }
+      });
   }
 
   // ── Utility ────────────────────────────────────────────────────────
