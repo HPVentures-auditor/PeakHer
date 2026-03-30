@@ -1,7 +1,7 @@
 /**
  * PeakHer Pattern Detection API
  *
- * GET /api/patterns — Returns detected performance patterns from check-in data.
+ * GET /api/patterns - Returns detected performance patterns from check-in data.
  * Requires authentication. Query param: ?days=90 (default 90).
  * Returns { ready: false, ... } if fewer than 14 check-ins.
  */

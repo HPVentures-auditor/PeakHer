@@ -40,7 +40,7 @@ window.PeakHer.API = (function () {
       .then(function (res) {
         if (res.status === 401) {
           clearToken();
-          // Don't redirect here — let the caller handle it
+          // Don't redirect here; let the caller handle it
         }
         return res.json().then(function (data) {
           if (!res.ok) {
@@ -142,7 +142,7 @@ window.PeakHer.API = (function () {
     return request('POST', '/checkins', data)
       .catch(function (err) {
         console.warn('Save checkin to server failed:', err.message);
-        // Data is already saved locally — will sync later
+        // Data is already saved locally and will sync later
       });
   }
 
@@ -280,7 +280,7 @@ window.PeakHer.API = (function () {
       });
   }
 
-  // Full sync — call on app load when logged in
+  // Full sync: call on app load when logged in
   function fullSync() {
     if (!isLoggedIn()) return Promise.resolve();
     return Promise.all([fetchUserProfile(), syncCheckins()])
@@ -387,7 +387,7 @@ window.PeakHer.API = (function () {
         });
       })
       .catch(function (err) {
-        // Silently handle — user may have denied permission or browser doesn't support
+        // Silently handle: user may have denied permission or browser doesn't support
         console.log('PeakHer Push: init skipped -', err.message || err);
       });
   }

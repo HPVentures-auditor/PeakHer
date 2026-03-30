@@ -18,7 +18,7 @@ module.exports = async function handler(req, res) {
   var authHeader = req.headers['authorization'];
   var cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {
-    console.error('CRON_SECRET not configured — rejecting request');
+    console.error('CRON_SECRET not configured, rejecting request');
     return res.status(500).json({ error: 'Cron not configured' });
   }
   if (authHeader !== 'Bearer ' + cronSecret) {
@@ -100,7 +100,7 @@ module.exports = async function handler(req, res) {
         } else if (streakCount > 0) {
           pushBody = 'You\'re on a ' + streakCount + '-day streak. Keep it going!';
         } else {
-          pushBody = 'Start a new streak today — one check-in is all it takes.';
+          pushBody = 'Start a new streak today. One check-in is all it takes.';
         }
 
         var pushResult = await sendPushToUser(sql, pu.id, {

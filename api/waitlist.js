@@ -57,7 +57,7 @@ module.exports = async function handler(req, res) {
       `;
     } catch (dbErr) {
       console.error('Waitlist DB insert error:', dbErr.message);
-      // Continue — GHL proxy is primary, local DB is secondary
+      // Continue: GHL proxy is primary, local DB is secondary
     }
 
     // Proxy to Mpenda/GHL

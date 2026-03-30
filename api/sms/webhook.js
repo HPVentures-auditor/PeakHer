@@ -1,5 +1,5 @@
 /**
- * PeakHer SMS Webhook — Twilio incoming message handler
+ * PeakHer SMS Webhook: Twilio incoming message handler
  *
  * POST /api/sms/webhook
  *
@@ -12,7 +12,7 @@
  *   - "help" / "?": usage instructions
  *   - Free text: logged as a note
  *
- * Returns TwiML responses. No auth header — validated via Twilio signature.
+ * Returns TwiML responses. No auth header; validated via Twilio signature.
  */
 
 var { getDb } = require('../_lib/db');
@@ -160,7 +160,7 @@ module.exports = async function handler(req, res) {
 
         case 'idle':
         default:
-          // A number with no context — start energy flow
+          // A number with no context: start energy flow
           pending.energy = rating;
           reply = 'Energy: ' + rating + ' ' + getEnergyEmoji(rating) + ' Got it! How\'s your confidence? (1-10)';
           await upsertConvState(sql, user.id, 'awaiting_confidence', pending);

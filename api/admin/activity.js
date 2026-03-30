@@ -10,7 +10,7 @@ module.exports = async function handler(req, res) {
   var sql = ctx.sql;
   var adminId = ctx.userId;
 
-  // GET — list recent activity log entries (paginated)
+  // GET - list recent activity log entries (paginated)
   if (req.method === 'GET') {
     try {
       var page = Math.max(1, parseInt(req.query.page) || 1);
@@ -57,7 +57,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // POST — log a new activity entry (called internally by other admin endpoints)
+  // POST - log a new activity entry (called internally by other admin endpoints)
   if (req.method === 'POST') {
     try {
       var body = req.body;

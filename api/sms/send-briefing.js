@@ -6,7 +6,7 @@
  * Sends a condensed daily briefing via SMS to a specific user or all
  * SMS-subscribed users. Intended to be called by the cron job.
  *
- * Body: { userId?: string } — if omitted, sends to all SMS-enabled users.
+ * Body: { userId?: string } - if omitted, sends to all SMS-enabled users.
  * Auth: CRON_SECRET or admin JWT.
  */
 

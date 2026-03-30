@@ -1,5 +1,5 @@
 /**
- * PeakHer Claude API Module — Anthropic integration
+ * PeakHer Claude API Module: Anthropic integration
  *
  * Thin HTTP wrapper (no SDK). Same pattern as email.js.
  * Requires ANTHROPIC_API_KEY env var.

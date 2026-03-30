@@ -1,5 +1,5 @@
 /**
- * PeakHer Push Notification Module — web-push integration
+ * PeakHer Push Notification Module: web-push integration
  *
  * Requires env vars: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT
  *
@@ -35,7 +35,7 @@ async function sendPushNotification(subscription, payload) {
  * Send a push notification to all of a user's subscriptions.
  * Automatically cleans up expired/unsubscribed endpoints (410, 404).
  *
- * @param {function} sql — Neon SQL tagged template function
+ * @param {function} sql - Neon SQL tagged template function
  * @param {string} userId
  * @param {{ title: string, body: string, url?: string, icon?: string }} payload
  * @returns {Promise<{ sent: number, failed: number, cleaned: number }>}

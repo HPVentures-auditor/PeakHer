@@ -1,7 +1,7 @@
 /**
- * PeakHer Daily Briefing API — v2 (AI-enriched)
+ * PeakHer Daily Briefing API, v2 (AI-enriched)
  *
- * GET /api/briefing — Returns today's personalized "cycle weather report."
+ * GET /api/briefing. Returns today's personalized "cycle weather report."
  * Auth required. Calculates cycle phase from onboarding data (cycle_profiles)
  * and generates a rich, multi-domain daily briefing using Claude AI with
  * comprehensive phase-specific knowledge.
@@ -220,7 +220,7 @@ var PHASE_KNOWLEDGE = {
       intensity: 'LOW. This is non-negotiable. Your body is doing intense internal work.',
       workouts: [
         'Walking (20-30 minutes, preferably outdoors for vitamin D and mood)',
-        'Gentle yoga (NOT power yoga or hot yoga — restorative, yin, or slow flow)',
+        'Gentle yoga (NOT power yoga or hot yoga; stick to restorative, yin, or slow flow)',
         'Stretching and foam rolling',
         'Light swimming (the water pressure can actually help with cramps)',
         'Slow dancing or gentle movement to music',
@@ -231,17 +231,17 @@ var PHASE_KNOWLEDGE = {
         'Heavy lifting (recovery capacity is at its lowest)',
         'Hot yoga (body temperature regulation is already challenged)',
         'Competitive sports (reaction time and coordination are lower)',
-        'Any exercise that feels punishing — movement should feel nurturing'
+        'Any exercise that feels punishing. Movement should feel nurturing'
       ],
       recovery: 'Sleep 8-9 hours. Epsom salt baths (magnesium absorption through skin). Heating pad on lower abdomen. Gentle self-massage. This is the phase where rest IS productive.'
     },
     productivity: {
       prioritize: [
         'Strategic review and honest evaluation of projects, goals, relationships',
-        'Journaling and reflective writing — your inner critic is quiet and your insight is sharp',
+        'Journaling and reflective writing, because your inner critic is quiet and your insight is sharp',
         'Deep reading, research, learning that does not require output',
-        'Financial reviews, budget analysis, auditing — detail work that benefits from a clear-eyed perspective',
-        'Planning for the cycle ahead — what do you want to build, perform, and complete?'
+        'Financial reviews, budget analysis, auditing: detail work that benefits from a clear-eyed perspective',
+        'Planning for the cycle ahead: what do you want to build, perform, and complete?'
       ],
       defer: [
         'Big presentations, pitches, or public speaking (save for Perform Mode)',
@@ -254,26 +254,26 @@ var PHASE_KNOWLEDGE = {
       schedule: 'Front-load your most important work before 1pm when energy is highest. Build in 15-minute rest breaks between tasks. End work earlier if possible. Protect evenings for rest.'
     },
     emotional: {
-      expect: 'Emotional clarity mixed with lower mood. You may feel introspective, quiet, or withdrawn — this is normal and healthy. Some women feel a sense of relief as the premenstrual tension releases. Others feel grief or sadness without a clear cause.',
+      expect: 'Emotional clarity mixed with lower mood. You may feel introspective, quiet, or withdrawn, and this is normal and healthy. Some women feel a sense of relief as the premenstrual tension releases. Others feel grief or sadness without a clear cause.',
       tools: [
-        'Journaling — write without filtering. Your menstrual insights are often your most honest',
+        'Journaling: write without filtering. Your menstrual insights are often your most honest',
         'Allow tears if they come. Crying releases stress hormones (literally)',
-        'Reduce social media consumption — you are more emotionally permeable right now',
+        'Reduce social media consumption, because you are more emotionally permeable right now',
         'Say no to anything that feels draining without guilt',
-        'Warm baths, comfort movies, soft textures — sensory soothing is not indulgence'
+        'Warm baths, comfort movies, soft textures. Sensory soothing is not indulgence'
       ],
       social: 'Social battery is LOW. Cancel plans that feel heavy. Keep only the connections that feel nourishing. This is a quality-over-quantity phase. Your closest 1-2 people only.',
-      selfCare: 'This is your sacred rest phase. The most productive thing you can do is genuinely rest. Every culture with cycle awareness builds rest into this phase. You are not lazy — you are cyclically intelligent.'
+      selfCare: 'This is your sacred rest phase. The most productive thing you can do is genuinely rest. Every culture with cycle awareness builds rest into this phase. You are not lazy; you are cyclically intelligent.'
     },
     fertility: {
       status: 'Fertility is at its lowest. The uterine lining is shedding, making implantation virtually impossible. However, sperm can survive up to 5 days, so unprotected sex at the very end of a short menstrual phase could theoretically lead to conception if ovulation is early.',
       signs: 'Bleeding (obviously). Cervix is low and slightly open. Basal body temperature is at its lowest baseline.'
     },
     funFacts: [
-      'During menstruation, the two brain hemispheres communicate more than at any other cycle point — this is why your creative problem-solving and integrative thinking are actually enhanced.',
-      'Your pain threshold is lowest now, which is why everything feels more intense. Not in your head — it is in your neural pain processing centers.',
+      'During menstruation, the two brain hemispheres communicate more than at any other cycle point, which is why your creative problem-solving and integrative thinking are actually enhanced.',
+      'Your pain threshold is lowest now, which is why everything feels more intense. Not in your head; it is in your neural pain processing centers.',
       'Research shows women make more accurate gut-feeling decisions during menstruation. Your BS filter is at maximum.',
-      'Ancient cultures considered this a time of heightened intuition. Modern neuroscience agrees — reduced progesterone means less anxiety and more clarity about what you actually think.'
+      'Ancient cultures considered this a time of heightened intuition. Modern neuroscience agrees: reduced progesterone means less anxiety and more clarity about what you actually think.'
     ]
   },
 
@@ -294,13 +294,13 @@ var PHASE_KNOWLEDGE = {
       ],
       avoid: [
         'Heavy, greasy comfort foods (your body does not need them now and they will slow you down)',
-        'Excessive processed sugar (you have natural energy — do not create a crash cycle)',
-        'Skipping protein (your muscles are primed for building — feed them)',
-        'Overdoing caffeine (you have natural energy rising — let it work)'
+        'Excessive processed sugar (you have natural energy, so do not create a crash cycle)',
+        'Skipping protein (your muscles are primed for building, so feed them)',
+        'Overdoing caffeine (you have natural energy rising, so let it work)'
       ],
       fasting: 'This is your BEST phase for intermittent fasting if you practice it. Your body can handle 14-16 hour fasts comfortably. Cortisol is low, insulin sensitivity is high, and your body efficiently burns stored fuel. If you are going to do a longer fast, do it in this phase.',
-      mealTiming: 'You may naturally feel less hungry in the morning — this is normal with rising estrogen. Light breakfasts work well. Biggest meal can be lunch when your digestive fire is strongest. Lighter dinners support the natural energy and can improve sleep.',
-      cravings: 'You probably will not crave much heavy food. If you are craving lighter, fresher foods — lean into it. Your body knows what it wants. If you still crave sugar, it may be a habit pattern rather than a biological need right now.'
+      mealTiming: 'You may naturally feel less hungry in the morning, and this is normal with rising estrogen. Light breakfasts work well. Biggest meal can be lunch when your digestive fire is strongest. Lighter dinners support the natural energy and can improve sleep.',
+      cravings: 'You probably will not crave much heavy food. If you are craving lighter, fresher foods, lean into it. Your body knows what it wants. If you still crave sugar, it may be a habit pattern rather than a biological need right now.'
     },
     fitness: {
       type: 'High intensity, new challenges, strength building',
@@ -314,20 +314,20 @@ var PHASE_KNOWLEDGE = {
         'Rock climbing, martial arts, anything that challenges coordination and learning'
       ],
       avoid: [
-        'Playing it too safe — your body can handle way more than you think',
+        'Playing it too safe. Your body can handle way more than you think',
         'Only doing gentle exercise when you have high-intensity capacity',
-        'Skipping workouts — your motivation and recovery are both peak'
+        'Skipping workouts, because your motivation and recovery are both peak'
       ],
       recovery: 'Recovery is FAST. You can train harder and more frequently. DOMS (delayed onset muscle soreness) resolves quicker. Still aim for 7-8 hours of sleep, but you may naturally need less.'
     },
     productivity: {
       prioritize: [
-        'Brainstorming and ideation sessions — your brain is forming novel neural connections faster',
+        'Brainstorming and ideation sessions, because your brain is forming novel neural connections faster',
         'Starting new projects, launching initiatives, pitching ideas',
         'Learning new skills, taking courses, reading challenging material',
         'Creative work: writing first drafts, designing, coding new features',
         'Strategic planning and mapping out multi-week projects',
-        'Collaborative work — your social brain is coming online strongly'
+        'Collaborative work, because your social brain is coming online strongly'
       ],
       defer: [
         'Repetitive admin tasks and detailed editing (save for Complete Mode)',
@@ -335,18 +335,18 @@ var PHASE_KNOWLEDGE = {
         'Routine maintenance work that wastes your creative energy'
       ],
       meetings: 'Brainstorms, strategy sessions, and collaborative meetings are perfect. Your verbal fluency is rising and you are naturally more persuasive. First meetings with new contacts work well. Schedule creative workshops and ideation sessions here.',
-      schedule: 'Your energy builds throughout the day. Morning deep work on creative projects. Afternoon meetings and collaboration. You may have energy for evening projects too — use it, but do not sacrifice sleep.'
+      schedule: 'Your energy builds throughout the day. Morning deep work on creative projects. Afternoon meetings and collaboration. You may have energy for evening projects too, so use it, but do not sacrifice sleep.'
     },
     emotional: {
       expect: 'Rising optimism, confidence, and social energy. You may feel adventurous, curious, and willing to take risks. A natural sense of possibility and "anything feels doable" energy. Your verbal fluency means you can articulate feelings well.',
       tools: [
-        'Channel the rising energy into meaningful action — do not just dream, start building',
+        'Channel the rising energy into meaningful action. Do not just dream, start building',
         'Say yes to social invitations and new experiences',
-        'Start conversations you have been putting off — your communication skills are growing daily',
-        'Set bold goals — this is when you feel most capable of achieving them',
+        'Start conversations you have been putting off, because your communication skills are growing daily',
+        'Set bold goals. This is when you feel most capable of achieving them',
         'Be aware: this optimism is real but time-limited. Start things now that you can sustain through the whole cycle'
       ],
-      social: 'Social battery is HIGH and RISING. Networking, first dates, reconnecting with old friends — all excellent. You are naturally more curious and open to new perspectives. Your warmth and engagement are genuine and magnetic.',
+      social: 'Social battery is HIGH and RISING. Networking, first dates, reconnecting with old friends: all excellent. You are naturally more curious and open to new perspectives. Your warmth and engagement are genuine and magnetic.',
       selfCare: 'Self-care in this phase means DOING things that excite you, not resting. Try the new restaurant. Join the class. Start the project. Feeding your curiosity IS self-care right now.'
     },
     fertility: {
@@ -355,8 +355,8 @@ var PHASE_KNOWLEDGE = {
     },
     funFacts: [
       'Your hippocampus (memory center) actually increases in volume during the follicular phase. You literally have more brain for learning.',
-      'Estrogen increases dopamine receptor sensitivity — new experiences feel extra rewarding. Your brain is designed to seek novelty this week.',
-      'Estrogen boosts serotonin and dopamine production, which is why you feel more optimistic. Not just mood — it is neurochemistry.',
+      'Estrogen increases dopamine receptor sensitivity, so new experiences feel extra rewarding. Your brain is designed to seek novelty this week.',
+      'Estrogen boosts serotonin and dopamine production, which is why you feel more optimistic. Not just mood; it is neurochemistry.',
       'Your brain forms new neural connections faster during this phase than any other. Your neuroplasticity sweet spot.'
     ]
   },
@@ -365,41 +365,41 @@ var PHASE_KNOWLEDGE = {
     bioName: 'Ovulatory Phase (Inner Summer)',
     modeName: 'Perform Mode',
     typicalDays: '15-17',
-    hormones: 'Estrogen peaks and triggers a surge of luteinizing hormone (LH), which causes the egg to release. Testosterone also peaks briefly. This dual peak creates your monthly superpower window: maximum confidence, verbal ability, physical performance, and social magnetism. FSH also surges. This window is SHORT — typically 2-3 days.',
+    hormones: 'Estrogen peaks and triggers a surge of luteinizing hormone (LH), which causes the egg to release. Testosterone also peaks briefly. This dual peak creates your monthly superpower window: maximum confidence, verbal ability, physical performance, and social magnetism. FSH also surges. This window is SHORT, typically 2-3 days.',
     nutrition: {
       eat: [
         'Anti-inflammatory foods to support the ovulatory process: turmeric, ginger, berries, leafy greens',
         'Cruciferous vegetables for estrogen metabolism (estrogen is at its highest): broccoli, kale, Brussels sprouts, cauliflower, cabbage',
-        'Light grains and raw vegetables — your body temperature rises and lighter food feels better',
+        'Light grains and raw vegetables, because your body temperature rises and lighter food feels better',
         'Glutathione-rich foods for liver support: asparagus, spinach, avocado',
-        'Hydrating foods: cucumber, watermelon, celery, citrus — you need more water now',
+        'Hydrating foods: cucumber, watermelon, celery, citrus. You need more water now',
         'Fiber-rich foods to help clear excess estrogen: chia seeds, flaxseeds, legumes, whole grains',
         'Green tea for gentle energy and antioxidants'
       ],
       avoid: [
         'Heavy red meat in large quantities (your body is already running hot)',
         'Excess sodium (increases water retention when bloating peaks)',
-        'Alcohol binges (your liver is processing peak estrogen — do not overload it)',
+        'Alcohol binges (your liver is processing peak estrogen, so do not overload it)',
         'Dehydration (body temperature is higher, you lose more water)',
         'Very heavy meals (lighter meals keep you sharp for peak performance activities)'
       ],
-      fasting: 'Moderate fasting windows are fine: 13-14 hours. Do not push to extremes because your body temperature and metabolic rate are elevated. Eat enough to fuel your peak performance. This is NOT the time to restrict — this is the time to FUEL.',
-      mealTiming: 'Lighter meals more frequently. Your appetite may decrease naturally (this is hormonal, not a reason to skip eating). Hydrate aggressively — aim for 3+ liters of water. Pre-fuel any peak-performance events (presentations, workouts, dates) with light, energizing meals.',
-      cravings: 'Appetite often decreases around ovulation — this is normal. If you crave lighter, fresher foods, honor it. If you crave nothing, still eat — your body needs fuel for its peak performance window.'
+      fasting: 'Moderate fasting windows are fine: 13-14 hours. Do not push to extremes because your body temperature and metabolic rate are elevated. Eat enough to fuel your peak performance. This is NOT the time to restrict. This is the time to FUEL.',
+      mealTiming: 'Lighter meals more frequently. Your appetite may decrease naturally (this is hormonal, not a reason to skip eating). Hydrate aggressively, aiming for 3+ liters of water. Pre-fuel any peak-performance events (presentations, workouts, dates) with light, energizing meals.',
+      cravings: 'Appetite often decreases around ovulation, and this is normal. If you crave lighter, fresher foods, honor it. If you crave nothing, still eat. Your body needs fuel for its peak performance window.'
     },
     fitness: {
       type: 'Peak performance, competition, personal records',
       intensity: 'MAXIMUM. This is your 2-3 day window for peak athletic output.',
       workouts: [
-        'Heavy lifting — attempt personal records. Your strength literally peaks now',
+        'Heavy lifting: attempt personal records. Your strength literally peaks now',
         'Sprint intervals, high-intensity interval training at maximum effort',
         'Competitive sports and group fitness (your competitive drive peaks)',
         'Challenging hikes or adventure activities',
         'Dance cardio at full intensity',
-        'Any physical challenge you have been building toward — race day, test day, competition'
+        'Any physical challenge you have been building toward: race day, test day, competition'
       ],
       avoid: [
-        'Excessive stretching (ligaments are MORE LAX due to relaxin and estrogen — higher injury risk)',
+        'Excessive stretching (ligaments are MORE LAX due to relaxin and estrogen, meaning higher injury risk)',
         'Skipping warm-ups (especially important because ligament laxity increases joint vulnerability)',
         'Ignoring hydration (body temperature is elevated)',
         'Playing it safe when your body is built for peak output'
@@ -408,10 +408,10 @@ var PHASE_KNOWLEDGE = {
     },
     productivity: {
       prioritize: [
-        'Presentations, pitches, public speaking — your verbal skills PEAK now',
-        'Sales calls, closing deals, negotiations — confidence + eloquence = persuasion',
-        'Difficult conversations you have been putting off — you have the courage AND the words',
-        'Recording video or audio content — your voice is literally more attractive',
+        'Presentations, pitches, public speaking: your verbal skills PEAK now',
+        'Sales calls, closing deals, negotiations, because confidence + eloquence = persuasion',
+        'Difficult conversations you have been putting off. You have the courage AND the words',
+        'Recording video or audio content, because your voice is literally more attractive',
         'Job interviews, performance reviews, asking for raises',
         'Leadership moments: team meetings, workshops, mentoring sessions',
         'Any situation where charisma and communication matter'
@@ -425,24 +425,24 @@ var PHASE_KNOWLEDGE = {
       schedule: 'Pack your schedule. This is your highest-energy, highest-output window. Early morning to evening, you have capacity. Front-load your most important and visible tasks. Evenings are great for social events and relationship conversations.'
     },
     emotional: {
-      expect: 'Peak confidence, social magnetism, and assertiveness. You feel bold, clear, and capable. Your empathy is high — you can read people intuitively. You may feel more sensual and physically aware. Communication flows easily.',
+      expect: 'Peak confidence, social magnetism, and assertiveness. You feel bold, clear, and capable. Your empathy is high, and you can read people intuitively. You may feel more sensual and physically aware. Communication flows easily.',
       tools: [
-        'Use this confidence window to do things that scare you — make the ask, have the talk, take the stage',
+        'Use this confidence window to do things that scare you: make the ask, have the talk, take the stage',
         'Be aware: this is a SHORT window. Do not waste it. Schedule the hard stuff HERE.',
-        'Your empathy is high — great for mentoring, coaching, and vulnerable conversations',
+        'Your empathy is high, which makes this great for mentoring, coaching, and vulnerable conversations',
         'Channel the social magnetism into meaningful connections, not just surface-level fun',
-        'If single: this is your most attractive window (literally — research confirms voice, appearance, and scent shift). Go on dates.'
+        'If single: this is your most attractive window (literally, research confirms voice, appearance, and scent shift). Go on dates.'
       ],
-      social: 'You are MAGNETIC. People are drawn to your energy. Host events, lead meetings, go on dates, have important relationship conversations. Research shows women are perceived as more attractive during ovulation — voice pitch changes, skin glows, body language opens up. This is not vanity; it is biology.',
+      social: 'You are MAGNETIC. People are drawn to your energy. Host events, lead meetings, go on dates, have important relationship conversations. Research shows women are perceived as more attractive during ovulation: voice pitch changes, skin glows, body language opens up. This is not vanity; it is biology.',
       selfCare: 'Self-care during ovulation means SHOWING UP FULLY. Do not hide. Do not play small. Use your voice. Take up space. This is the phase where you let yourself shine without apology.'
     },
     fertility: {
       status: 'PEAK FERTILITY. The egg is released and survives 12-24 hours. Combined with sperm survival (up to 5 days), the fertile window is roughly 6 days. This is the biological reason your body is optimized for attraction and connection right now.',
-      signs: 'Egg-white cervical mucus (clear, stretchy, slippery). Peak libido. Subtle one-sided cramping (Mittelschmerz — ovulation pain). Slight rise in basal body temperature after ovulation. Breast sensitivity may begin. Cervix is high, soft, and open.'
+      signs: 'Egg-white cervical mucus (clear, stretchy, slippery). Peak libido. Subtle one-sided cramping (Mittelschmerz, or ovulation pain). Slight rise in basal body temperature after ovulation. Breast sensitivity may begin. Cervix is high, soft, and open.'
     },
     funFacts: [
       'Research shows voices, faces, and even body scent become measurably more attractive during ovulation. Your body is literally optimized for connection.',
-      'Testosterone peaks alongside estrogen, boosting both confidence and assertiveness. It is not cockiness — it is biochemistry.',
+      'Testosterone peaks alongside estrogen, boosting both confidence and assertiveness. It is not cockiness; it is biochemistry.',
       'Your pain tolerance is highest now, reaction time is fastest, and spatial awareness peaks. Built for physical challenge.',
       'Women score higher on verbal fluency tests during ovulation and show increased activity in brain areas for reward and social cognition. Neurologically wired to connect and communicate.'
     ]
@@ -465,7 +465,7 @@ var PHASE_KNOWLEDGE = {
         'Warming spices: cinnamon (blood sugar), turmeric (inflammation), ginger (nausea/bloating)'
       ],
       avoid: [
-        'Restrictive dieting or calorie cutting (your metabolic rate is 5-10% HIGHER — you need MORE food)',
+        'Restrictive dieting or calorie cutting (your metabolic rate is 5-10% HIGHER, and you need MORE food)',
         'Excessive caffeine (amplifies anxiety and disrupts already-fragile sleep)',
         'Alcohol (worsens mood instability, disrupts sleep, increases inflammation, depresses already-declining serotonin)',
         'Excessive sugar (creates blood sugar crashes that worsen mood swings)',
@@ -473,21 +473,21 @@ var PHASE_KNOWLEDGE = {
         'Excess salt in late luteal (increases water retention and bloating)'
       ],
       fasting: 'REDUCE fasting windows to 12-13 hours MAX. Your cortisol is elevated from progesterone and gets worse as the phase progresses. Extended fasting in the luteal phase RAISES cortisol further, worsens anxiety, disrupts sleep, and can trigger binge eating. Eat breakfast. Do not skip meals.',
-      mealTiming: 'Eat more frequently. Your metabolic rate is 100-300 calories higher per day — honor that. Protein-rich breakfast within 1 hour of waking (stabilizes blood sugar and cortisol). Eat every 3-4 hours. Complex carb snack before bed can help with sleep (triggers serotonin > melatonin pathway).',
-      cravings: 'Chocolate craving = your body needs magnesium. Dark chocolate (70%+), not candy bars. Craving carbs = your brain needs serotonin; eat complex carbs with protein. Craving salty food = possible mineral imbalance; try mineral-rich foods. THESE CRAVINGS ARE VALID. Do not fight them — redirect them to healthier versions of what your body is actually asking for. You burn 100-300 more calories/day in this phase. EAT.'
+      mealTiming: 'Eat more frequently. Your metabolic rate is 100-300 calories higher per day, so honor that. Protein-rich breakfast within 1 hour of waking (stabilizes blood sugar and cortisol). Eat every 3-4 hours. Complex carb snack before bed can help with sleep (triggers serotonin > melatonin pathway).',
+      cravings: 'Chocolate craving = your body needs magnesium. Dark chocolate (70%+), not candy bars. Craving carbs = your brain needs serotonin; eat complex carbs with protein. Craving salty food = possible mineral imbalance; try mineral-rich foods. THESE CRAVINGS ARE VALID. Do not fight them. Redirect them to healthier versions of what your body is actually asking for. You burn 100-300 more calories/day in this phase. EAT.'
     },
     fitness: {
       type: 'Moderate and decreasing intensity as the phase progresses',
-      intensity: 'MODERATE in early luteal (days 18-23), LOW in late luteal (days 24-28). Listen to your body — it will tell you.',
+      intensity: 'MODERATE in early luteal (days 18-23), LOW in late luteal (days 24-28). Listen to your body; it will tell you.',
       workouts: [
         'Early luteal: moderate strength training, Pilates, steady-state cardio, swimming, hiking',
         'Late luteal: walking, gentle yoga, stretching, Pilates mat work, light swimming',
         'Throughout: barre classes, moderate cycling, yoga flow (not power yoga)',
-        'Walking is UNDERRATED in this phase — 20-30 minutes reduces PMS symptoms significantly',
+        'Walking is UNDERRATED in this phase. 20-30 minutes reduces PMS symptoms significantly',
         'Swimming is excellent (water pressure reduces bloating, low-impact, meditative)'
       ],
       avoid: [
-        'Intense HIIT (cortisol is already elevated — do not add more stress hormones)',
+        'Intense HIIT (cortisol is already elevated, so do not add more stress hormones)',
         'Hot yoga (body temperature regulation is challenged by progesterone)',
         'Pushing for PRs or competition (recovery is slower, injury risk is higher)',
         'Punishing yourself for lower performance (this is BIOLOGY, not weakness)',
@@ -497,10 +497,10 @@ var PHASE_KNOWLEDGE = {
     },
     productivity: {
       prioritize: [
-        'Finishing and closing out existing projects — your brain WANTS completion',
-        'Editing, proofreading, quality assurance — your detail orientation peaks with progesterone',
+        'Finishing and closing out existing projects, because your brain WANTS completion',
+        'Editing, proofreading, quality assurance: your detail orientation peaks with progesterone',
         'Administrative tasks: invoicing, filing, inbox zero, expense reports',
-        'Process documentation and SOPs — your organizational brain is activated',
+        'Process documentation and SOPs, because your organizational brain is activated',
         'Evaluating and grading work rather than creating new work',
         'Decluttering: physical space, digital files, to-do lists'
       ],
@@ -511,8 +511,8 @@ var PHASE_KNOWLEDGE = {
         'High-visibility presentations (schedule those for Perform Mode)',
         'Taking on new commitments or saying yes to things that require sustained energy'
       ],
-      meetings: 'Detail-review meetings, project wrap-ups, and one-on-ones are good. Avoid brainstorms (you will feel frustrated by half-baked ideas). Your critical eye is sharpened — use it for QA and feedback, not for tearing things apart destructively. In late luteal, reduce meeting load significantly.',
-      schedule: 'Front-load work in the morning. Energy drops faster in the afternoon. Build in more breaks. End work earlier. In late luteal (days 25-28), consider this a wind-down period — do not schedule anything high-stakes.'
+      meetings: 'Detail-review meetings, project wrap-ups, and one-on-ones are good. Avoid brainstorms (you will feel frustrated by half-baked ideas). Your critical eye is sharpened, so use it for QA and feedback, not for tearing things apart destructively. In late luteal, reduce meeting load significantly.',
+      schedule: 'Front-load work in the morning. Energy drops faster in the afternoon. Build in more breaks. End work earlier. In late luteal (days 25-28), consider this a wind-down period and do not schedule anything high-stakes.'
     },
     emotional: {
       expect: 'EARLY LUTEAL (days 18-23): Calm focus, nesting energy, desire for order and completion. Introverted but stable. LATE LUTEAL (days 24-28): This is where PMS lives. Progesterone and estrogen both DROP rapidly. Serotonin drops. Your inner critic gets LOUD. Things that did not bother you last week suddenly feel unbearable. Irritability, anxiety, sadness, or rage can appear. THIS IS TEMPORARY AND BIOCHEMICAL.',
@@ -522,32 +522,32 @@ var PHASE_KNOWLEDGE = {
         'Write down what is bothering you. Look at the list again on day 8 of your next cycle. You will be surprised how different it feels.',
         'Do NOT send that email. Do NOT quit your job. Do NOT start that fight. Do NOT make permanent decisions.',
         'Eat dark chocolate (magnesium). Walk for 20 minutes. Take a warm bath. Call someone who makes you feel safe.',
-        'Revisit any big decisions on day 8 of your next cycle — your perspective will be radically different.',
-        'Your tolerance for BS drops. That is not PMS — it is clarity. The difference is: write it down now, act on it next week.'
+        'Revisit any big decisions on day 8 of your next cycle. Your perspective will be radically different.',
+        'Your tolerance for BS drops. That is not PMS; it is clarity. The difference is: write it down now, act on it next week.'
       ],
-      social: 'Social battery is DECLINING. Early luteal: intimate gatherings and quality one-on-one time. Late luteal: your inner circle only. Cancel anything that feels draining without guilt. Your tolerance for surface-level socializing and people-pleasing evaporates — honor that boundary.',
-      selfCare: 'This is high-priority self-care time. Warm baths. Early bedtime. Comfort food (the healthy kind). Gentle movement. Reduced obligations. Extra magnesium. In late luteal, treat yourself like you are recovering from something — because neurochemically, you kind of are.'
+      social: 'Social battery is DECLINING. Early luteal: intimate gatherings and quality one-on-one time. Late luteal: your inner circle only. Cancel anything that feels draining without guilt. Your tolerance for surface-level socializing and people-pleasing evaporates, so honor that boundary.',
+      selfCare: 'This is high-priority self-care time. Warm baths. Early bedtime. Comfort food (the healthy kind). Gentle movement. Reduced obligations. Extra magnesium. In late luteal, treat yourself like you are recovering from something, because neurochemically, you kind of are.'
     },
     lateLutealToolkit: {
-      validation: 'This is TEMPORARY. Your progesterone is crashing. The world is not actually falling apart. Your brain is processing emotions with less serotonin buffer — everything feels more raw. You are not crazy, dramatic, or too much. You are experiencing a real neurochemical shift that will pass within days.',
+      validation: 'This is TEMPORARY. Your progesterone is crashing. The world is not actually falling apart. Your brain is processing emotions with less serotonin buffer, so everything feels more raw. You are not crazy, dramatic, or too much. You are experiencing a real neurochemical shift that will pass within days.',
       doNotList: [
         'Do NOT send that angry/emotional email. Save it as a draft. Read it on day 8.',
         'Do NOT quit your job, end a relationship, or make any permanent decision.',
         'Do NOT start a fight about something that can wait 5 days.',
-        'Do NOT compare yourself to how you felt during Perform Mode — that is like comparing winter to summer.',
-        'Do NOT restrict food to "fix" how you feel — eat more, not less.',
-        'Do NOT cancel your own needs to people-please — boundaries are even more essential now.'
+        'Do NOT compare yourself to how you felt during Perform Mode. That is like comparing winter to summer.',
+        'Do NOT restrict food to "fix" how you feel. Eat more, not less.',
+        'Do NOT cancel your own needs to people-please. Boundaries are even more essential now.'
       ],
       emergencyActions: [
         'Eat dark chocolate (magnesium calms the nervous system)',
         'Walk outside for 20 minutes (movement + nature + light = serotonin boost)',
         'Take a warm bath or shower (activates parasympathetic nervous system)',
-        'Call your safest person — the one who does not require you to perform',
+        'Call your safest person, the one who does not require you to perform',
         'Put your phone on do-not-disturb and lie down for 15 minutes',
-        'Write stream-of-consciousness in a journal — get it OUT of your head and onto paper',
-        'Revisit whatever is bothering you on day 8. It will look completely different. This is not dismissing your feelings — it is giving them the right context.'
+        'Write stream-of-consciousness in a journal to get it OUT of your head and onto paper',
+        'Revisit whatever is bothering you on day 8. It will look completely different. This is not dismissing your feelings; it is giving them the right context.'
       ],
-      reframe: 'Your inner critic is loudest right now. Write down what is bothering you. Then look at it again next week. You will be surprised how different it feels. The issues may still be real — but the URGENCY and the CATASTROPHIZING are progesterone withdrawal talking. Your late-luteal self sees problems accurately but evaluates solutions poorly. Note the problems. Solve them in Build or Perform mode.'
+      reframe: 'Your inner critic is loudest right now. Write down what is bothering you. Then look at it again next week. You will be surprised how different it feels. The issues may still be real, but the URGENCY and the CATASTROPHIZING are progesterone withdrawal talking. Your late-luteal self sees problems accurately but evaluates solutions poorly. Note the problems. Solve them in Build or Perform mode.'
     },
     fertility: {
       status: 'Fertility drops after ovulation. The egg survives only 12-24 hours. After day 17-18 of a typical cycle, the fertile window is closed until the next cycle. Progesterone makes cervical mucus thick and inhospitable to sperm.',
@@ -555,8 +555,8 @@ var PHASE_KNOWLEDGE = {
     },
     funFacts: [
       'You burn 100-300 MORE calories per day in the luteal phase. Those cravings are your metabolism asking for fuel it genuinely needs.',
-      'Progesterone is literally a calming neurosteroid that acts on GABA receptors — the same receptors targeted by anti-anxiety medications. Your body makes its own chill pill.',
-      'The heightened sensitivity before your period is linked to a temporary serotonin drop. You are not too sensitive — your brain is processing emotions with less chemical buffer.',
+      'Progesterone is literally a calming neurosteroid that acts on GABA receptors, the same receptors targeted by anti-anxiety medications. Your body makes its own chill pill.',
+      'The heightened sensitivity before your period is linked to a temporary serotonin drop. You are not too sensitive; your brain is processing emotions with less chemical buffer.',
       'The nesting instinct is not just for pregnant women. Progesterone makes everyone want to organize, clean, and create order. Your brain is tidying up before the cycle resets.'
     ]
   }
@@ -585,7 +585,7 @@ var VOICE_INSTRUCTIONS = {
     'Cite biological mechanisms: "Research shows..." "Studies suggest..." "The mechanism here is..."',
     'Use proper hormone names (estradiol, progesterone, LH, FSH) alongside plain language.',
     'Quantify when possible: percentages, study findings, measurable outcomes.',
-    'Warm but not casual — think TED talk, not text message.',
+    'Warm but not casual. Think TED talk, not text message.',
     'Example tone: "Progesterone acts on GABA-A receptors in the brain, producing anxiolytic effects similar to benzodiazepines. Translation: your body is manufacturing its own calm-down chemistry right now."'
   ].join('\n'),
 
@@ -593,10 +593,10 @@ var VOICE_INSTRUCTIONS = {
     'VOICE: Wise Feminine Guide.',
     'Gentle, flowing, grounded in nature metaphors and cyclical wisdom.',
     'Use "inner seasons" language: inner winter, inner spring, inner summer, inner autumn.',
-    'Reference the moon, the tides, the seasons, the earth — your cycle mirrors nature.',
+    'Reference the moon, the tides, the seasons, the earth. Your cycle mirrors nature.',
     'Use phrases like: "honor your flow," "sacred rest," "your womb wisdom," "cyclical living."',
     'Gentle and never pushy. Invitations, not commands: "You might find..." "Consider allowing..."',
-    'Example tone: "You are in your inner winter now, love. Just as the earth rests beneath the snow, your body is quietly regenerating. There is profound wisdom in this stillness — can you listen to what it is whispering?"'
+    'Example tone: "You are in your inner winter now, love. Just as the earth rests beneath the snow, your body is quietly regenerating. There is profound wisdom in this stillness, and if you listen, you can hear what it is whispering."'
   ].join('\n'),
 
   hype: [
@@ -606,7 +606,7 @@ var VOICE_INSTRUCTIONS = {
     'During high-energy phases (Build, Perform): full throttle motivation.',
     'During low-energy phases (Reflect, Complete): reframe rest as STRATEGIC POWER MOVES.',
     'Example high-energy: "YOUR ESTROGEN IS PEAKING AND SO ARE YOU! This is your 48-hour SUPERPOWER window. Schedule the pitch. Book the date. SEND THE INVOICE. LET\'S GOOO!"',
-    'Example rest-phase: "REST IS NOT WEAKNESS — IT IS YOUR SECRET WEAPON! The greatest athletes in the world TRAIN their recovery. Today YOU are recovering like a CHAMPION."'
+    'Example rest-phase: "REST IS NOT WEAKNESS. IT IS YOUR SECRET WEAPON! The greatest athletes in the world TRAIN their recovery. Today YOU are recovering like a CHAMPION."'
   ].join('\n')
 };
 
@@ -691,7 +691,7 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
   if (isLateLuteal) {
     var toolkit = PHASE_KNOWLEDGE.luteal.lateLutealToolkit;
     parts.push('══════════════════════════════════════════');
-    parts.push('!!! LATE LUTEAL EMOTIONAL TOOLKIT — CRITICAL !!!');
+    parts.push('!!! LATE LUTEAL EMOTIONAL TOOLKIT - CRITICAL !!!');
     parts.push('The user is in LATE LUTEAL (the hardest emotional days of the cycle).');
     parts.push('This briefing MUST include proactive emotional support.');
     parts.push('');
@@ -714,7 +714,7 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
     parts.push('The value should be immediate and obvious from day one.');
     parts.push('');
   } else {
-    parts.push('The user has check-in history. Use it to personalize the briefing — reference trends, patterns, and today\'s data if available.');
+    parts.push('The user has check-in history. Use it to personalize the briefing by referencing trends, patterns, and today\'s data if available.');
     parts.push('');
   }
 
@@ -729,11 +729,11 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
   parts.push('  },');
   parts.push('  "nutrition": {');
   parts.push('    "headline": "Short nutrition headline (5-10 words)",');
-  parts.push('    "body": "3-5 sentences covering: what to eat today and WHY (link to hormones), one specific meal or snack suggestion, fasting window guidance, and any craving decoding relevant to this phase day. Be SPECIFIC — name foods, not food groups."');
+  parts.push('    "body": "3-5 sentences covering: what to eat today and WHY (link to hormones), one specific meal or snack suggestion, fasting window guidance, and any craving decoding relevant to this phase day. Be SPECIFIC: name foods, not food groups."');
   parts.push('  },');
   parts.push('  "movement": {');
   parts.push('    "headline": "Short movement headline (5-10 words)",');
-  parts.push('    "body": "3-5 sentences covering: what type of workout to do today, intensity guidance with a reason (link to hormones/recovery), one specific workout suggestion, and what to avoid. Be SPECIFIC — name workouts, not concepts."');
+  parts.push('    "body": "3-5 sentences covering: what type of workout to do today, intensity guidance with a reason (link to hormones/recovery), one specific workout suggestion, and what to avoid. Be SPECIFIC: name workouts, not concepts."');
   parts.push('  },');
   parts.push('  "focus": {');
   parts.push('    "headline": "Short productivity headline (5-10 words)",');
@@ -750,9 +750,10 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
   parts.push('- Cover ALL 6 sections. Do not skip any.');
   parts.push('- Be SPECIFIC. Name foods, workouts, task types. No generic "eat well and exercise."');
   parts.push('- Every recommendation should link back to WHAT IS HAPPENING HORMONALLY.');
-  parts.push('- Vary the content — if this is day 3 vs day 5 of the same phase, the guidance should shift.');
+  parts.push('- Vary the content. If this is day 3 vs day 5 of the same phase, the guidance should shift.');
   parts.push('- Make the keyInsight something she would actually screenshot and save.');
   parts.push('- Never use the word "journey." Never say "listen to your body" without specifying WHAT to listen for.');
+  parts.push('- Never use em dashes. Use commas, colons, semicolons, periods, or connecting words like "and," "so," "because," or "to" instead.');
 
   return parts.join('\n');
 }
@@ -851,7 +852,7 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     });
 
     if (aiResult && !aiResult.skipped && aiResult.content) {
-      // Parse JSON from AI response — handle potential markdown wrapping
+      // Parse JSON from AI response, handling potential markdown wrapping
       var jsonStr = aiResult.content.trim();
       if (jsonStr.startsWith('```')) {
         jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
@@ -937,7 +938,7 @@ function buildGeneralBriefing(today, todayCheckin, recentCheckins, streak) {
       summary = 'Over the last ' + recentCheckins.length + ' check-ins, your energy is trending up. Whatever you\'re doing, keep doing it. Today is a good day to tackle something ambitious.';
     } else if (recentTrend < -1.5) {
       headline = 'Energy\'s been dipping. Time to recharge.';
-      summary = 'Your recent check-ins show a downward energy trend. That\'s not failure \u2014 it\'s data. Today, prioritize rest, light movement, and things that fill your cup.';
+      summary = 'Your recent check-ins show a downward energy trend. That\'s not failure, it\'s data. Today, prioritize rest, light movement, and things that fill your cup.';
     }
   }
 
@@ -1045,11 +1046,11 @@ function buildPersonalization(todayCheckin, recentCheckins) {
     var e = Number(todayCheckin.energy);
     var conf = Number(todayCheckin.confidence);
     if (e >= 8 && conf >= 8) {
-      result.todayNote = 'You\'re feeling strong today. Capitalize on it \u2014 this is a power day.';
+      result.todayNote = 'You\'re feeling strong today. Capitalize on it; this is a power day.';
     } else if (e <= 3 || conf <= 3) {
       result.todayNote = 'Tough day. That\'s real and valid. Be gentle with yourself and do less, not more.';
     } else if (e >= 7) {
-      result.todayNote = 'Energy is solid today. You\'ve got fuel in the tank \u2014 use it on something meaningful.';
+      result.todayNote = 'Energy is solid today. You\'ve got fuel in the tank, so use it on something meaningful.';
     } else if (conf >= 7) {
       result.todayNote = 'Confidence is high even if energy isn\'t peak. Trust your gut on decisions today.';
     }
@@ -1060,7 +1061,7 @@ function buildPersonalization(todayCheckin, recentCheckins) {
 
 
 // ══════════════════════════════════════════════════════════════════════════
-//  STATIC PHASE CONTENT (v1 fallback — used when AI is unavailable)
+//  STATIC PHASE CONTENT (v1 fallback, used when AI is unavailable)
 // ══════════════════════════════════════════════════════════════════════════
 
 var STATIC_PHASE_CONTENT = {
@@ -1073,10 +1074,10 @@ var STATIC_PHASE_CONTENT = {
       'Your uterus is doing the heavy lifting today. Give her some space.',
       'You\'re not broken. You\'re recalibrating.',
       'The world can wait. You\'re processing.',
-      'Permission to slow down \u2014 granted.'
+      'Permission to slow down. Granted.'
     ],
     summaries: [
-      'Energy is at its lowest point in your cycle, and that\'s by design. Your body is literally shedding and rebuilding. This is not the time to launch things \u2014 it\'s the time to see things clearly.',
+      'Energy is at its lowest point in your cycle, and that\'s by design. Your body is literally shedding and rebuilding. This is not the time to launch things; it\'s the time to see things clearly.',
       'Progesterone and estrogen are both at rock bottom right now. Your body is doing hard physical work even if you\'re sitting still. Honor that.',
       'Think of this as your monthly system reboot. Everything slows down so your brain can process at a deeper level.'
     ],
@@ -1089,7 +1090,7 @@ var STATIC_PHASE_CONTENT = {
     todayEnergy: 'low',
     energyForecast: 'rebuilding',
     funFacts: [
-      'During menstruation, the right hemisphere of your brain becomes more active \u2014 your intuition and creative insights are sharper.',
+      'During menstruation, the right hemisphere of your brain becomes more active, and your intuition and creative insights are sharper.',
       'Your pain threshold is lowest right now, which is why everything feels more intense.',
       'Research shows women make more accurate gut-feeling decisions during menstruation.'
     ]
@@ -1111,16 +1112,16 @@ var STATIC_PHASE_CONTENT = {
       'Your body is building toward ovulation and your brain is along for the ride. Neurotransmitters are firing.'
     ],
     recommendations: {
-      work: { title: 'Work & Career', tip: 'Brainstorm. Pitch ideas. Start that project. Novel neural connections are forming faster.', doThis: 'Schedule the meeting where you propose something new. Write the first draft. Start the thing.', skipThis: 'Mindless admin tasks \u2014 save those for Complete mode.' },
-      fitness: { title: 'Movement', tip: 'Go hard. Your body can handle high-intensity. Recovery is faster.', doThis: 'HIIT, running, dance cardio, trying new classes', skipThis: 'Only gentle exercise \u2014 your body can handle more now' },
-      nutrition: { title: 'Fuel', tip: 'Light proteins and fermented foods. Your gut is thriving and metabolism efficient.', doThis: 'Fresh salads, fermented foods, lean proteins, colorful plates', skipThis: 'Heavy comfort foods \u2014 you don\'t need them right now' },
-      social: { title: 'Relationships', tip: 'Social battery is fully charged. Say yes to plans.', doThis: 'Coffee dates, networking, team brainstorms, social outings', skipThis: 'Hermit mode \u2014 you\'d be wasting your social superpowers' }
+      work: { title: 'Work & Career', tip: 'Brainstorm. Pitch ideas. Start that project. Novel neural connections are forming faster.', doThis: 'Schedule the meeting where you propose something new. Write the first draft. Start the thing.', skipThis: 'Mindless admin tasks. Save those for Complete mode.' },
+      fitness: { title: 'Movement', tip: 'Go hard. Your body can handle high-intensity. Recovery is faster.', doThis: 'HIIT, running, dance cardio, trying new classes', skipThis: 'Only gentle exercise. Your body can handle more now' },
+      nutrition: { title: 'Fuel', tip: 'Light proteins and fermented foods. Your gut is thriving and metabolism efficient.', doThis: 'Fresh salads, fermented foods, lean proteins, colorful plates', skipThis: 'Heavy comfort foods. You don\'t need them right now' },
+      social: { title: 'Relationships', tip: 'Social battery is fully charged. Say yes to plans.', doThis: 'Coffee dates, networking, team brainstorms, social outings', skipThis: 'Hermit mode. You\'d be wasting your social superpowers' }
     },
     todayEnergy: 'rising',
     energyForecast: 'high',
     funFacts: [
       'Your brain forms new neural connections faster during this phase. Your neuroplasticity sweet spot.',
-      'Estrogen increases dopamine receptor sensitivity \u2014 new experiences feel extra rewarding.',
+      'Estrogen increases dopamine receptor sensitivity, so new experiences feel extra rewarding.',
       'Rising estrogen boosts verbal fluency and creative problem-solving. Brain chemistry, not motivation.'
     ]
   },
@@ -1136,21 +1137,21 @@ var STATIC_PHASE_CONTENT = {
       'You\'re literally glowing. Science says so.'
     ],
     summaries: [
-      'Estrogen just peaked and testosterone is surging alongside it. You are at your most confident, articulate, and physically capable. This window is short \u2014 2 to 3 days.',
+      'Estrogen just peaked and testosterone is surging alongside it. You are at your most confident, articulate, and physically capable. This window is short, only 2 to 3 days.',
       'Your verbal skills, social confidence, and physical performance are all at their monthly peak.',
       'Biology just handed you a cheat code. Testosterone and estrogen are both peaking.'
     ],
     recommendations: {
       work: { title: 'Work & Career', tip: 'Close deals. Give presentations. Your communication skills peak now.', doThis: 'The salary negotiation. The client pitch. The difficult feedback conversation.', skipThis: 'Hiding behind your laptop doing solo work.' },
       fitness: { title: 'Movement', tip: 'Go all out. Heavy lifting, competitive sports, personal bests.', doThis: 'Lift heavy, sprint, compete, set a PR', skipThis: 'Taking it easy. Your body is designed for peak output.' },
-      nutrition: { title: 'Fuel', tip: 'Anti-inflammatory foods and raw veggies. Metabolism is at its fastest.', doThis: 'Big colorful salads, raw vegetables, anti-inflammatory foods, lighter meals', skipThis: 'Skipping meals \u2014 your brain needs fuel' },
+      nutrition: { title: 'Fuel', tip: 'Anti-inflammatory foods and raw veggies. Metabolism is at its fastest.', doThis: 'Big colorful salads, raw vegetables, anti-inflammatory foods, lighter meals', skipThis: 'Skipping meals. Your brain needs fuel' },
       social: { title: 'Relationships', tip: 'You\'re the life of the party. People are literally more attracted to you now.', doThis: 'Date night, networking, the conversation you\'ve been avoiding', skipThis: 'Canceling plans. Your social magnetism is peaking.' }
     },
     todayEnergy: 'peak',
     energyForecast: 'maximum',
     funFacts: [
       'Testosterone peaks alongside estrogen during ovulation, boosting confidence and assertiveness.',
-      'Research shows women are perceived as more attractive during ovulation \u2014 voice, skin, body language all shift.',
+      'Research shows women are perceived as more attractive during ovulation: voice, skin, body language all shift.',
       'Your pain tolerance is highest, reaction time fastest, spatial awareness peaks.'
     ]
   },
@@ -1291,10 +1292,10 @@ function getMiniPhraseBriefing(lastPeriodStart, cycleLength, dateStr) {
   if (!content) return null;
 
   var miniPhrases = {
-    reflect: 'You\'re in Reflect mode today \u2014 your intuition is sharpest now. Check in to keep tracking your rhythm.',
-    build: 'You\'re in Build mode today \u2014 your brain is primed for creativity. Check in to keep your streak alive.',
-    perform: 'You\'re in Perform mode today \u2014 peak confidence and communication. Check in to capture your peak.',
-    complete: 'You\'re in Complete mode today \u2014 perfect for finishing what you started. Check in to keep the data flowing.'
+    reflect: 'You\'re in Reflect mode today, and your intuition is sharpest now. Check in to keep tracking your rhythm.',
+    build: 'You\'re in Build mode today, and your brain is primed for creativity. Check in to keep your streak alive.',
+    perform: 'You\'re in Perform mode today, with peak confidence and communication. Check in to capture your peak.',
+    complete: 'You\'re in Complete mode today, perfect for finishing what you started. Check in to keep the data flowing.'
   };
 
   return {

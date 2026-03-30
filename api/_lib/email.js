@@ -1,5 +1,5 @@
 /**
- * PeakHer Email Module — GHL (GoHighLevel) integration
+ * PeakHer Email Module: GHL (GoHighLevel) integration
  *
  * Sends emails via GHL conversations API using the PeakHer location.
  * Requires GHL_PEAKHER_API_KEY + GHL_PEAKHER_LOCATION_ID env vars.
@@ -54,7 +54,7 @@ function welcomeEmail(name) {
 function reminderEmail(name, streak) {
   var streakLine = streak > 0
     ? 'You\'re on a <strong style="color:#2d8a8a;">' + streak + '-day streak</strong>. Keep it going!'
-    : 'Start a new streak today — one check-in is all it takes.';
+    : 'Start a new streak today. One check-in is all it takes.';
 
   return {
     subject: streak > 0
@@ -107,14 +107,14 @@ function betaInviteEmail(name, spotsLeft) {
         '<div style="background:#0f2035;border-radius:12px;padding:32px 24px;border:1px solid rgba(255,255,255,0.06);">' +
           '<h1 style="color:#ffffff;font-size:24px;font-weight:700;margin:0 0 12px;">You\'re In, ' + escapeHtml(name) + '.</h1>' +
           '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 16px;">' +
-            'You signed up for PeakHer\'s beta waitlist — and your spot is ready.' +
+            'You signed up for PeakHer\'s beta waitlist, and your spot is ready.' +
           '</p>' +
           '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 16px;">' +
             'PeakHer tracks your energy, confidence, and daily rhythm so you can see the patterns behind your performance. ' +
             'No guessing. No generic advice. Just your data, showing you what actually works for <em style="color:#ffffff;">you</em>.' +
           '</p>' +
           '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 24px;">' +
-            spotsText + ' in our founding beta — create your account now and log your first check-in (takes 30 seconds).' +
+            spotsText + ' in our founding beta. Create your account now and log your first check-in (takes 30 seconds).' +
           '</p>' +
           '<div style="text-align:center;">' +
             '<a href="https://peakher.ai/login/?mode=signup" style="display:inline-block;background:#E87461;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;">Create Your Account</a>' +
@@ -137,14 +137,14 @@ function betaInviteEmail(name, spotsLeft) {
  * Reminder email with a mini cycle-phase briefing.
  * Used when the user has cycle tracking enabled.
  *
- * @param {string} name — user's first name
- * @param {number} streak — current streak count
+ * @param {string} name - user's first name
+ * @param {number} streak - current streak count
  * @param {{ phase: string, phaseName: string, phaseEmoji: string, miniPhrase: string }} briefing
  */
 function briefingReminderEmail(name, streak, briefing) {
   var streakLine = streak > 0
     ? 'You\'re on a <strong style="color:#2d8a8a;">' + streak + '-day streak</strong>. Keep it going!'
-    : 'Start a new streak today — one check-in is all it takes.';
+    : 'Start a new streak today. One check-in is all it takes.';
 
   var phaseColors = {
     reflect: '#7BA7C2',
@@ -156,7 +156,7 @@ function briefingReminderEmail(name, streak, briefing) {
 
   return {
     subject: streak > 0
-      ? briefing.phaseEmoji + ' ' + name + ', you\'re in ' + briefing.phaseName + ' — keep your ' + streak + '-day streak'
+      ? briefing.phaseEmoji + ' ' + name + ', you\'re in ' + briefing.phaseName + ', keep your ' + streak + '-day streak'
       : briefing.phaseEmoji + ' ' + name + ', you\'re in ' + briefing.phaseName + ' today',
     html: '<!DOCTYPE html>' +
       '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>' +

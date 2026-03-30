@@ -1,5 +1,5 @@
 /**
- * PeakHer — Base schema initialization.
+ * PeakHer: Base schema initialization.
  * Creates the foundational tables that ALL other migrations depend on:
  *   users, checkins, cycle_profiles, streaks
  *

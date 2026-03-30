@@ -348,7 +348,7 @@ window.PeakHer.Onboarding = (function () {
     step.setAttribute('data-step', '2');
 
     step.appendChild(el('h2', 'ob-heading', 'Which hats do you wear?'));
-    step.appendChild(el('p', 'ob-subtext', 'Select all that apply \u2014 this helps us personalize your insights'));
+    step.appendChild(el('p', 'ob-subtext', 'Select all that apply. This helps us personalize your insights'));
 
     var grid = el('div', 'ob-hats-grid');
     var selectedHats = {};
@@ -402,7 +402,7 @@ window.PeakHer.Onboarding = (function () {
     step.setAttribute('data-step', '3');
 
     step.appendChild(el('h2', 'ob-heading', 'Cycle Tracking'));
-    step.appendChild(el('p', 'ob-subtext', 'Optional \u2014 enables powerful phase-based insights'));
+    step.appendChild(el('p', 'ob-subtext', 'Optional, but enables powerful phase-based insights'));
 
     // Toggle row
     var toggleRow = el('div', 'ob-toggle-row');
@@ -552,7 +552,7 @@ window.PeakHer.Onboarding = (function () {
 
       // Adjust for spotting context
       if (selectedSpotting === 'full') {
-        // They're in their period now — Day 1 was likely 1-2 days ago if just started
+        // They're in their period now. Day 1 was likely 1-2 days ago if just started
         // or use the weeks-ago answer adjusted
         if (selectedWeeks <= 0.5) {
           daysAgo = 1; // just started
@@ -760,7 +760,7 @@ window.PeakHer.Onboarding = (function () {
     step.setAttribute('data-step', '5');
 
     step.appendChild(el('h2', 'ob-heading', 'Integrations'));
-    step.appendChild(el('p', 'ob-subtext', 'Coming soon \u2014 connect your favorite tools'));
+    step.appendChild(el('p', 'ob-subtext', 'Coming soon: connect your favorite tools'));
 
     var list = el('div', 'ob-integrations');
 
@@ -861,7 +861,7 @@ window.PeakHer.Onboarding = (function () {
               });
             }
           } else {
-            // Still navigate — data is saved locally
+            // Still navigate; data is saved locally
             errorMsg.textContent = '';
             Router.navigate('#checkin');
           }

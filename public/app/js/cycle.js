@@ -31,10 +31,10 @@ window.PeakHer.Cycle = (function () {
   };
 
   var MODE_DESCRIPTIONS = {
-    Reflect:  'Rest & recharge \u2014 honor your energy',
-    Build:    'Rising energy \u2014 start new projects',
-    Perform:  'Peak performance \u2014 go bold',
-    Complete: 'Wrap up & refine \u2014 finish strong'
+    Reflect:  'Rest and recharge. Honor your energy.',
+    Build:    'Rising energy. Start new projects.',
+    Perform:  'Peak performance. Go bold.',
+    Complete: 'Wrap up and refine. Finish strong.'
   };
 
   var PHASE_EMOJIS = {
@@ -50,9 +50,9 @@ window.PeakHer.Cycle = (function () {
    * Calculate the 1-based cycle day for a given date.
    * Returns null if date is before lastPeriodStart.
    *
-   * @param {string} lastPeriodStart — "YYYY-MM-DD"
-   * @param {number} cycleLength — e.g. 28
-   * @param {string|Date} date — "YYYY-MM-DD" or Date object
+   * @param {string} lastPeriodStart - "YYYY-MM-DD"
+   * @param {number} cycleLength - e.g. 28
+   * @param {string|Date} date - "YYYY-MM-DD" or Date object
    * @returns {number|null}
    */
   function getCycleDay(lastPeriodStart, cycleLength, date) {
@@ -73,9 +73,9 @@ window.PeakHer.Cycle = (function () {
   /**
    * Determine the phase name based on proportional position in the cycle.
    *
-   * @param {number} cycleDay — 1-based
-   * @param {number} cycleLength — e.g. 28
-   * @returns {string} — "menstrual" | "follicular" | "ovulatory" | "luteal"
+   * @param {number} cycleDay - 1-based
+   * @param {number} cycleLength - e.g. 28
+   * @returns {string} "menstrual" | "follicular" | "ovulatory" | "luteal"
    */
   function getPhase(cycleDay, cycleLength) {
     if (!cycleDay || !cycleLength) return 'follicular';
@@ -91,7 +91,7 @@ window.PeakHer.Cycle = (function () {
   /**
    * Map a cycle phase to its performance mode name.
    * @param {string} phase
-   * @returns {string} — "Reflect" | "Build" | "Perform" | "Complete"
+   * @returns {string} "Reflect" | "Build" | "Perform" | "Complete"
    */
   function getPerformanceMode(phase) {
     return PHASE_TO_MODE[phase] || 'Build';

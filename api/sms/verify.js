@@ -1,7 +1,7 @@
 /**
- * PeakHer SMS Verify — OTP verification for phone number
+ * PeakHer SMS Verify: OTP verification for phone number
  *
- * POST /api/sms/verify — Verify OTP code
+ * POST /api/sms/verify - Verify OTP code
  *
  * Body: { code: "123456" }
  * Auth: JWT required.
@@ -59,7 +59,7 @@ module.exports = async function handler(req, res) {
       return sendError(res, 400, 'Incorrect code. ' + (remaining > 0 ? remaining + ' attempts remaining.' : 'Request a new code.'));
     }
 
-    // Code matches — mark as verified
+    // Code matches: mark as verified
     await sql`UPDATE sms_verification_codes SET verified = true WHERE id = ${record.id}`;
 
     // Update user: mark phone as verified, enable SMS

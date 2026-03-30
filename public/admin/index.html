@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — PeakHer</title>
+<title>Admin: PeakHer</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -715,7 +715,7 @@
       </button>
     </nav>
     <div class="sidebar-footer">
-      <div class="admin-email" id="adminEmail">—</div>
+      <div class="admin-email" id="adminEmail">-</div>
       <a href="/app/"><span>Back to App</span></a>
     </div>
   </aside>
@@ -830,7 +830,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 Send Daily Reminders to All
               </button>
-              <p class="form-help" id="reminderTargetCount">Users who haven't checked in today: —</p>
+              <p class="form-help" id="reminderTargetCount">Users who haven't checked in today: -</p>
             </div>
           </div>
           <div class="panel">
@@ -1093,13 +1093,13 @@ var Admin = (function () {
   }
 
   function formatDate(d) {
-    if (!d) return '—';
+    if (!d) return '-';
     var dt = new Date(d);
     return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   function formatDateShort(d) {
-    if (!d) return '—';
+    if (!d) return '-';
     var dt = new Date(d);
     return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
@@ -1741,7 +1741,7 @@ var Admin = (function () {
         return '<tr>' +
           '<td style="color:var(--gray-mid);">' + timeStr + '</td>' +
           '<td><span class="action-badge ' + actionClass + '">' + actionLabel + '</span></td>' +
-          '<td>' + (e.targetLabel ? escapeHtml(e.targetLabel) : '<span style="color:var(--gray-mid);">—</span>') + '</td>' +
+          '<td>' + (e.targetLabel ? escapeHtml(e.targetLabel) : '<span style="color:var(--gray-mid);">-</span>') + '</td>' +
           '<td style="color:var(--gray-text);max-width:300px;overflow:hidden;text-overflow:ellipsis;">' + (e.details ? escapeHtml(e.details) : '') + '</td>' +
         '</tr>';
       }).join('');

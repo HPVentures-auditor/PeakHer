@@ -189,7 +189,7 @@ window.PeakHer.Checkin = (function () {
 
   /**
    * Build a slider field and return { el, input }.
-   * @param {object} opts — label, id, leftLabel, rightLabel, value
+   * @param {object} opts - label, id, leftLabel, rightLabel, value
    */
   function buildSlider(opts) {
     var wrap = document.createElement('div');
@@ -304,8 +304,8 @@ window.PeakHer.Checkin = (function () {
       label: "How's your energy today?",
       id: 'ph-energy',
       value: existing ? existing.energy : 5,
-      leftLabel: '1 \u2014 Running on empty',
-      rightLabel: '10 \u2014 Unstoppable'
+      leftLabel: '1: Running on empty',
+      rightLabel: '10: Unstoppable'
     });
     energySlider = energy.input;
     form.appendChild(energy.el);
@@ -315,8 +315,8 @@ window.PeakHer.Checkin = (function () {
       label: 'How confident are you feeling?',
       id: 'ph-confidence',
       value: existing ? existing.confidence : 5,
-      leftLabel: '1 \u2014 Self-doubt',
-      rightLabel: '10 \u2014 On top of the world'
+      leftLabel: '1: Self-doubt',
+      rightLabel: '10: On top of the world'
     });
     confidenceSlider = confidence.input;
     form.appendChild(confidence.el);
@@ -339,8 +339,8 @@ window.PeakHer.Checkin = (function () {
       label: "How'd you sleep?",
       id: 'ph-sleep',
       value: (existing && existing.sleepQuality) ? existing.sleepQuality : 5,
-      leftLabel: '1 \u2014 Barely slept',
-      rightLabel: '10 \u2014 Best sleep ever'
+      leftLabel: '1: Barely slept',
+      rightLabel: '10: Best sleep ever'
     });
     sleepSlider = sleep.input;
     moreSection.appendChild(sleep.el);
@@ -350,8 +350,8 @@ window.PeakHer.Checkin = (function () {
       label: 'Stress level?',
       id: 'ph-stress',
       value: (existing && existing.stressLevel) ? existing.stressLevel : 5,
-      leftLabel: '1 \u2014 Zen',
-      rightLabel: '10 \u2014 Overwhelmed'
+      leftLabel: '1: Zen',
+      rightLabel: '10: Overwhelmed'
     });
     stressSlider = stress.input;
     moreSection.appendChild(stress.el);
@@ -388,7 +388,7 @@ window.PeakHer.Checkin = (function () {
       var cycleDayDisplay = document.createElement('div');
       cycleDayDisplay.className = 'ph-cycle-display';
       cycleDayDisplay.textContent = 'Day ' + cdDay + ' of ' +
-        cycleProfile.averageCycleLength + ' \u2014 ' + cdMode + ' Phase';
+        cycleProfile.averageCycleLength + ', ' + cdMode + ' Phase';
       moreSection.appendChild(cycleDayDisplay);
     }
 

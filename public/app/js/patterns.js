@@ -309,7 +309,7 @@ window.PeakHer.Patterns = (function () {
           type: 'cycle',
           description: energyDev > 0
             ? 'Your energy peaks during ' + phaseName + ' phase (' + mode + ' mode)'
-            : 'Energy dips during ' + phaseName + ' phase \u2014 schedule lighter tasks',
+            : 'Energy dips during ' + phaseName + ' phase, so schedule lighter tasks',
           confidenceScore: Math.min(Math.abs(energyDev) / 3, 1),
           dataPointsUsed: data.length,
           positive: energyDev > 0
@@ -325,7 +325,7 @@ window.PeakHer.Patterns = (function () {
           type: 'cycle',
           description: confDev > 0
             ? 'Confidence rises during ' + phaseName + ' phase (' + mode + ' mode)'
-            : 'Confidence dips during ' + phaseName + ' phase \u2014 lean on your routines',
+            : 'Confidence dips during ' + phaseName + ' phase, so lean on your routines',
           confidenceScore: Math.min(Math.abs(confDev) / 3, 1),
           dataPointsUsed: data.length,
           positive: confDev > 0
@@ -366,7 +366,7 @@ window.PeakHer.Patterns = (function () {
           type: 'day-of-week',
           description: energyDev > 0
             ? dayNames[dow] + 's are your highest-energy day!'
-            : dayNames[dow] + 's tend to be lower energy \u2014 plan accordingly',
+            : dayNames[dow] + 's tend to be lower energy, so plan accordingly',
           confidenceScore: Math.min(Math.abs(energyDev) / 3, 1),
           dataPointsUsed: data.length,
           positive: energyDev > 0
@@ -381,7 +381,7 @@ window.PeakHer.Patterns = (function () {
           type: 'day-of-week',
           description: confDev > 0
             ? dayNames[dow] + 's are your peak confidence day!'
-            : dayNames[dow] + 's tend to be lower confidence \u2014 schedule supportive tasks',
+            : dayNames[dow] + 's tend to be lower confidence, so schedule supportive tasks',
           confidenceScore: Math.min(Math.abs(confDev) / 3, 1),
           dataPointsUsed: data.length,
           positive: confDev > 0
@@ -422,7 +422,7 @@ window.PeakHer.Patterns = (function () {
     if (count <= 5) {
       msg = 'Every check-in teaches us about your rhythms';
     } else if (count <= 15) {
-      msg = 'Patterns are forming \u2014 keep going!';
+      msg = 'Patterns are forming. Keep going!';
     } else {
       msg = 'Almost there! Your data is getting powerful';
     }

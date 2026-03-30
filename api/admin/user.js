@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
   var userId = req.query.id;
   if (!userId) return sendError(res, 400, 'User ID required');
 
-  // GET — single user detail
+  // GET - single user detail
   if (req.method === 'GET') {
     try {
       var rows = await sql`
@@ -79,7 +79,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // PUT — update user
+  // PUT - update user
   if (req.method === 'PUT') {
     try {
       var body = req.body;
@@ -138,7 +138,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // DELETE — delete user and all their data
+  // DELETE - delete user and all their data
   if (req.method === 'DELETE') {
     try {
       // Prevent self-deletion
@@ -163,7 +163,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // POST — special actions (password reset email)
+  // POST - special actions (password reset email)
   if (req.method === 'POST') {
     try {
       var action = req.body.action;

@@ -55,7 +55,7 @@ async function run() {
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS sms_timezone TEXT NOT NULL DEFAULT 'America/New_York'`;
   console.log('  + Added sms_timezone column');
 
-  // 2. Create unique index on phone_number (partial — only non-null)
+  // 2. Create unique index on phone_number (partial, only non-null)
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone ON users (phone_number) WHERE phone_number IS NOT NULL`;
   console.log('  + Created unique partial index on users(phone_number)');
 

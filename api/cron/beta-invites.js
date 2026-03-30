@@ -1,6 +1,6 @@
 /**
  * Beta invite cron job.
- * Runs daily — finds waitlist entries 2-3 days old that haven't been invited,
+ * Runs daily. Finds waitlist entries 2-3 days old that haven't been invited,
  * checks total registered users < 1000, and sends beta invite emails.
  */
 var { getDb } = require('../_lib/db');
@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
   var authHeader = req.headers['authorization'];
   var cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {
-    console.error('CRON_SECRET not configured — rejecting request');
+    console.error('CRON_SECRET not configured, rejecting request');
     return res.status(500).json({ error: 'Cron not configured' });
   }
   if (authHeader !== 'Bearer ' + cronSecret) {

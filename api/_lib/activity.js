@@ -14,7 +14,7 @@
 
 /**
  * Insert a row into admin_activity_log.
- * Fire-and-forget — never throws or blocks the parent request.
+ * Fire-and-forget: never throws or blocks the parent request.
  *
  * @param {Function} sql  Neon tagged template function
  * @param {string}   adminId  UUID of the admin performing the action

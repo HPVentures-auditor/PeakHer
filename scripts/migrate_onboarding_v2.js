@@ -1,5 +1,5 @@
 /**
- * PeakHer — Onboarding V2 Migration
+ * PeakHer: Onboarding V2 Migration
  * Adds cycle_date_confidence to cycle_profiles and coach_voice to users.
  *
  * Safe to re-run: uses IF NOT EXISTS / column existence checks.

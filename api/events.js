@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
 
   const sql = getDb();
 
-  // ── GET — list events with optional filters ───────────────────────
+  // ── GET - list events with optional filters ───────────────────────
   if (req.method === 'GET') {
     try {
       var start = req.query.start;
@@ -84,7 +84,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // ── POST — create a new event ─────────────────────────────────────
+  // ── POST - create a new event ─────────────────────────────────────
   if (req.method === 'POST') {
     try {
       var body = req.body;
@@ -153,7 +153,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // ── DELETE — remove an event by id ────────────────────────────────
+  // ── DELETE - remove an event by id ────────────────────────────────
   if (req.method === 'DELETE') {
     try {
       var eventId = req.query.id;

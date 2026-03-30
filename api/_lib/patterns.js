@@ -2,7 +2,7 @@
  * PeakHer Pattern Detection Engine
  *
  * Server-side analysis of check-in data to detect performance patterns.
- * Self-contained module with its own math helpers — no client-side dependencies.
+ * Self-contained module with its own math helpers. No client-side dependencies.
  */
 
 'use strict';
@@ -156,8 +156,8 @@ function detectCorrelations(checkins) {
         id: 'corr-sleep-energy',
         type: 'correlation',
         description: r > 0
-          ? 'Your sleep quality (avg ' + avgSleep + '/10) strongly predicts your energy (avg ' + avgEnergy + '/10) with r=' + round1(r) + '. On nights you sleep well (7+), your next-day energy averages ' + round1(mean(sleepPairs.filter(function (s) { return s.sleep >= 7; }).map(function (s) { return s.energy; })) || avgEnergy) + ' — prioritize sleep hygiene for better performance days.'
-          : 'Your sleep quality shows an unusual inverse relationship with energy (r=' + round1(r) + '). This could mean you sleep longer on low-energy days or that oversleeping leaves you groggy — experiment with consistent wake times.',
+          ? 'Your sleep quality (avg ' + avgSleep + '/10) strongly predicts your energy (avg ' + avgEnergy + '/10) with r=' + round1(r) + '. On nights you sleep well (7+), your next-day energy averages ' + round1(mean(sleepPairs.filter(function (s) { return s.sleep >= 7; }).map(function (s) { return s.energy; })) || avgEnergy) + ', so prioritize sleep hygiene for better performance days.'
+          : 'Your sleep quality shows an unusual inverse relationship with energy (r=' + round1(r) + '). This could mean you sleep longer on low-energy days or that oversleeping leaves you groggy. Try experimenting with consistent wake times.',
         confidenceScore: calcConfidence(r, sleepPairs.length, 1),
         dataPointsUsed: sleepPairs.length,
         positive: r > 0,
@@ -178,8 +178,8 @@ function detectCorrelations(checkins) {
         id: 'corr-sleep-confidence',
         type: 'correlation',
         description: r2 > 0
-          ? 'Better sleep directly fuels your confidence (r=' + round1(r2) + '). When you rate sleep 7+ your confidence averages ' + round1(mean(sleepPairs.filter(function (s) { return s.sleep >= 7; }).map(function (s) { return s.confidence; })) || avgConf) + ' vs ' + round1(mean(sleepPairs.filter(function (s) { return s.sleep < 7; }).map(function (s) { return s.confidence; })) || avgConf) + ' on poor-sleep days — that gap is real leverage.'
-          : 'Your sleep and confidence show a surprising inverse pattern (r=' + round1(r2) + '). You may feel more confident on days you push through fatigue — but monitor this for burnout.',
+          ? 'Better sleep directly fuels your confidence (r=' + round1(r2) + '). When you rate sleep 7+ your confidence averages ' + round1(mean(sleepPairs.filter(function (s) { return s.sleep >= 7; }).map(function (s) { return s.confidence; })) || avgConf) + ' vs ' + round1(mean(sleepPairs.filter(function (s) { return s.sleep < 7; }).map(function (s) { return s.confidence; })) || avgConf) + ' on poor-sleep days. That gap is real leverage.'
+          : 'Your sleep and confidence show a surprising inverse pattern (r=' + round1(r2) + '). You may feel more confident on days you push through fatigue, but monitor this for burnout.',
         confidenceScore: calcConfidence(r2, sleepPairs.length, 1),
         dataPointsUsed: sleepPairs.length,
         positive: r2 > 0,
@@ -204,8 +204,8 @@ function detectCorrelations(checkins) {
         id: 'corr-stress-energy',
         type: 'correlation',
         description: r3 < 0
-          ? 'Stress is draining your energy tank (r=' + round1(r3) + '). On high-stress days (7+) your energy drops to ' + highStressEnergy + ', but on calm days (4 or below) it rises to ' + lowStressEnergy + ' — stress management directly unlocks energy.'
-          : 'Interestingly, your stress and energy move together (r=' + round1(r3) + '). You may thrive under pressure, but watch for the crash — this pattern often reverses under sustained load.',
+          ? 'Stress is draining your energy tank (r=' + round1(r3) + '). On high-stress days (7+) your energy drops to ' + highStressEnergy + ', but on calm days (4 or below) it rises to ' + lowStressEnergy + '. Stress management directly unlocks energy.'
+          : 'Interestingly, your stress and energy move together (r=' + round1(r3) + '). You may thrive under pressure, but watch for the crash; this pattern often reverses under sustained load.',
         confidenceScore: calcConfidence(r3, stressPairs.length, 1),
         dataPointsUsed: stressPairs.length,
         positive: r3 < 0,
@@ -230,7 +230,7 @@ function detectCorrelations(checkins) {
         id: 'corr-stress-confidence',
         type: 'correlation',
         description: r4 < 0
-          ? 'Stress erodes your confidence (r=' + round1(r4) + '). High-stress days see confidence at ' + highConfVal + ' vs ' + lowConfVal + ' on calm days — reducing stress by even 2 points could meaningfully boost how capable you feel.'
+          ? 'Stress erodes your confidence (r=' + round1(r4) + '). High-stress days see confidence at ' + highConfVal + ' vs ' + lowConfVal + ' on calm days. Reducing stress by even 2 points could meaningfully boost how capable you feel.'
           : 'Your stress and confidence rise together (r=' + round1(r4) + '), averaging ' + avgStress2 + ' stress alongside ' + avgConf2 + ' confidence. You may channel pressure into drive, but sustained stress rarely stays productive.',
         confidenceScore: calcConfidence(r4, stressPairs.length, 1),
         dataPointsUsed: stressPairs.length,
@@ -288,10 +288,10 @@ function detectCyclePatterns(checkins, cycleProfile) {
   var patterns = [];
 
   var modeDescriptions = {
-    reflect: 'Reflect mode — ideal for introspection, planning, and lighter workloads',
-    build: 'Build mode — your momentum phase for tackling ambitious projects',
-    perform: 'Perform mode — peak performance window for high-stakes work',
-    complete: 'Complete mode — great for wrapping up projects and administrative tasks'
+    reflect: 'Reflect mode, ideal for introspection, planning, and lighter workloads',
+    build: 'Build mode, your momentum phase for tackling ambitious projects',
+    perform: 'Perform mode, your peak performance window for high-stakes work',
+    complete: 'Complete mode, great for wrapping up projects and administrative tasks'
   };
 
   for (var p = 0; p < PHASE_NAMES.length; p++) {
@@ -313,8 +313,8 @@ function detectCyclePatterns(checkins, cycleProfile) {
         id: 'cycle-energy-' + phaseName,
         type: 'cycle',
         description: energyDev > 0
-          ? 'Your energy averages ' + round1(phaseEnergy) + ' during ' + phaseLabel + ' phase vs ' + round1(overallEnergy) + ' overall (+' + round1(energyDev) + '). ' + modeDescriptions[phaseName] + ' — schedule your most demanding work here.'
-          : 'Energy dips to ' + round1(phaseEnergy) + ' during ' + phaseLabel + ' phase vs ' + round1(overallEnergy) + ' overall (' + round1(energyDev) + '). ' + modeDescriptions[phaseName] + ' — protect this window for recovery and lighter tasks.',
+          ? 'Your energy averages ' + round1(phaseEnergy) + ' during ' + phaseLabel + ' phase vs ' + round1(overallEnergy) + ' overall (+' + round1(energyDev) + '). ' + modeDescriptions[phaseName] + '. Schedule your most demanding work here.'
+          : 'Energy dips to ' + round1(phaseEnergy) + ' during ' + phaseLabel + ' phase vs ' + round1(overallEnergy) + ' overall (' + round1(energyDev) + '). ' + modeDescriptions[phaseName] + '. Protect this window for recovery and lighter tasks.',
         confidenceScore: calcConfidence(energyDev, data.length, 3),
         dataPointsUsed: data.length,
         positive: energyDev > 0,
@@ -329,8 +329,8 @@ function detectCyclePatterns(checkins, cycleProfile) {
         id: 'cycle-confidence-' + phaseName,
         type: 'cycle',
         description: confDev > 0
-          ? 'Confidence peaks at ' + round1(phaseConfidence) + ' during ' + phaseLabel2 + ' phase vs ' + round1(overallConfidence) + ' overall (+' + round1(confDev) + '). This is your power window — pitch ideas, have tough conversations, and take bold action.'
-          : 'Confidence drops to ' + round1(phaseConfidence) + ' during ' + phaseLabel2 + ' phase vs ' + round1(overallConfidence) + ' overall (' + round1(confDev) + '). This is not a weakness — lean on your routines, avoid big decisions if possible, and practice self-compassion.',
+          ? 'Confidence peaks at ' + round1(phaseConfidence) + ' during ' + phaseLabel2 + ' phase vs ' + round1(overallConfidence) + ' overall (+' + round1(confDev) + '). This is your power window: pitch ideas, have tough conversations, and take bold action.'
+          : 'Confidence drops to ' + round1(phaseConfidence) + ' during ' + phaseLabel2 + ' phase vs ' + round1(overallConfidence) + ' overall (' + round1(confDev) + '). This is not a weakness. Lean on your routines, avoid big decisions if possible, and practice self-compassion.',
         confidenceScore: calcConfidence(confDev, data.length, 3),
         dataPointsUsed: data.length,
         positive: confDev > 0,
@@ -385,7 +385,7 @@ function detectDayPatterns(checkins) {
         type: 'day-of-week',
         description: energyDev > 0
           ? 'Your energy averages ' + round1(dayEnergy) + ' on ' + dayName + 's vs ' + round1(overallEnergy) + ' overall (+' + round1(energyDev) + '). Schedule your most important work, tough conversations, or creative projects on ' + dayName + 's.'
-          : dayName + 's are your lowest-energy day at ' + round1(dayEnergy) + ' vs ' + round1(overallEnergy) + ' overall (' + round1(energyDev) + '). Keep ' + dayName + 's lighter — admin tasks, planning, or self-care.',
+          : dayName + 's are your lowest-energy day at ' + round1(dayEnergy) + ' vs ' + round1(overallEnergy) + ' overall (' + round1(energyDev) + '). Keep ' + dayName + 's lighter: admin tasks, planning, or self-care.',
         confidenceScore: calcConfidence(energyDev, data.length, 3),
         dataPointsUsed: data.length,
         positive: energyDev > 0,
@@ -399,7 +399,7 @@ function detectDayPatterns(checkins) {
         id: 'day-confidence-' + dow,
         type: 'day-of-week',
         description: confDev > 0
-          ? 'Your confidence peaks at ' + round1(dayConfidence) + ' on ' + dayName + 's vs ' + round1(overallConfidence) + ' overall (+' + round1(confDev) + '). This is your power day — book pitches, presentations, or networking on ' + dayName + 's.'
+          ? 'Your confidence peaks at ' + round1(dayConfidence) + ' on ' + dayName + 's vs ' + round1(overallConfidence) + ' overall (+' + round1(confDev) + '). This is your power day: book pitches, presentations, or networking on ' + dayName + 's.'
           : dayName + 's see your confidence dip to ' + round1(dayConfidence) + ' vs ' + round1(overallConfidence) + ' overall (' + round1(confDev) + '). Avoid scheduling high-pressure situations on ' + dayName + 's when possible.',
         confidenceScore: calcConfidence(confDev, data.length, 3),
         dataPointsUsed: data.length,
@@ -457,8 +457,8 @@ function detectTrends(checkins) {
       id: 'trend-energy',
       type: 'trend',
       description: energyDiff > 0
-        ? 'Your energy is trending upward over the last ' + totalDays + ' days — rising from an average of ' + round1(firstHalfEnergy) + ' to ' + round1(secondHalfEnergy) + ' (+' + round1(energyDiff) + '). Whatever you have been doing is working. Keep it up and notice what changed.'
-        : 'Your energy has been declining over the last ' + totalDays + ' days — from ' + round1(firstHalfEnergy) + ' to ' + round1(secondHalfEnergy) + ' (' + round1(energyDiff) + '). This is worth paying attention to. Check your sleep, stress, and workload for recent shifts.',
+        ? 'Your energy is trending upward over the last ' + totalDays + ' days, rising from an average of ' + round1(firstHalfEnergy) + ' to ' + round1(secondHalfEnergy) + ' (+' + round1(energyDiff) + '). Whatever you have been doing is working. Keep it up and notice what changed.'
+        : 'Your energy has been declining over the last ' + totalDays + ' days, from ' + round1(firstHalfEnergy) + ' to ' + round1(secondHalfEnergy) + ' (' + round1(energyDiff) + '). This is worth paying attention to. Check your sleep, stress, and workload for recent shifts.',
       confidenceScore: calcConfidence(energyDiff, totalDays, 2),
       dataPointsUsed: totalDays,
       positive: energyDiff > 0,
@@ -480,8 +480,8 @@ function detectTrends(checkins) {
       id: 'trend-confidence',
       type: 'trend',
       description: confDiff > 0
-        ? 'Your confidence is building momentum over the last ' + totalDaysConf + ' days — from ' + round1(firstHalfConf) + ' to ' + round1(secondHalfConf) + ' (+' + round1(confDiff) + '). This upward arc suggests your recent habits or wins are compounding.'
-        : 'Your confidence has softened over the last ' + totalDaysConf + ' days — from ' + round1(firstHalfConf) + ' to ' + round1(secondHalfConf) + ' (' + round1(confDiff) + '). Consider what might be eroding your sense of capability — and whether a small win could reverse the slide.',
+        ? 'Your confidence is building momentum over the last ' + totalDaysConf + ' days, from ' + round1(firstHalfConf) + ' to ' + round1(secondHalfConf) + ' (+' + round1(confDiff) + '). This upward arc suggests your recent habits or wins are compounding.'
+        : 'Your confidence has softened over the last ' + totalDaysConf + ' days, from ' + round1(firstHalfConf) + ' to ' + round1(secondHalfConf) + ' (' + round1(confDiff) + '). Consider what might be eroding your sense of capability, and whether a small win could reverse the slide.',
       confidenceScore: calcConfidence(confDiff, totalDaysConf, 2),
       dataPointsUsed: totalDaysConf,
       positive: confDiff > 0,
@@ -524,7 +524,7 @@ function detectStreakImpact(checkins, streak) {
       if (diffDays === 1) {
         currentRun.push(sorted[i]);
       } else {
-        // End of run — classify
+        // End of run: classify
         if (currentRun.length >= 3) {
           for (var j = 0; j < currentRun.length; j++) {
             streakDays.push(currentRun[j]);
@@ -537,7 +537,7 @@ function detectStreakImpact(checkins, streak) {
         currentRun = [sorted[i]];
       }
     } else {
-      // Can't parse — end run
+      // Can't parse: end run
       if (currentRun.length >= 3) {
         for (var j2 = 0; j2 < currentRun.length; j2++) {
           streakDays.push(currentRun[j2]);
@@ -575,7 +575,7 @@ function detectStreakImpact(checkins, streak) {
       type: 'streak',
       description: energyDiff > 0
         ? 'Consistency pays off: during check-in streaks (3+ consecutive days), your energy averages ' + round1(streakEnergy) + ' vs ' + round1(nonStreakEnergy) + ' on non-streak days (+' + round1(energyDiff) + '). The daily habit itself is boosting your performance. Your current streak is ' + currentStreak + ' days.'
-        : 'During check-in streaks your energy dips slightly to ' + round1(streakEnergy) + ' vs ' + round1(nonStreakEnergy) + ' on scattered days (' + round1(energyDiff) + '). The awareness from consistent tracking may make you rate more honestly — which is actually valuable data.',
+        : 'During check-in streaks your energy dips slightly to ' + round1(streakEnergy) + ' vs ' + round1(nonStreakEnergy) + ' on scattered days (' + round1(energyDiff) + '). The awareness from consistent tracking may make you rate more honestly, and that is actually valuable data.',
       confidenceScore: calcConfidence(energyDiff, streakDays.length + nonStreakDays.length, 2),
       dataPointsUsed: streakDays.length + nonStreakDays.length,
       positive: energyDiff > 0,
@@ -592,8 +592,8 @@ function detectStreakImpact(checkins, streak) {
       id: 'streak-confidence',
       type: 'streak',
       description: confDiff > 0
-        ? 'Your confidence is ' + round1(confDiff) + ' points higher during streaks (' + round1(streakConf) + ' vs ' + round1(nonStreakConf) + '). Showing up daily builds self-trust — and at ' + currentStreak + ' days, you are proving it right now.'
-        : 'Confidence averages ' + round1(streakConf) + ' during streaks vs ' + round1(nonStreakConf) + ' otherwise (' + round1(confDiff) + '). Consistent tracking can surface harder truths — which is a feature, not a bug.',
+        ? 'Your confidence is ' + round1(confDiff) + ' points higher during streaks (' + round1(streakConf) + ' vs ' + round1(nonStreakConf) + '). Showing up daily builds self-trust, and at ' + currentStreak + ' days, you are proving it right now.'
+        : 'Confidence averages ' + round1(streakConf) + ' during streaks vs ' + round1(nonStreakConf) + ' otherwise (' + round1(confDiff) + '). Consistent tracking can surface harder truths, and that is a feature, not a bug.',
       confidenceScore: calcConfidence(confDiff, streakDays.length + nonStreakDays.length, 2),
       dataPointsUsed: streakDays.length + nonStreakDays.length,
       positive: confDiff > 0,

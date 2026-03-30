@@ -33,7 +33,7 @@ async function requireAdmin(req, res) {
 
   var email = rows[0].email.toLowerCase().trim();
   if (ADMIN_EMAILS.indexOf(email) === -1) {
-    sendError(res, 403, 'Forbidden — admin access required');
+    sendError(res, 403, 'Forbidden: admin access required');
     return null;
   }
 

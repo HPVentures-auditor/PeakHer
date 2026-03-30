@@ -1,7 +1,7 @@
 /**
  * PeakHer AI Insights Endpoint
  *
- * GET /api/insights — Returns AI-generated pattern insights, week-ahead narrative,
+ * GET /api/insights - Returns AI-generated pattern insights, week-ahead narrative,
  * and recommendations. Caches results in DB; only regenerates when user has new check-ins.
  */
 var { getDb } = require('./_lib/db');
@@ -36,7 +36,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 2. Check cache — only regenerate if we have new check-ins since last generation
+    // 2. Check cache: only regenerate if we have new check-ins since last generation
     var latestCheckinDate = checkins[0].date instanceof Date
       ? checkins[0].date.toISOString()
       : String(checkins[0].date);
@@ -198,10 +198,10 @@ function buildSystemPrompt() {
   return [
     'You are Ava, PeakHer\'s performance intelligence analyst.',
     'You help women understand their energy, confidence, and performance patterns.',
-    'Your tone is warm, evidence-based, and peer-to-peer — like a brilliant friend who happens to be a data scientist.',
+    'Your tone is warm, evidence-based, and peer-to-peer, like a brilliant friend who happens to be a data scientist.',
     'Never condescending. Never clinical. Always actionable.',
     '',
-    'You MUST respond with valid JSON only — no markdown, no explanation outside the JSON.',
+    'You MUST respond with valid JSON only. No markdown, no explanation outside the JSON.',
     'Follow this exact schema:',
     '{',
     '  "patternInsights": [',
@@ -231,7 +231,7 @@ function buildSystemPrompt() {
     '}',
     '',
     'Return 3-5 pattern insights, exactly 1 week-ahead narrative, and 2-4 recommendations.',
-    'Ground every insight in the actual data — reference specific numbers, days, or trends.',
+    'Ground every insight in the actual data. Reference specific numbers, days, or trends.',
     'If cycle data is not available, omit cycle-related insights and set cycleContext to null.'
   ].join('\n');
 }

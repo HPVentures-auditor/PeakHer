@@ -18,7 +18,7 @@ module.exports = async function handler(req, res) {
         return sendError(res, 400, 'endpoint and keys (p256dh, auth) are required');
       }
 
-      // Upsert on (user_id, endpoint) — update keys if endpoint already exists
+      // Upsert on (user_id, endpoint): update keys if endpoint already exists
       await sql`
         INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth)
         VALUES (${userId}, ${endpoint}, ${keys.p256dh}, ${keys.auth})

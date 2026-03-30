@@ -424,7 +424,7 @@ window.PeakHer.History = (function () {
         var phaseName = phase.charAt(0).toUpperCase() + phase.slice(1);
 
         panelHtml += '<div class="day-detail-cycle" style="background:' + hexToRgba(modeColor, 0.15) + ';color:' + modeColor + '">';
-        panelHtml += 'Day ' + cycleDay + ' \u2014 ' + phaseName + ' Phase (' + mode + ' Mode)';
+        panelHtml += 'Day ' + cycleDay + ', ' + phaseName + ' Phase (' + mode + ' Mode)';
         panelHtml += '</div>';
       }
     }

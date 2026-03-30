@@ -46,7 +46,7 @@ module.exports = async function handler(req, res) {
     var rows = await sql`SELECT id, name, email FROM users WHERE LOWER(email) = ${email}`;
 
     if (!rows.length) {
-      // Don't leak whether email exists — return success either way
+      // Don't leak whether email exists; return success either way
       return res.status(200).json({ success: true, message: successMsg });
     }
 

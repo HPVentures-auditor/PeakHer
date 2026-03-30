@@ -1,9 +1,9 @@
 /**
  * PeakHer SMS Subscribe / Unsubscribe
  *
- * POST /api/sms/subscribe — Add phone number + send OTP
- * PUT  /api/sms/subscribe — Update SMS preferences (time, timezone, enabled)
- * DELETE /api/sms/subscribe — Remove phone number, unsubscribe
+ * POST /api/sms/subscribe - Add phone number + send OTP
+ * PUT  /api/sms/subscribe - Update SMS preferences (time, timezone, enabled)
+ * DELETE /api/sms/subscribe - Remove phone number, unsubscribe
  *
  * Auth: JWT required.
  */
