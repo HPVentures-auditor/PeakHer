@@ -1478,30 +1478,30 @@ Before submitting to the Apple App Store, the following gates must be passed:
 | Asset | Specification |
 |-------|--------------|
 | **App Icon** | 1024x1024px PNG, no alpha, no rounded corners (Apple applies mask) |
-| **Screenshots** | 6.7" (iPhone 15 Pro Max): 1290x2796px — minimum 3, recommended 6-10 |
+| **Screenshots** | 6.7" (iPhone 15 Pro Max): 1290x2796px, minimum 3, recommended 6-10 |
 | | 6.5" (iPhone 14 Plus): 1284x2778px |
-| | 5.5" (iPhone 8 Plus): 1242x2208px — if supporting older devices |
-| | iPad Pro 12.9": 2048x2732px — if supporting iPad |
-| **App Preview Videos** | Optional but recommended — 15-30 second screen recordings showing check-in flow, pattern dashboard, week ahead view |
+| | 5.5" (iPhone 8 Plus): 1242x2208px, if supporting older devices |
+| | iPad Pro 12.9": 2048x2732px, if supporting iPad |
+| **App Preview Videos** | Optional but recommended. 15-30 second screen recordings showing check-in flow, pattern dashboard, week ahead view |
 | **App Name** | "PeakHer" (max 30 characters) |
 | **Subtitle** | "Performance Intelligence for Women" (max 30 characters) |
-| **Description** | Up to 4000 characters — lead with value proposition, include keyword-rich feature list |
-| **Keywords** | 100 character limit — target: "cycle sync, energy tracking, women performance, productivity, burnout, hormone, menstrual cycle, fitness" |
+| **Description** | Up to 4000 characters. Lead with value proposition, include keyword-rich feature list |
+| **Keywords** | 100 character limit. Target: "cycle sync, energy tracking, women performance, productivity, burnout, hormone, menstrual cycle, fitness" |
 | **Category** | Primary: Health & Fitness. Secondary: Productivity |
 | **Support URL** | https://peakher.ai |
 | **Privacy Policy URL** | https://peakher.ai/privacy/ |
 
-### 9.3 App Review Guidelines — Key Compliance Areas
+### 9.3 App Review Guidelines: Key Compliance Areas
 
 Apple's review process typically takes 24-48 hours but can take up to 7 days for first submissions. These are the areas most likely to trigger rejection for PeakHer:
 
-**1. Health Claims (Guideline 1.4 — Physical Harm)**
+**1. Health Claims (Guideline 1.4, Physical Harm)**
 - DO NOT claim PeakHer diagnoses, treats, or cures any condition
 - All insights must be framed as "informational and educational"
 - Include disclaimer: "PeakHer is not a medical device. Consult your healthcare provider for medical advice."
 - Add disclaimer to onboarding flow and app description
 
-**2. Data Collection Disclosure (Guideline 5.1.1 — Data Collection and Storage)**
+**2. Data Collection Disclosure (Guideline 5.1.1, Data Collection and Storage)**
 - Must accurately disclose ALL data collected in App Privacy Nutrition Labels
 - Categories to declare: Health & Fitness (cycle data, energy scores), Contact Info (email, name), Usage Data (analytics), Identifiers (user ID)
 - Data linked to identity: email, name, cycle data, check-in data
@@ -1518,7 +1518,7 @@ Apple's review process typically takes 24-48 hours but can take up to 7 days for
 - If using only email/password auth (no social login), Sign In with Apple is NOT required
 - Recommendation: Implement Sign In with Apple as primary auth for frictionless onboarding
 
-**5. Subscriptions (Guideline 3.1.2) — If/When Premium Is Launched**
+**5. Subscriptions (Guideline 3.1.2), If/When Premium Is Launched**
 - Must clearly display pricing, billing period, and auto-renewal terms
 - Must offer easy subscription management and cancellation
 - Free trial terms must be prominent before purchase
@@ -1531,10 +1531,10 @@ Apple's review process typically takes 24-48 hours but can take up to 7 days for
 | **Week 16** | App Store Connect account configured, metadata drafted, screenshots created |
 | **Week 17** | Internal QA complete, accessibility audit, privacy labels submitted |
 | **Week 18** | TestFlight beta opens to 100 users |
-| **Week 20** | Beta gate criteria evaluated — go/no-go decision |
+| **Week 20** | Beta gate criteria evaluated; go/no-go decision |
 | **Week 21** | Submit to App Store Review (allow 1-2 weeks for review + potential rejection) |
 | **Week 22-23** | Address any rejections, resubmit if needed |
-| **Week 23-24** | Approved — phased release (10% → 25% → 50% → 100% over 7 days) |
+| **Week 23-24** | Approved. Phased release (10% → 25% → 50% → 100% over 7 days) |
 
 ### 9.5 Post-Launch App Update Strategy
 
@@ -1572,7 +1572,7 @@ The web app is NOT part of the 16-week MVP. It should be built when:
 - Users are requesting web access (coach sharing, team dashboards, desktop check-ins)
 - Revenue supports the additional development investment
 
-Estimated timeline: Q4 2026 — 6-8 weeks of development.
+Estimated timeline: Q4 2026, roughly 6-8 weeks of development.
 
 ### 10.2 Recommended Architecture: Next.js on Vercel
 
@@ -1606,7 +1606,7 @@ Estimated timeline: Q4 2026 — 6-8 weeks of development.
 | **Daily Check-In** | Same flow | Keyboard shortcuts, faster input |
 | **Pattern Dashboard** | Same data | Full-width charts, hover tooltips, exportable graphs |
 | **Week Ahead View** | Same data | Calendar integration preview, drag-to-reschedule |
-| **Coach/Team Sharing** | Limited | Primary use case — shareable links, PDF exports, role-based access |
+| **Coach/Team Sharing** | Limited | Primary use case: shareable links, PDF exports, role-based access |
 | **Data Export** | JSON download | CSV/Excel/PDF with formatting, print-friendly reports |
 | **Settings** | Same | Full account management, billing, team admin |
 
@@ -1621,7 +1621,7 @@ While the MVP correctly rejects PWA in favor of native mobile (no HealthKit, lim
 
 - **Service Worker:** Cache dashboard data for offline viewing of historical patterns
 - **Add to Home Screen:** Allow mobile web users who haven't downloaded the app to pin the web dashboard
-- **Web Push Notifications:** Now supported on iOS 16.4+ Safari — viable for check-in reminders on desktop
+- **Web Push Notifications:** Now supported on iOS 16.4+ Safari, making them viable for check-in reminders on desktop
 - **Manifest.json:** App-like experience when launched from home screen
 
 PWA should be a progressive enhancement on top of the Next.js web app, not the primary distribution strategy.

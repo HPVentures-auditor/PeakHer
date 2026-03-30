@@ -372,7 +372,7 @@ window.PeakHer.Settings = (function () {
     var html = '';
 
     if (!smsSettings.hasPhone) {
-      // No phone — show add phone form
+      // No phone: show add phone form
       html += '<div class="ph-sms-status none">No phone number</div>';
       html += '<div class="ph-sms-input-row">';
       html += '<input type="tel" id="smsPhoneInput" placeholder="+1 (555) 123-4567" maxlength="20" autocomplete="tel">';
@@ -380,7 +380,7 @@ window.PeakHer.Settings = (function () {
       html += '</div>';
       html += '<div id="smsMessage"></div>';
     } else if (!smsSettings.phoneVerified) {
-      // Phone added but not verified — show OTP form
+      // Phone added but not verified: show OTP form
       html += '<div class="ph-sms-status unverified">Pending verification</div>';
       html += '<p>Enter the 6-digit code we sent to ' + (smsSettings.phoneNumber || 'your phone') + '</p>';
       html += '<div class="ph-sms-input-row">';
@@ -393,7 +393,7 @@ window.PeakHer.Settings = (function () {
       html += '</div>';
       html += '<div id="smsMessage"></div>';
     } else {
-      // Verified — show settings
+      // Verified: show settings
       html += '<div class="ph-sms-status verified">Verified: ' + (smsSettings.phoneNumber || '') + '</div>';
 
       // Enable/disable toggle
@@ -792,7 +792,7 @@ window.PeakHer.Settings = (function () {
     html += '</select>';
     html += '</div>';
 
-    // Last period start — "days ago" chips
+    // Last period start: "days ago" chips
     html += '<div style="padding:12px 0;border-top:1px solid var(--border-light,rgba(0,0,0,0.06));">';
     html += '<div class="ph-sms-toggle-label">Last period start</div>';
     html += '<div class="ph-sms-toggle-desc" style="margin-bottom:10px;">Day 1 = first day of full flow (not spotting)</div>';

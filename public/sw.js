@@ -1,5 +1,5 @@
 /**
- * PeakHer Service Worker — Push Notifications
+ * PeakHer Service Worker: Push Notifications
  */
 
 self.addEventListener('push', function (event) {
