@@ -494,6 +494,88 @@ window.PeakHer.API = (function () {
     }).then(function (res) { return res.json(); });
   }
 
+  // ── Calendar ─────────────────────────────────────────────────────
+
+  function getCalendarEvents(start, end) {
+    if (!isLoggedIn()) return Promise.resolve({ events: [] });
+    var qs = '?start=' + encodeURIComponent(start) + '&end=' + encodeURIComponent(end);
+    return request('GET', '/calendar/events' + qs)
+      .then(function (result) {
+        if (result && result.events) {
+          window.PeakHer.Store.setCalendarEvents(result.events);
+        }
+        return result;
+      })
+      .catch(function (err) {
+        console.warn('Fetch calendar events failed:', err.message);
+        return { events: [] };
+      });
+  }
+
+  function createCalendarEvent(data) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return request('POST', '/calendar/events', data);
+  }
+
+  function updateCalendarEvent(data) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return request('PUT', '/calendar/events', data);
+  }
+
+  function deleteCalendarEvent(id) {
+    if (!isLoggedIn()) return Promise.resolve({ success: true });
+    return request('DELETE', '/calendar/events?id=' + encodeURIComponent(id));
+  }
+
+  function getCalendarStatus() {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return request('GET', '/calendar/status')
+      .then(function (result) {
+        if (result) {
+          window.PeakHer.Store.setCalendarConnection(result);
+        }
+        return result;
+      })
+      .catch(function (err) {
+        console.warn('Fetch calendar status failed:', err.message);
+        return null;
+      });
+  }
+
+  function startCalendarAuth() {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return request('GET', '/calendar/auth');
+  }
+
+  function syncCalendar() {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return request('POST', '/calendar/sync')
+      .then(function (result) {
+        if (result && result.events) {
+          window.PeakHer.Store.setCalendarEvents(result.events);
+        }
+        return result;
+      })
+      .catch(function (err) {
+        console.warn('Calendar sync failed:', err.message);
+        return null;
+      });
+  }
+
+  function disconnectCalendar() {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return request('POST', '/calendar/disconnect')
+      .then(function (result) {
+        window.PeakHer.Store.setCalendarConnection(null);
+        window.PeakHer.Store.setCalendarEvents([]);
+        return result;
+      })
+      .catch(function (err) {
+        console.warn('Calendar disconnect failed:', err.message);
+        return null;
+      });
+  }
+
   // ── Public API ───────────────────────────────────────────────────
 
   return {
@@ -522,6 +604,14 @@ window.PeakHer.API = (function () {
     addPhoneNumber: addPhoneNumber,
     verifyPhoneCode: verifyPhoneCode,
     updateSmsSettings: updateSmsSettings,
-    removePhoneNumber: removePhoneNumber
+    removePhoneNumber: removePhoneNumber,
+    getCalendarEvents: getCalendarEvents,
+    createCalendarEvent: createCalendarEvent,
+    updateCalendarEvent: updateCalendarEvent,
+    deleteCalendarEvent: deleteCalendarEvent,
+    getCalendarStatus: getCalendarStatus,
+    startCalendarAuth: startCalendarAuth,
+    syncCalendar: syncCalendar,
+    disconnectCalendar: disconnectCalendar
   };
 })();

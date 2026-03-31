@@ -66,12 +66,33 @@ module.exports = async function handler(req, res) {
     `;
     var streak = streaks.length > 0 ? streaks[0] : { current_streak: 0, longest_streak: 0 };
 
-    // 6. Build the briefing
+    // 6. Fetch today's and this week's calendar events
+    var todayStart = today + 'T00:00:00Z';
+    var todayEnd = today + 'T23:59:59Z';
+    var weekEndDate = addDays(today, 7);
+    var weekEnd = weekEndDate + 'T23:59:59Z';
+
+    var calendarEvents = [];
+    try {
+      calendarEvents = await sql`
+        SELECT title, start_time, end_time, event_type, estimated_importance, attendee_count, is_all_day
+        FROM calendar_events
+        WHERE user_id = ${userId}
+          AND start_time >= ${todayStart}
+          AND start_time <= ${weekEnd}
+        ORDER BY start_time ASC
+      `;
+    } catch (calErr) {
+      // Calendar table may not exist yet — gracefully degrade
+      console.error('Calendar events fetch warning:', calErr.message);
+    }
+
+    // 7. Build the briefing
     var trackingEnabled = cycleProfile && cycleProfile.tracking_enabled;
     var briefing;
 
     if (trackingEnabled && cycleProfile.last_period_start) {
-      briefing = await buildCycleBriefing(today, user, cycleProfile, todayCheckin, recentCheckins, streak);
+      briefing = await buildCycleBriefing(today, user, cycleProfile, todayCheckin, recentCheckins, streak, calendarEvents);
     } else {
       briefing = buildGeneralBriefing(today, todayCheckin, recentCheckins, streak);
     }
@@ -112,6 +133,18 @@ function addDays(dateStr, n) {
   if (!d) return dateStr;
   d.setDate(d.getDate() + n);
   return formatDate(d);
+}
+
+function formatEventTime(isoStr) {
+  if (!isoStr) return '';
+  var d = new Date(isoStr);
+  var hours = d.getHours();
+  var minutes = d.getMinutes();
+  var ampm = hours >= 12 ? 'PM' : 'AM';
+  var h = hours % 12;
+  if (h === 0) h = 12;
+  var m = minutes < 10 ? '0' + minutes : '' + minutes;
+  return h + ':' + m + ' ' + ampm;
 }
 
 
@@ -615,7 +648,7 @@ var VOICE_INSTRUCTIONS = {
 //  AI SYSTEM PROMPT BUILDER
 // ══════════════════════════════════════════════════════════════════════════
 
-function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData) {
+function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents) {
   var phaseBioName = getPhaseMapName(phase);
   var knowledge = PHASE_KNOWLEDGE[phaseBioName];
   var voiceInstructions = VOICE_INSTRUCTIONS[coachVoice] || VOICE_INSTRUCTIONS.sassy;
@@ -706,6 +739,49 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
     parts.push('');
   }
 
+  // Calendar context
+  var hasCalendarData = (todayEvents && todayEvents.length > 0) || (weekEvents && weekEvents.length > 0);
+  if (hasCalendarData) {
+    parts.push('═══ CALENDAR CONTEXT ═══');
+    parts.push('The user has connected their calendar. Use their actual schedule to make guidance concrete and actionable.');
+    parts.push('');
+
+    if (todayEvents && todayEvents.length > 0) {
+      parts.push('TODAY\'S SCHEDULE:');
+      for (var ei = 0; ei < todayEvents.length; ei++) {
+        var te = todayEvents[ei];
+        var timeStr = te.is_all_day ? 'All day' : formatEventTime(te.start_time);
+        var impStr = te.estimated_importance ? ' (importance: ' + te.estimated_importance + '/10)' : '';
+        var attendeeStr = te.attendee_count > 1 ? ' [' + te.attendee_count + ' attendees]' : '';
+        parts.push('- ' + timeStr + ': ' + te.title + impStr + attendeeStr);
+      }
+      parts.push('');
+    }
+
+    var highStakesWeek = weekEvents ? weekEvents.filter(function (e) { return e.estimated_importance >= 7; }) : [];
+    if (highStakesWeek.length > 0) {
+      parts.push('HIGH-STAKES EVENTS THIS WEEK:');
+      for (var wi = 0; wi < highStakesWeek.length; wi++) {
+        var we = highStakesWeek[wi];
+        var wDate = new Date(we.start_time);
+        var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        var wDayName = dayNames[wDate.getDay()];
+        var wTimeStr = we.is_all_day ? 'All day' : formatEventTime(we.start_time);
+        parts.push('- ' + wDayName + ' ' + wTimeStr + ': ' + we.title + ' (importance: ' + we.estimated_importance + '/10)');
+      }
+      parts.push('');
+    }
+
+    parts.push('CALENDAR INTEGRATION RULES:');
+    parts.push('- Reference SPECIFIC events by name and time in your guidance sections.');
+    parts.push('- In Focus: mention upcoming meetings/events and how the current phase affects preparation ("Your board presentation at 2 PM falls during ' + getModeName(phase) + ' mode, which means...").');
+    parts.push('- In Movement: suggest timing movement around the schedule ("A 15-minute walk before your 2 PM call can help center your energy").');
+    parts.push('- In Emotional Weather: flag high-stakes events and how the phase interacts ("The investor pitch Thursday falls during your ' + getModeName(phase) + ' window, here is how to prepare").');
+    parts.push('- In Nutrition: time meals and snacks around events ("Have a protein-rich lunch before your afternoon meetings").');
+    parts.push('- Do NOT just list the schedule back. WEAVE events into phase-specific guidance naturally.');
+    parts.push('');
+  }
+
   // Check-in data instructions
   if (!hasCheckinData) {
     parts.push('NOTE: The user has NO check-in history yet. This is their first or early briefing.');
@@ -744,6 +820,11 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
   parts.push('    "body": "3-5 sentences covering: what to expect emotionally, one specific coping tool or action, social energy guidance, and a validating/encouraging close. If late luteal, this section should be LONGER (5-7 sentences) and include the emotional toolkit elements."');
   parts.push('  },');
   parts.push('  "keyInsight": "The SINGLE most important thing to remember today. One powerful sentence that she could screenshot and come back to. Make it memorable, specific, and phase-relevant."');
+
+  if (hasCalendarData) {
+    parts.push('  ,"scheduleInsight": "One sentence connecting the most important calendar event today with the current cycle phase. Example: Your board presentation at 2 PM aligns perfectly with your Perform window, so lead with confidence. If no events today, reference the most important upcoming event this week. OMIT this field entirely if no calendar data is available."');
+  }
+
   parts.push('}');
   parts.push('');
   parts.push('IMPORTANT RULES:');
@@ -759,7 +840,7 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
 }
 
 
-function buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak) {
+function buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak, todayEvents, weekEvents) {
   var parts = [];
 
   parts.push('Generate today\'s daily briefing.');
@@ -812,6 +893,32 @@ function buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, rece
     parts.push('');
   }
 
+  // Calendar events context
+  if (todayEvents && todayEvents.length > 0) {
+    parts.push('TODAY\'S CALENDAR (' + todayEvents.length + ' events):');
+    for (var tei = 0; tei < todayEvents.length; tei++) {
+      var tev = todayEvents[tei];
+      var tTimeStr = tev.is_all_day ? 'All day' : formatEventTime(tev.start_time);
+      var tImp = tev.estimated_importance ? ', importance: ' + tev.estimated_importance + '/10' : '';
+      parts.push('- ' + tTimeStr + ': ' + tev.title + ' (' + (tev.event_type || 'meeting') + tImp + ')');
+    }
+    parts.push('');
+  }
+
+  if (weekEvents && weekEvents.length > 0) {
+    var highStakes = weekEvents.filter(function (e) { return e.estimated_importance >= 7; });
+    if (highStakes.length > 0) {
+      parts.push('HIGH-STAKES EVENTS THIS WEEK (' + highStakes.length + '):');
+      for (var wsi = 0; wsi < highStakes.length; wsi++) {
+        var wsev = highStakes[wsi];
+        var wsDate = new Date(wsev.start_time);
+        var wsDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        parts.push('- ' + wsDayNames[wsDate.getDay()] + ' ' + formatEventTime(wsev.start_time) + ': ' + wsev.title + ' (importance: ' + wsev.estimated_importance + '/10)');
+      }
+      parts.push('');
+    }
+  }
+
   // Day of week for scheduling context
   var dayOfWeek = parseDate(new Date().toISOString().split('T')[0]);
   if (dayOfWeek) {
@@ -825,7 +932,7 @@ function buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, rece
 
 // ── Briefing builders ───────────────────────────────────────────────────
 
-async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recentCheckins, streak) {
+async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recentCheckins, streak, calendarEvents) {
   var lastPeriodStart = cycleProfile.last_period_start instanceof Date
     ? cycleProfile.last_period_start.toISOString().split('T')[0]
     : String(cycleProfile.last_period_start);
@@ -838,9 +945,24 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   var cycleDateConfidence = cycleProfile.cycle_date_confidence || 'estimated';
   var hasCheckinData = recentCheckins && recentCheckins.length > 0;
 
+  // Separate today's events from upcoming week events
+  var todayEvents = [];
+  var weekEvents = [];
+  if (calendarEvents && calendarEvents.length > 0) {
+    for (var ci = 0; ci < calendarEvents.length; ci++) {
+      var evt = calendarEvents[ci];
+      var evtDate = new Date(evt.start_time).toISOString().split('T')[0];
+      if (evtDate === today) {
+        todayEvents.push(evt);
+      } else {
+        weekEvents.push(evt);
+      }
+    }
+  }
+
   // Build the AI-generated briefing sections
-  var systemPrompt = buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData);
-  var userMessage = buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak);
+  var systemPrompt = buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents);
+  var userMessage = buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak, todayEvents, weekEvents);
 
   var aiBriefing = null;
   try {
@@ -907,6 +1029,11 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
       : 'Quick check-in? Two sliders, 10 seconds. Your data gets smarter every day.',
     trackingEnabled: true
   };
+
+  // Add schedule insight from AI if available
+  if (aiBriefing && aiBriefing.scheduleInsight) {
+    briefing.scheduleInsight = aiBriefing.scheduleInsight;
+  }
 
   if (personalization) {
     briefing.personalization = personalization;

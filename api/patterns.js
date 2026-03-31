@@ -62,8 +62,15 @@ module.exports = async function handler(req, res) {
     `;
     var streak = streakRows.length > 0 ? streakRows[0] : null;
 
+    // Fetch calendar events within the date range
+    var calendarEvents = await sql`
+      SELECT start_time, end_time, is_all_day, event_type, estimated_importance, attendee_count, title
+      FROM calendar_events WHERE user_id = ${userId} AND start_time >= ${cutoffStr}
+      ORDER BY start_time ASC
+    `;
+
     // Run pattern analysis
-    var result = analyzePatterns(checkins, cycleProfile, streak);
+    var result = analyzePatterns(checkins, cycleProfile, streak, calendarEvents);
 
     return res.status(200).json({
       ready: true,

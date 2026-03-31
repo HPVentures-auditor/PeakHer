@@ -604,6 +604,205 @@ function detectStreakImpact(checkins, streak) {
   return patterns;
 }
 
+// ── Detector 6: Calendar Load Impact ─────────────────────────────────
+
+/**
+ * Detect patterns between calendar event load and energy/confidence.
+ * Joins calendar_events with checkins by date to compare performance
+ * on heavy meeting days vs light days, and high-stakes event days.
+ *
+ * @param {Array} checkins - Array of checkin rows from DB (sorted ascending)
+ * @param {Array} calendarEvents - Array of calendar_event rows from DB
+ * @returns {Array} Array of pattern objects
+ */
+function detectCalendarLoad(checkins, calendarEvents) {
+  if (!calendarEvents || calendarEvents.length === 0) return [];
+  if (!checkins || checkins.length < 7) return [];
+
+  // Build a map of date -> { meetingCount, maxImportance, hasHighStakes } from timed events
+  var dayMap = {};
+  for (var i = 0; i < calendarEvents.length; i++) {
+    var evt = calendarEvents[i];
+    // Skip all-day events — they are not "meetings"
+    if (evt.is_all_day) continue;
+    var evtDate = null;
+    if (evt.start_time instanceof Date) {
+      evtDate = evt.start_time.toISOString().split('T')[0];
+    } else if (typeof evt.start_time === 'string') {
+      evtDate = evt.start_time.split('T')[0];
+    }
+    if (!evtDate) continue;
+
+    if (!dayMap[evtDate]) {
+      dayMap[evtDate] = { meetingCount: 0, maxImportance: 0, hasHighStakes: false };
+    }
+    dayMap[evtDate].meetingCount += 1;
+    var importance = Number(evt.estimated_importance) || 5;
+    if (importance > dayMap[evtDate].maxImportance) {
+      dayMap[evtDate].maxImportance = importance;
+    }
+    if (importance >= 8) {
+      dayMap[evtDate].hasHighStakes = true;
+    }
+  }
+
+  // Join with checkins by date
+  var heavyDays = [];   // 3+ meetings
+  var lightDays = [];   // 0-1 meetings
+  var highStakesDays = [];
+  var regularDays = [];
+  var allJoinedEnergy = [];
+  var allJoinedConf = [];
+  var meetingCounts = [];
+  var energyForCorr = [];
+  var confForCorr = [];
+
+  for (var j = 0; j < checkins.length; j++) {
+    var c = checkins[j];
+    var dateStr = c.date instanceof Date ? c.date.toISOString().split('T')[0] : String(c.date);
+    var dayInfo = dayMap[dateStr];
+
+    // Only consider days where we have BOTH calendar data and a check-in
+    // Days with no calendar events at all are counted as 0-meeting days
+    var count = dayInfo ? dayInfo.meetingCount : 0;
+    var importance2 = dayInfo ? dayInfo.maxImportance : 0;
+    var energy = Number(c.energy);
+    var confidence = Number(c.confidence);
+
+    meetingCounts.push(count);
+    energyForCorr.push(energy);
+    confForCorr.push(confidence);
+
+    if (count >= 3) {
+      heavyDays.push({ energy: energy, confidence: confidence, count: count });
+    }
+    if (count <= 1) {
+      lightDays.push({ energy: energy, confidence: confidence, count: count });
+    }
+    if (dayInfo && dayInfo.hasHighStakes) {
+      highStakesDays.push({ energy: energy, confidence: confidence });
+    } else {
+      regularDays.push({ energy: energy, confidence: confidence });
+    }
+  }
+
+  var patterns = [];
+
+  // Pattern: Meeting load / energy correlation
+  if (meetingCounts.length >= 10) {
+    var rEnergy = pearsonCorrelation(meetingCounts, energyForCorr);
+    if (rEnergy !== null && Math.abs(rEnergy) >= 0.3) {
+      patterns.push({
+        id: 'cal-load-energy-corr',
+        type: 'calendar-load',
+        description: rEnergy < 0
+          ? 'Meeting load negatively correlates with your energy (r=' + round1(rEnergy) + '). The more meetings you stack, the more your energy drops. Consider capping meetings at 2-3 per day to protect your output.'
+          : 'Interestingly, more meetings correlate with higher energy (r=' + round1(rEnergy) + '). You may be someone who draws energy from interaction. Lean into collaborative days when your schedule is full.',
+        confidenceScore: calcConfidence(rEnergy, meetingCounts.length, 1),
+        dataPointsUsed: meetingCounts.length,
+        positive: rEnergy > 0,
+        metadata: { r: round1(rEnergy), metric1: 'meetingCount', metric2: 'energy' }
+      });
+    }
+
+    // Meeting load / confidence correlation
+    var rConf = pearsonCorrelation(meetingCounts, confForCorr);
+    if (rConf !== null && Math.abs(rConf) >= 0.3) {
+      patterns.push({
+        id: 'cal-load-confidence-corr',
+        type: 'calendar-load',
+        description: rConf < 0
+          ? 'More meetings correlate with lower confidence (r=' + round1(rConf) + '). Heavy meeting days may leave you feeling less capable. Block focus time before and after high-pressure meetings.'
+          : 'More meetings correlate with higher confidence (r=' + round1(rConf) + '). Social engagement seems to boost your self-assurance. Use meeting-heavy days for bold conversations.',
+        confidenceScore: calcConfidence(rConf, meetingCounts.length, 1),
+        dataPointsUsed: meetingCounts.length,
+        positive: rConf > 0,
+        metadata: { r: round1(rConf), metric1: 'meetingCount', metric2: 'confidence' }
+      });
+    }
+  }
+
+  // Pattern: Heavy meeting days (3+) vs light days (0-1)
+  if (heavyDays.length >= 3 && lightDays.length >= 3) {
+    var heavyEnergy = mean(heavyDays.map(function (d) { return d.energy; }));
+    var lightEnergy = mean(lightDays.map(function (d) { return d.energy; }));
+    var energyDiff = heavyEnergy - lightEnergy;
+
+    if (Math.abs(energyDiff) >= 0.5) {
+      patterns.push({
+        id: 'cal-heavy-vs-light-energy',
+        type: 'calendar-load',
+        description: energyDiff < 0
+          ? 'On days with 3+ meetings, your energy averages ' + round1(heavyEnergy) + ' vs ' + round1(lightEnergy) + ' on light days. Your energy drops by ' + round1(Math.abs(energyDiff)) + ' points on heavy meeting days. Guard your calendar ruthlessly.'
+          : 'On days with 3+ meetings, your energy averages ' + round1(heavyEnergy) + ' vs ' + round1(lightEnergy) + ' on light days (+' + round1(energyDiff) + '). You thrive in a full schedule. Embrace meeting-rich days for your hardest work.',
+        confidenceScore: calcConfidence(energyDiff, heavyDays.length + lightDays.length, 3),
+        dataPointsUsed: heavyDays.length + lightDays.length,
+        positive: energyDiff > 0,
+        metadata: { metric: 'energy', heavyAvg: round1(heavyEnergy), lightAvg: round1(lightEnergy), diff: round1(energyDiff), heavyDays: heavyDays.length, lightDays: lightDays.length }
+      });
+    }
+
+    var heavyConf = mean(heavyDays.map(function (d) { return d.confidence; }));
+    var lightConf = mean(lightDays.map(function (d) { return d.confidence; }));
+    var confDiff = heavyConf - lightConf;
+
+    if (Math.abs(confDiff) >= 0.5) {
+      patterns.push({
+        id: 'cal-heavy-vs-light-confidence',
+        type: 'calendar-load',
+        description: confDiff < 0
+          ? 'Heavy meeting days (3+) pull your confidence down to ' + round1(heavyConf) + ' vs ' + round1(lightConf) + ' on light days (' + round1(confDiff) + '). Too many back-to-back interactions may erode your sense of control. Build in buffer time.'
+          : 'Your confidence actually rises on heavy meeting days: ' + round1(heavyConf) + ' vs ' + round1(lightConf) + ' on light days (+' + round1(confDiff) + '). Social momentum fuels your self-belief.',
+        confidenceScore: calcConfidence(confDiff, heavyDays.length + lightDays.length, 3),
+        dataPointsUsed: heavyDays.length + lightDays.length,
+        positive: confDiff > 0,
+        metadata: { metric: 'confidence', heavyAvg: round1(heavyConf), lightAvg: round1(lightConf), diff: round1(confDiff), heavyDays: heavyDays.length, lightDays: lightDays.length }
+      });
+    }
+  }
+
+  // Pattern: High-stakes event days (importance >= 8) vs regular days
+  if (highStakesDays.length >= 3 && regularDays.length >= 3) {
+    var hsEnergy = mean(highStakesDays.map(function (d) { return d.energy; }));
+    var regEnergy = mean(regularDays.map(function (d) { return d.energy; }));
+    var hsEnergyDiff = hsEnergy - regEnergy;
+
+    if (Math.abs(hsEnergyDiff) >= 0.5) {
+      patterns.push({
+        id: 'cal-highstakes-energy',
+        type: 'calendar-load',
+        description: hsEnergyDiff > 0
+          ? 'High-stakes events (importance 8+) boost your energy to ' + round1(hsEnergy) + ' vs ' + round1(regEnergy) + ' on regular days (+' + round1(hsEnergyDiff) + '). You rise to the occasion. Lean into big moments.'
+          : 'High-stakes events (importance 8+) drain your energy to ' + round1(hsEnergy) + ' vs ' + round1(regEnergy) + ' on regular days (' + round1(hsEnergyDiff) + '). The pressure costs you. Plan recovery time after major events.',
+        confidenceScore: calcConfidence(hsEnergyDiff, highStakesDays.length + regularDays.length, 3),
+        dataPointsUsed: highStakesDays.length + regularDays.length,
+        positive: hsEnergyDiff > 0,
+        metadata: { metric: 'energy', highStakesAvg: round1(hsEnergy), regularAvg: round1(regEnergy), diff: round1(hsEnergyDiff), highStakesDays: highStakesDays.length, regularDays: regularDays.length }
+      });
+    }
+
+    var hsConf = mean(highStakesDays.map(function (d) { return d.confidence; }));
+    var regConf = mean(regularDays.map(function (d) { return d.confidence; }));
+    var hsConfDiff = hsConf - regConf;
+
+    if (Math.abs(hsConfDiff) >= 0.5) {
+      patterns.push({
+        id: 'cal-highstakes-confidence',
+        type: 'calendar-load',
+        description: hsConfDiff > 0
+          ? 'High-stakes events correlate with higher confidence: ' + round1(hsConf) + ' vs ' + round1(regConf) + ' on regular days (+' + round1(hsConfDiff) + '). Big moments bring out your best self.'
+          : 'High-stakes events correlate with lower confidence: ' + round1(hsConf) + ' vs ' + round1(regConf) + ' on regular days (' + round1(hsConfDiff) + '). Pre-event preparation and self-talk routines could help close this gap.',
+        confidenceScore: calcConfidence(hsConfDiff, highStakesDays.length + regularDays.length, 3),
+        dataPointsUsed: highStakesDays.length + regularDays.length,
+        positive: hsConfDiff > 0,
+        metadata: { metric: 'confidence', highStakesAvg: round1(hsConf), regularAvg: round1(regConf), diff: round1(hsConfDiff), highStakesDays: highStakesDays.length, regularDays: regularDays.length }
+      });
+    }
+  }
+
+  return patterns;
+}
+
 // ── Master Analyzer ───────────────────────────────────────────────────
 
 /**
@@ -612,9 +811,10 @@ function detectStreakImpact(checkins, streak) {
  * @param {Array} checkins - Array of checkin rows from DB
  * @param {Object|null} cycleProfile - Cycle profile row from DB (or null)
  * @param {Object|null} streak - Streak row from DB (or null)
+ * @param {Array|null} calendarEvents - Array of calendar_event rows from DB (or null)
  * @returns {{ patterns: Array, summary: Object }}
  */
-function analyzePatterns(checkins, cycleProfile, streak) {
+function analyzePatterns(checkins, cycleProfile, streak, calendarEvents) {
   if (!checkins || checkins.length === 0) {
     return {
       patterns: [],
@@ -642,8 +842,9 @@ function analyzePatterns(checkins, cycleProfile, streak) {
   var dayPatterns = detectDayPatterns(sorted);
   var trends = detectTrends(sorted);
   var streakPatterns = detectStreakImpact(sorted, streak);
+  var calendarPatterns = detectCalendarLoad(sorted, calendarEvents || []);
 
-  var allPatterns = correlations.concat(cyclePatterns, dayPatterns, trends, streakPatterns);
+  var allPatterns = correlations.concat(cyclePatterns, dayPatterns, trends, streakPatterns, calendarPatterns);
 
   // Sort by confidence score descending
   allPatterns.sort(function (a, b) {
@@ -687,5 +888,6 @@ module.exports = {
   detectDayPatterns: detectDayPatterns,
   detectTrends: detectTrends,
   detectStreakImpact: detectStreakImpact,
+  detectCalendarLoad: detectCalendarLoad,
   analyzePatterns: analyzePatterns
 };

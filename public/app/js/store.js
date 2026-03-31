@@ -197,6 +197,42 @@ window.PeakHer.Store = (function () {
     return streak;
   }
 
+  // ── Calendar Events ──────────────────────────────────────────────
+
+  function getCalendarEvents() {
+    return _get('calendar_events') || [];
+  }
+
+  function setCalendarEvents(events) {
+    _set('calendar_events', events);
+  }
+
+  function getCalendarEventsByDate(dateStr) {
+    var all = getCalendarEvents();
+    return all.filter(function (evt) {
+      return evt.startTime && evt.startTime.indexOf(dateStr) === 0;
+    });
+  }
+
+  function getCalendarEventsForRange(startDate, endDate) {
+    var all = getCalendarEvents();
+    return all.filter(function (evt) {
+      if (!evt.startTime) return false;
+      var evtDate = evt.startTime.substring(0, 10);
+      return evtDate >= startDate && evtDate <= endDate;
+    });
+  }
+
+  // ── Calendar Connection ─────────────────────────────────────────
+
+  function getCalendarConnection() {
+    return _get('calendar_connection');
+  }
+
+  function setCalendarConnection(conn) {
+    _set('calendar_connection', conn);
+  }
+
   // ── Bulk operations ───────────────────────────────────────────────
 
   /** Remove all peakher_ keys from localStorage. */
@@ -262,6 +298,12 @@ window.PeakHer.Store = (function () {
     removeEvent: removeEvent,
     getInsights: getInsights,
     setInsights: setInsights,
+    getCalendarEvents: getCalendarEvents,
+    setCalendarEvents: setCalendarEvents,
+    getCalendarEventsByDate: getCalendarEventsByDate,
+    getCalendarEventsForRange: getCalendarEventsForRange,
+    getCalendarConnection: getCalendarConnection,
+    setCalendarConnection: setCalendarConnection,
     getStreak: getStreak,
     updateStreak: updateStreak,
     clearAll: clearAll,

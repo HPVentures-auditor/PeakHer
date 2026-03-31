@@ -747,9 +747,9 @@ window.PeakHer.Onboarding = (function () {
     return step;
   }
 
-  // ── Step 5: Integrations (Coming Soon) ──────────────────────────────
+  // ── Step 5: Integrations ────────────────────────────────────────────
 
-  var INTEGRATIONS = [
+  var FUTURE_INTEGRATIONS = [
     { name: 'Apple Health',  icon: '\u2764\uFE0F' },
     { name: 'Google Fit',    icon: '\uD83C\uDFC3' },
     { name: 'Oura',          icon: '\uD83D\uDCAD' }
@@ -759,12 +759,58 @@ window.PeakHer.Onboarding = (function () {
     var step = el('div', 'onboarding-step');
     step.setAttribute('data-step', '5');
 
-    step.appendChild(el('h2', 'ob-heading', 'Integrations'));
-    step.appendChild(el('p', 'ob-subtext', 'Coming soon: connect your favorite tools'));
+    step.appendChild(el('h2', 'ob-heading', 'Connect Your Calendar'));
+    step.appendChild(el('p', 'ob-subtext', 'See how your schedule aligns with your cycle — get smarter predictions and briefings'));
+
+    // Google Calendar — active
+    var calCard = el('div', 'ob-int-card');
+    calCard.style.opacity = '1';
+    calCard.style.cursor = 'pointer';
+    calCard.style.border = '2px solid transparent';
+    calCard.style.transition = 'border-color 0.2s';
+    calCard.innerHTML =
+      '<span class="ob-int-icon">\uD83D\uDCC5</span>' +
+      '<div class="ob-int-info">' +
+        '<div class="ob-int-name">Google Calendar</div>' +
+        '<span class="ob-int-badge" style="background:rgba(45,138,138,0.15);color:var(--teal);">Connect</span>' +
+      '</div>' +
+      '<span style="font-size:16px;color:var(--teal);">\u2192</span>';
+
+    calCard.addEventListener('click', function () {
+      var API = window.PeakHer.API;
+      if (!API || !API.startCalendarAuth) return;
+      calCard.querySelector('.ob-int-badge').textContent = 'Connecting...';
+      API.startCalendarAuth().then(function (result) {
+        if (result && result.url) {
+          window.location.href = result.url;
+        } else {
+          calCard.querySelector('.ob-int-badge').textContent = 'Setup Required';
+          calCard.querySelector('.ob-int-badge').style.color = 'var(--coral)';
+        }
+      }).catch(function () {
+        calCard.querySelector('.ob-int-badge').textContent = 'Error';
+        calCard.querySelector('.ob-int-badge').style.color = 'var(--coral)';
+      });
+    });
 
     var list = el('div', 'ob-integrations');
+    list.appendChild(calCard);
 
-    INTEGRATIONS.forEach(function (int) {
+    // Skip link
+    var skipText = el('p', 'ob-subtext', '');
+    skipText.style.fontSize = '13px';
+    skipText.style.marginTop = '12px';
+    skipText.innerHTML = 'You can also <span style="color:var(--teal);cursor:pointer;text-decoration:underline;" id="ob-cal-skip">skip this for now</span> and connect later in Settings.';
+
+    // Future integrations
+    var futureLabel = el('p', 'ob-subtext', '');
+    futureLabel.style.marginTop = '24px';
+    futureLabel.style.marginBottom = '8px';
+    futureLabel.style.fontSize = '13px';
+    futureLabel.style.fontWeight = '600';
+    futureLabel.textContent = 'Coming soon:';
+
+    FUTURE_INTEGRATIONS.forEach(function (int) {
       var card = el('div', 'ob-int-card');
       card.innerHTML =
         '<span class="ob-int-icon">' + int.icon + '</span>' +
@@ -783,8 +829,20 @@ window.PeakHer.Onboarding = (function () {
     });
 
     step.appendChild(list);
+    step.appendChild(skipText);
+    step.appendChild(futureLabel);
     step.appendChild(el('div', 'ob-spacer'));
     step.appendChild(btn);
+
+    // Wire up skip link after DOM append
+    requestAnimationFrame(function () {
+      var skipLink = document.getElementById('ob-cal-skip');
+      if (skipLink) {
+        skipLink.addEventListener('click', function () {
+          showStep(6);
+        });
+      }
+    });
 
     return step;
   }

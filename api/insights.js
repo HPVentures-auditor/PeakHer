@@ -81,7 +81,21 @@ module.exports = async function handler(req, res) {
     `;
     var streak = streakRows.length > 0 ? streakRows[0] : null;
 
-    var patternAnalysis = analyzePatterns(checkins, cycleProfile, streak);
+    // 3c. Get calendar events for pattern detection
+    var calendarEvents = [];
+    try {
+      calendarEvents = await sql`
+        SELECT start_time, end_time, is_all_day, event_type, estimated_importance, attendee_count, title
+        FROM calendar_events
+        WHERE user_id = ${userId}
+          AND start_time >= ${cutoffStr}
+        ORDER BY start_time ASC
+      `;
+    } catch (e) {
+      // calendar_events table may not exist yet
+    }
+
+    var patternAnalysis = analyzePatterns(checkins, cycleProfile, streak, calendarEvents);
 
     // 4. Prepare check-in data for Claude
     var checkinData = checkins.map(function (c) {
@@ -218,7 +232,8 @@ function buildSystemPrompt() {
     '    "summary": "2-3 sentence overview of what to expect this week based on patterns",',
     '    "bestDayTip": "Which day looks best and what to schedule then",',
     '    "watchOut": "One thing to watch for this week (or null if nothing concerning)",',
-    '    "cycleContext": "How their cycle phase affects this week (or null if not tracking)"',
+    '    "cycleContext": "How their cycle phase affects this week (or null if not tracking)",',
+    '    "calendarInsights": "If calendar data is provided: how their schedule aligns with their energy/cycle this week, conflicts to watch, best days for big events (or null if no calendar data)"',
     '  },',
     '  "recommendations": [',
     '    {',

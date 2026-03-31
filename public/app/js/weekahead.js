@@ -113,7 +113,20 @@ window.PeakHer.WeekAhead = (function () {
     '.wa-ai-shimmer::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent); animation: wa-shimmer 1.5s infinite; }',
     '@keyframes wa-shimmer { 0% { left: -100%; } 100% { left: 100%; } }',
     '.wa-ai-shimmer-line { height: 14px; border-radius: 4px; background: rgba(0,0,0,0.06); margin-bottom: 8px; }',
-    '.wa-ai-shimmer-line:last-child { width: 70%; margin-bottom: 0; }'
+    '.wa-ai-shimmer-line:last-child { width: 70%; margin-bottom: 0; }',
+
+    /* Calendar events on day cards */
+    '.wa-cal-section { margin-top: 8px; border-top: 1px dashed var(--border-light); padding-top: 8px; }',
+    '.wa-cal-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-text); margin-bottom: 4px; }',
+    '.wa-cal-event { font-size: 11px; color: var(--text-body); padding: 3px 0; line-height: 1.3; display: flex; align-items: flex-start; gap: 4px; }',
+    '.wa-cal-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }',
+    '.wa-cal-time { font-size: 10px; color: var(--gray-text); }',
+    '.wa-cal-more { font-size: 11px; color: var(--gray-text); font-style: italic; margin-top: 2px; }',
+    '.wa-cal-alert { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 8px; margin-top: 6px; display: inline-block; }',
+    '.wa-cal-alert.conflict { background: rgba(232,116,97,0.15); color: var(--coral); }',
+    '.wa-cal-alert.aligned { background: rgba(45,138,138,0.15); color: var(--teal); }',
+    '.wa-cal-load { display: flex; gap: 2px; margin-top: 4px; }',
+    '.wa-cal-load-bar { height: 3px; border-radius: 1px; flex: 1; }'
   ].join('\n');
 
   function injectStyles() {
@@ -260,6 +273,71 @@ window.PeakHer.WeekAhead = (function () {
   }
 
   /**
+   * Get calendar events for a specific date from the Store.
+   */
+  function getCalendarEventsForDate(dateStr) {
+    if (!Store.getCalendarEvents) return [];
+    var all = Store.getCalendarEvents();
+    if (!all || all.length === 0) return [];
+    return all.filter(function (ev) {
+      var evDate = ev.startTime ? ev.startTime.substring(0, 10) : '';
+      return evDate === dateStr;
+    });
+  }
+
+  /**
+   * Calculate a calendar load adjustment for energy/confidence predictions.
+   * Returns { energyAdj, confidenceAdj, meetingCount, meetingHours, highStakes, calendarEvents }
+   */
+  function getCalendarLoad(dateStr) {
+    var events = getCalendarEventsForDate(dateStr);
+    if (events.length === 0) {
+      return { energyAdj: 0, confidenceAdj: 0, meetingCount: 0, meetingHours: 0, highStakes: false, calendarEvents: [] };
+    }
+
+    // Filter out all-day events for load calculation
+    var timedEvents = events.filter(function (ev) { return !ev.isAllDay; });
+    var meetingCount = timedEvents.length;
+
+    // Calculate total meeting hours
+    var meetingMinutes = 0;
+    timedEvents.forEach(function (ev) {
+      if (ev.startTime && ev.endTime) {
+        var start = new Date(ev.startTime).getTime();
+        var end = new Date(ev.endTime).getTime();
+        meetingMinutes += Math.max(0, (end - start) / 60000);
+      } else {
+        meetingMinutes += 30; // assume 30 min default
+      }
+    });
+    var meetingHours = Math.round(meetingMinutes / 60 * 10) / 10;
+
+    // Check for high-stakes events
+    var highStakes = events.some(function (ev) {
+      return ev.importance >= 8;
+    });
+
+    // Energy adjustment: heavy meeting load drains energy
+    var energyAdj = 0;
+    if (meetingCount >= 5 || meetingHours >= 5) energyAdj = -1.5;
+    else if (meetingCount >= 3 || meetingHours >= 3) energyAdj = -1;
+    else if (meetingCount >= 2) energyAdj = -0.5;
+
+    // Confidence adjustment: high-stakes events when energy is low = risk
+    var confidenceAdj = 0;
+    if (highStakes) confidenceAdj = 0.5; // slight boost (you prep more for big events)
+
+    return {
+      energyAdj: energyAdj,
+      confidenceAdj: confidenceAdj,
+      meetingCount: meetingCount,
+      meetingHours: meetingHours,
+      highStakes: highStakes,
+      calendarEvents: events
+    };
+  }
+
+  /**
    * Generate forecasts for the next 7 days, persist to Store.
    */
   function generateForecast() {
@@ -270,6 +348,24 @@ window.PeakHer.WeekAhead = (function () {
     for (var i = 1; i <= 7; i++) {
       var targetDate = Utils.addDays(Utils.getToday(), i);
       var pred = predict(checkins, targetDate, cycleProfile);
+
+      // Apply calendar load adjustment
+      var calLoad = getCalendarLoad(targetDate);
+      if (calLoad.meetingCount > 0) {
+        pred.predictedEnergy = Utils.clamp(
+          Math.round(pred.predictedEnergy + calLoad.energyAdj), 1, 10);
+        pred.predictedConfidence = Utils.clamp(
+          Math.round(pred.predictedConfidence + calLoad.confidenceAdj), 1, 10);
+      }
+
+      // Attach calendar data to prediction
+      pred._calendarEvents = calLoad.calendarEvents;
+      pred._meetingCount = calLoad.meetingCount;
+      pred._meetingHours = calLoad.meetingHours;
+      pred._highStakes = calLoad.highStakes;
+      pred._calEnergyAdj = calLoad.energyAdj;
+      pred._calConfAdj = calLoad.confidenceAdj;
+
       predictions[targetDate] = pred;
     }
 
@@ -311,6 +407,35 @@ window.PeakHer.WeekAhead = (function () {
     if (e >= 8)           return { text: 'High Energy Expected', cls: 'teal' };
     if (c >= 8)           return { text: 'Peak Confidence', cls: 'teal' };
     if (e <= 4)           return { text: 'Rest Day', cls: 'coral' };
+    return null;
+  }
+
+  /**
+   * Get a calendar alignment signal for the day card.
+   * Checks if high-stakes events align or conflict with predicted energy/phase.
+   */
+  function getCalendarSignal(pred) {
+    if (!pred._calendarEvents || pred._calendarEvents.length === 0) return null;
+
+    var hasHighStakes = pred._highStakes;
+    var e = pred.predictedEnergy;
+    var phase = pred.cyclePhase;
+
+    // High-stakes event on a low-energy day or Reflect phase = conflict
+    if (hasHighStakes && (e <= 4 || phase === 'menstrual')) {
+      return { text: 'Schedule Conflict', cls: 'conflict' };
+    }
+
+    // High-stakes event during Perform phase with good energy = perfect
+    if (hasHighStakes && phase === 'ovulatory' && e >= 6) {
+      return { text: 'Peak Alignment', cls: 'aligned' };
+    }
+
+    // Heavy meeting load on low energy day
+    if (pred._meetingCount >= 4 && e <= 5) {
+      return { text: 'Heavy Load', cls: 'conflict' };
+    }
+
     return null;
   }
 
@@ -631,6 +756,39 @@ window.PeakHer.WeekAhead = (function () {
       card.appendChild(sigEl);
     }
 
+    // Calendar events section (visible on card)
+    if (pred._calendarEvents && pred._calendarEvents.length > 0) {
+      var calSection = el('div', 'wa-cal-section');
+      var calLabel = el('div', 'wa-cal-label', pred._meetingCount + ' event' + (pred._meetingCount !== 1 ? 's' : ''));
+      calSection.appendChild(calLabel);
+
+      // Show up to 2 events on the compact card
+      var showCount = Math.min(pred._calendarEvents.length, 2);
+      for (var ci = 0; ci < showCount; ci++) {
+        var ev = pred._calendarEvents[ci];
+        var evRow = el('div', 'wa-cal-event');
+        var dotColor = ev.importance >= 8 ? 'var(--coral)' : ev.importance >= 6 ? 'var(--teal)' : 'var(--gray-mid)';
+        var dot = el('span', 'wa-cal-dot');
+        dot.style.background = dotColor;
+        evRow.appendChild(dot);
+        var evText = el('span', '', ev.title.length > 20 ? ev.title.substring(0, 20) + '...' : ev.title);
+        evRow.appendChild(evText);
+        calSection.appendChild(evRow);
+      }
+      if (pred._calendarEvents.length > 2) {
+        calSection.appendChild(el('div', 'wa-cal-more', '+' + (pred._calendarEvents.length - 2) + ' more'));
+      }
+
+      // Calendar alignment alert
+      var calSignal = getCalendarSignal(pred);
+      if (calSignal) {
+        var alertEl = el('div', 'wa-cal-alert ' + calSignal.cls, calSignal.text);
+        calSection.appendChild(alertEl);
+      }
+
+      card.appendChild(calSection);
+    }
+
     // Detail panel (hidden until expanded)
     var detail = buildDetailPanel(pred);
     card.appendChild(detail);
@@ -705,6 +863,57 @@ window.PeakHer.WeekAhead = (function () {
       detail.appendChild(phaseDesc);
     }
 
+    // Calendar load detail (if events exist)
+    if (pred._calendarEvents && pred._calendarEvents.length > 0) {
+      var calTitle = el('div', 'wa-detail-row');
+      calTitle.style.marginTop = '8px';
+      calTitle.innerHTML = '<strong style="color:var(--text-dark);">Calendar Load</strong>';
+      detail.appendChild(calTitle);
+
+      var loadRow = el('div', 'wa-detail-row');
+      loadRow.innerHTML = '<span class="wa-detail-label">Meetings: </span>' +
+        '<span class="wa-detail-value">' + pred._meetingCount + '</span>' +
+        '<span class="wa-detail-label"> (' + pred._meetingHours + 'h)</span>';
+      detail.appendChild(loadRow);
+
+      if (pred._calEnergyAdj !== 0) {
+        var adjRow = el('div', 'wa-detail-row');
+        adjRow.innerHTML = '<span class="wa-detail-label">Energy adjustment: </span>' +
+          '<span class="wa-detail-value" style="color:' + (pred._calEnergyAdj < 0 ? 'var(--coral)' : 'var(--teal)') + ';">' +
+          (pred._calEnergyAdj > 0 ? '+' : '') + pred._calEnergyAdj + '</span>';
+        detail.appendChild(adjRow);
+      }
+
+      if (pred._highStakes) {
+        var stakesRow = el('div', 'wa-detail-row');
+        stakesRow.innerHTML = '<span class="wa-detail-value" style="color:var(--coral);">High-stakes event this day</span>';
+        detail.appendChild(stakesRow);
+      }
+
+      // Full event list in expanded view
+      pred._calendarEvents.forEach(function (ev) {
+        var evRow = el('div', 'wa-cal-event');
+        var dotColor = ev.importance >= 8 ? 'var(--coral)' : ev.importance >= 6 ? 'var(--teal)' : 'var(--gray-mid)';
+        var dot = el('span', 'wa-cal-dot');
+        dot.style.background = dotColor;
+        evRow.appendChild(dot);
+
+        var timeStr = '';
+        if (ev.startTime && !ev.isAllDay) {
+          var d = new Date(ev.startTime);
+          var hh = d.getHours();
+          var mm = String(d.getMinutes()).padStart(2, '0');
+          var ampm = hh >= 12 ? 'p' : 'a';
+          hh = hh % 12 || 12;
+          timeStr = hh + ':' + mm + ampm + ' ';
+        }
+
+        var evText = el('span', '', '<span class="wa-cal-time">' + timeStr + '</span>' + ev.title);
+        evRow.appendChild(evText);
+        detail.appendChild(evRow);
+      });
+    }
+
     // Prediction confidence
     var confInfo = confidenceLabel(pred.predictionConfidence);
     var confBadge = el('div', 'wa-confidence-badge ' + confInfo.cls,
@@ -756,6 +965,53 @@ window.PeakHer.WeekAhead = (function () {
     requestAnimationFrame(function () {
       fetchAndRenderNarrative();
     });
+
+    // Fetch calendar events for the week (async, re-renders when done)
+    fetchCalendarEventsForWeek();
+  }
+
+  /**
+   * Fetch calendar events for the 7-day forecast window and re-render if new data arrives.
+   */
+  function fetchCalendarEventsForWeek() {
+    var API = window.PeakHer.API;
+    if (!API || !API.getCalendarEvents) return;
+
+    var startDate = Utils.addDays(Utils.getToday(), 1);
+    var endDate = Utils.addDays(Utils.getToday(), 7);
+
+    API.getCalendarEvents(startDate, endDate).then(function (result) {
+      if (!result || !result.events || result.events.length === 0) return;
+
+      // Store already hydrated by the API module — regenerate forecast with calendar data
+      var oldPredictions = lastPredictions;
+      var newPredictions = generateForecast();
+
+      // Only re-render if calendar data actually changed the predictions
+      if (oldPredictions && predictionsChanged(oldPredictions, newPredictions)) {
+        renderActive(newPredictions);
+        requestAnimationFrame(function () {
+          fetchAndRenderNarrative();
+        });
+      }
+    }).catch(function () {
+      // Calendar fetch failed — predictions still work without it
+    });
+  }
+
+  /**
+   * Check if predictions changed (energy or confidence values differ).
+   */
+  function predictionsChanged(oldPreds, newPreds) {
+    var keys = Object.keys(newPreds);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (!oldPreds[k]) return true;
+      if (oldPreds[k].predictedEnergy !== newPreds[k].predictedEnergy) return true;
+      if (oldPreds[k].predictedConfidence !== newPreds[k].predictedConfidence) return true;
+      if ((oldPreds[k]._meetingCount || 0) !== (newPreds[k]._meetingCount || 0)) return true;
+    }
+    return false;
   }
 
   function refresh() {
@@ -777,6 +1033,8 @@ window.PeakHer.WeekAhead = (function () {
     requestAnimationFrame(function () {
       fetchAndRenderNarrative();
     });
+
+    fetchCalendarEventsForWeek();
   }
 
   return {

@@ -226,6 +226,9 @@ window.PeakHer.Settings = (function () {
     // ── Cycle Tracking Section ───────────────────────────────────
     html += renderCycleSection();
 
+    // ── Calendar Integration Section ────────────────────────────
+    html += renderCalendarSection();
+
     // ── Account Section ─────────────────────────────────────────
     html += '<div class="ph-settings-section">';
     html += '<h3>Account</h3>';
@@ -253,6 +256,14 @@ window.PeakHer.Settings = (function () {
     bindAccountEvents();
     bindVoiceEvents();
     bindCycleEvents();
+    bindCalendarEvents();
+
+    // Check URL for calendar callback status
+    if (window.location.hash.indexOf('calendar=connected') !== -1) {
+      fetchCalendarStatus();
+      // Clean up URL
+      window.location.hash = window.location.hash.replace(/[?&]calendar=connected/, '');
+    }
   }
 
   // ── Coach Voice ────────────────────────────────────────────────────
@@ -750,6 +761,98 @@ window.PeakHer.Settings = (function () {
         gearBtn.style.display = 'none';
       }
     }
+  }
+
+  // ── Calendar Integration Section ──────────────────────────────────
+
+  var calendarStatus = null;
+
+  function renderCalendarSection() {
+    var conn = Store.getCalendarConnection ? Store.getCalendarConnection() : null;
+    var connected = conn && conn.connected;
+
+    var html = '<div class="ph-settings-section">';
+    html += '<h3>Calendar</h3>';
+    html += '<p>Connect your calendar for schedule-aware predictions and briefings</p>';
+
+    if (connected) {
+      html += '<div style="display:flex;align-items:center;gap:8px;margin:8px 0;">';
+      html += '<span style="color:var(--teal);font-weight:700;">Connected</span>';
+      html += '<span style="font-size:12px;color:var(--gray-text);">via Google Calendar</span>';
+      html += '</div>';
+      if (conn.lastSynced) {
+        var syncDate = new Date(conn.lastSynced);
+        html += '<p style="font-size:12px;color:var(--gray-text);margin-bottom:8px;">Last synced: ' + syncDate.toLocaleString() + '</p>';
+      }
+      html += '<div style="display:flex;gap:8px;">';
+      html += '<button class="ph-sms-btn ph-sms-btn-secondary" id="btnCalSync">Sync Now</button>';
+      html += '<button class="ph-sms-btn ph-sms-btn-danger" id="btnCalDisconnect" style="background:transparent;color:var(--coral);border:1px solid var(--coral);">Disconnect</button>';
+      html += '</div>';
+    } else {
+      html += '<button class="ph-sms-btn" id="btnCalConnect" style="background:var(--teal);color:#fff;margin-top:8px;">Connect Google Calendar</button>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  function bindCalendarEvents() {
+    var connectBtn = document.getElementById('btnCalConnect');
+    if (connectBtn) {
+      connectBtn.addEventListener('click', function () {
+        connectBtn.textContent = 'Connecting...';
+        connectBtn.disabled = true;
+        API.startCalendarAuth().then(function (result) {
+          if (result && result.url) {
+            window.location.href = result.url;
+          } else {
+            connectBtn.textContent = 'Setup Required';
+            connectBtn.style.background = 'var(--coral)';
+          }
+        }).catch(function () {
+          connectBtn.textContent = 'Error — try again';
+          connectBtn.disabled = false;
+        });
+      });
+    }
+
+    var syncBtn = document.getElementById('btnCalSync');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', function () {
+        syncBtn.textContent = 'Syncing...';
+        syncBtn.disabled = true;
+        API.syncCalendar().then(function (result) {
+          syncBtn.textContent = 'Synced!';
+          setTimeout(function () { render(); }, 1500);
+        }).catch(function () {
+          syncBtn.textContent = 'Sync failed';
+          syncBtn.disabled = false;
+        });
+      });
+    }
+
+    var disconnectBtn = document.getElementById('btnCalDisconnect');
+    if (disconnectBtn) {
+      disconnectBtn.addEventListener('click', function () {
+        if (!confirm('Disconnect Google Calendar? Your synced events will be removed.')) return;
+        API.disconnectCalendar().then(function () {
+          render();
+        }).catch(function () {
+          alert('Failed to disconnect. Please try again.');
+        });
+      });
+    }
+  }
+
+  function fetchCalendarStatus() {
+    if (!API.getCalendarStatus) return;
+    API.getCalendarStatus().then(function (result) {
+      if (result && result.connected) {
+        // Trigger initial sync
+        API.syncCalendar().catch(function () {});
+      }
+      render();
+    }).catch(function () {});
   }
 
   // ── Cycle Tracking Section ────────────────────────────────────────
