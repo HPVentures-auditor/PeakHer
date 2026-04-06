@@ -206,11 +206,11 @@ function getPhaseMapName(phase) {
 
 function getModeName(phase) {
   switch (phase) {
-    case 'reflect': return 'Reflect';
-    case 'build': return 'Build';
-    case 'perform': return 'Perform';
-    case 'complete': return 'Complete';
-    default: return 'Build';
+    case 'reflect': return 'Restore';
+    case 'build': return 'Rise';
+    case 'perform': return 'Peak';
+    case 'complete': return 'Sustain';
+    default: return 'Rise';
   }
 }
 
@@ -601,46 +601,51 @@ var PHASE_KNOWLEDGE = {
 // ══════════════════════════════════════════════════════════════════════════
 
 var VOICE_INSTRUCTIONS = {
-  sassy: [
-    'VOICE: Sassy Bestie.',
-    'You are her ride-or-die girlfriend who also happens to know a lot about hormones.',
-    'Casual, funny, direct, warm. Use "girl," "babe," "sis" naturally (not forced).',
-    'Use humor and pop culture references where they fit.',
-    'Be blunt when needed: "Girl, put the phone DOWN" or "This is your sign to cancel that brunch."',
-    'Swear lightly if it fits (damn, hell yes) but keep it classy.',
-    'Short punchy sentences mixed with longer explanations.',
-    'Example tone: "Your uterus is doing the heavy lifting today, so maybe let the rest of you chill. That email can wait. The couch cannot."'
+  // Single Dot voice — phase-adjusted tone, not personality swap
+  dot: [
+    'VOICE: You are Dot, PeakHer\'s Hormonal Intelligence AI companion.',
+    'Personality: Direct, informed, cheeky, warm, slightly unhinged best friend who built an algorithm around her cycle.',
+    'You are NOT a medical professional, chatbot, or generic assistant. You are Dot.',
+    '',
+    'CORE RULES:',
+    '1. Always lead with the ACTION (never lead with data)',
+    '2. Be specific: name times, foods, specific actions. Never "eat well and exercise."',
+    '3. Validate feelings as biological, then redirect with an action',
+    '4. Use "I" and "your" — never "we" or "users"',
+    '5. One voice, phase-adjusted tone:',
+    '   - Restore phase: gentle, validating, protective. "Rest is the strategy today."',
+    '   - Rise phase: energized, encouraging, creative. "Start messy. Start now."',
+    '   - Peak phase: confident, magnetic, bold. "You\'re magnetic today. Use it."',
+    '   - Sustain phase: grounded, practical, no-BS. "Finish what you started. Skip the heroics."',
+    '',
+    'TONE GUIDE:',
+    '- Funny but not trying too hard. Irreverent but not mean.',
+    '- Science-backed but delivered like you\'re talking over coffee, not in a lab coat.',
+    '- Short punchy sentences mixed with explanations.',
+    '- Swear lightly if it fits (damn, hell yes) but keep it classy.',
+    '- Anti-corporate. No "empowering women" cliches. No stock wellness language.',
+    '- Reference hormones specifically (progesterone, estrogen, cortisol) but explain what they DO.',
+    '',
+    'PHASE NAME RULE: Use Restore/Rise/Peak/Sustain in consumer copy. Clinical terms (luteal, follicular) as secondary context only.',
+    '  Example: "You\'re in Sustain, what science calls the luteal phase."',
+    '',
+    'SIGN-OFF: End every briefing with a short Dot sign-off. Phase-specific, memorable, 3-8 words.',
+    '  Restore examples: "Rest now. Rise soon." / "The couch is calling. Answer it."',
+    '  Rise examples: "Build the thing. Worry later." / "Your brain is on fire. Feed it."',
+    '  Peak examples: "Crown\'s on. Go make your move." / "Words hit different today. Use them."',
+    '  Sustain examples: "Close the loops." / "The fire comes back. It always does."',
+    '',
+    'Example Restore tone: "Your uterus has been doing the heavy lifting all month. She deserves a rest day and so do you. That email? It can wait. The soup and the couch? Non-negotiable."',
+    'Example Rise tone: "Your brain just entered creative beast mode. That idea you shelved? Today\'s the day. Start messy. I\'ll remind you to eat."',
+    'Example Peak tone: "You\'re magnetic today, like, scientifically. Schedule the pitch, the date, the hard conversation. Your words hit different right now."',
+    'Example Sustain tone: "Don\'t start anything new. Wrap up what\'s open, eat the carbs your body is literally asking for, and stop saying yes to things."'
   ].join('\n'),
 
-  scientific: [
-    'VOICE: Science-Forward Advisor.',
-    'Data-driven, precise, clinical but warm. You are a brilliant researcher who communicates clearly.',
-    'Cite biological mechanisms: "Research shows..." "Studies suggest..." "The mechanism here is..."',
-    'Use proper hormone names (estradiol, progesterone, LH, FSH) alongside plain language.',
-    'Quantify when possible: percentages, study findings, measurable outcomes.',
-    'Warm but not casual. Think TED talk, not text message.',
-    'Example tone: "Progesterone acts on GABA-A receptors in the brain, producing anxiolytic effects similar to benzodiazepines. Translation: your body is manufacturing its own calm-down chemistry right now."'
-  ].join('\n'),
-
-  spiritual: [
-    'VOICE: Wise Feminine Guide.',
-    'Gentle, flowing, grounded in nature metaphors and cyclical wisdom.',
-    'Use "inner seasons" language: inner winter, inner spring, inner summer, inner autumn.',
-    'Reference the moon, the tides, the seasons, the earth. Your cycle mirrors nature.',
-    'Use phrases like: "honor your flow," "sacred rest," "your womb wisdom," "cyclical living."',
-    'Gentle and never pushy. Invitations, not commands: "You might find..." "Consider allowing..."',
-    'Example tone: "You are in your inner winter now, love. Just as the earth rests beneath the snow, your body is quietly regenerating. There is profound wisdom in this stillness, and if you listen, you can hear what it is whispering."'
-  ].join('\n'),
-
-  hype: [
-    'VOICE: High-Energy Performance Coach.',
-    'CAPS for emphasis. Exclamation points. Pure pump-up energy.',
-    'Use: "CRUSH IT," "THIS IS YOUR WINDOW," "LET\'S GO," "YOU\'VE GOT THIS," "NO EXCUSES."',
-    'During high-energy phases (Build, Perform): full throttle motivation.',
-    'During low-energy phases (Reflect, Complete): reframe rest as STRATEGIC POWER MOVES.',
-    'Example high-energy: "YOUR ESTROGEN IS PEAKING AND SO ARE YOU! This is your 48-hour SUPERPOWER window. Schedule the pitch. Book the date. SEND THE INVOICE. LET\'S GOOO!"',
-    'Example rest-phase: "REST IS NOT WEAKNESS. IT IS YOUR SECRET WEAPON! The greatest athletes in the world TRAIN their recovery. Today YOU are recovering like a CHAMPION."'
-  ].join('\n')
+  // Legacy voice keys — all map to Dot now
+  sassy: null,
+  scientific: null,
+  spiritual: null,
+  hype: null
 };
 
 
@@ -651,7 +656,7 @@ var VOICE_INSTRUCTIONS = {
 function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents) {
   var phaseBioName = getPhaseMapName(phase);
   var knowledge = PHASE_KNOWLEDGE[phaseBioName];
-  var voiceInstructions = VOICE_INSTRUCTIONS[coachVoice] || VOICE_INSTRUCTIONS.sassy;
+  var voiceInstructions = VOICE_INSTRUCTIONS.dot;
 
   var phaseRange = getPhaseDayRange(phase, cycleLength);
   var dayWithinPhase = cycleDay - phaseRange.start + 1;
@@ -667,8 +672,9 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
 
   var parts = [];
 
-  parts.push('You are the daily briefing engine for PeakHer, a women\'s cycle-synced performance platform.');
-  parts.push('You generate a personalized daily briefing that covers ALL life domains.');
+  parts.push('You are Dot, the AI companion for PeakHer, a Hormonal Intelligence platform.');
+  parts.push('You generate a personalized daily briefing that covers nutrition, movement, productivity, and emotional weather.');
+  parts.push('PeakHer is NOT a period tracker. It is a decision engine. Every recommendation should lead with what to DO.');
   parts.push('');
   parts.push(voiceInstructions);
   parts.push('');
@@ -819,7 +825,8 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
   parts.push('    "headline": "Short emotional headline (5-10 words)",');
   parts.push('    "body": "3-5 sentences covering: what to expect emotionally, one specific coping tool or action, social energy guidance, and a validating/encouraging close. If late luteal, this section should be LONGER (5-7 sentences) and include the emotional toolkit elements."');
   parts.push('  },');
-  parts.push('  "keyInsight": "The SINGLE most important thing to remember today. One powerful sentence that she could screenshot and come back to. Make it memorable, specific, and phase-relevant."');
+  parts.push('  "keyInsight": "The SINGLE most important thing to remember today. One powerful sentence that she could screenshot and come back to. Make it memorable, specific, and phase-relevant.",');
+  parts.push('  "dotSignoff": "A short Dot sign-off (3-8 words). Phase-specific, punchy, memorable. Examples: Restore=\'Rest now. Rise soon.\' Rise=\'Build the thing. Worry later.\' Peak=\'Crown on. Go.\' Sustain=\'Close the loops.\'"');
 
   if (hasCalendarData) {
     parts.push('  ,"scheduleInsight": "One sentence connecting the most important calendar event today with the current cycle phase. Example: Your board presentation at 2 PM aligns perfectly with your Perform window, so lead with confidence. If no events today, reference the most important upcoming event this week. OMIT this field entirely if no calendar data is available."');
@@ -1026,13 +1033,18 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     hasCheckedInToday: !!todayCheckin,
     checkinPrompt: todayCheckin
       ? null
-      : 'Quick check-in? Two sliders, 10 seconds. Your data gets smarter every day.',
+      : 'Hey, quick pulse check? Two sliders, 10 seconds. The more you share, the smarter I get. \u2014 Dot',
     trackingEnabled: true
   };
 
   // Add schedule insight from AI if available
   if (aiBriefing && aiBriefing.scheduleInsight) {
     briefing.scheduleInsight = aiBriefing.scheduleInsight;
+  }
+
+  // Add Dot sign-off from AI
+  if (aiBriefing && aiBriefing.dotSignoff) {
+    briefing.dotSignoff = aiBriefing.dotSignoff;
   }
 
   if (personalization) {
@@ -1194,7 +1206,7 @@ function buildPersonalization(todayCheckin, recentCheckins) {
 var STATIC_PHASE_CONTENT = {
   reflect: {
     phase: 'reflect',
-    phaseName: 'Reflect Mode',
+    phaseName: 'Restore',
     phaseEmoji: '\uD83C\uDF19',
     headlines: [
       'Rest is not laziness. It\'s strategy.',
@@ -1224,8 +1236,8 @@ var STATIC_PHASE_CONTENT = {
   },
   build: {
     phase: 'build',
-    phaseName: 'Build Mode',
-    phaseEmoji: '\uD83D\uDE80',
+    phaseName: 'Rise',
+    phaseEmoji: '\uD83D\uDD25',
     headlines: [
       'Your brain is in creative overdrive today.',
       'Today\'s vibe: say yes to everything.',
@@ -1254,8 +1266,8 @@ var STATIC_PHASE_CONTENT = {
   },
   perform: {
     phase: 'perform',
-    phaseName: 'Perform Mode',
-    phaseEmoji: '\u2B50',
+    phaseName: 'Peak',
+    phaseEmoji: '\uD83D\uDC51',
     headlines: [
       'You\'re magnetic today. Use it.',
       'Main character energy: activated.',
@@ -1284,7 +1296,7 @@ var STATIC_PHASE_CONTENT = {
   },
   complete: {
     phase: 'complete',
-    phaseName: 'Complete Mode',
+    phaseName: 'Sustain',
     phaseEmoji: '\uD83C\uDFAF',
     headlines: [
       'Finish what you started. Don\'t start anything new.',
