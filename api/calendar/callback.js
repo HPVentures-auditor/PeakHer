@@ -21,6 +21,7 @@ module.exports = async function handler(req, res) {
     }
 
     var userId = decoded.userId;
+    var source = decoded.source || 'web';
 
     // Exchange authorization code for tokens
     var tokens = await exchangeCode(code);
@@ -39,9 +40,25 @@ module.exports = async function handler(req, res) {
         updated_at = now()
     `;
 
+    // Trigger initial sync immediately
+    try {
+      var { syncCalendarForUser } = require('../_lib/google-calendar');
+      if (typeof syncCalendarForUser === 'function') {
+        await syncCalendarForUser(userId, sql);
+      }
+    } catch (syncErr) {
+      // Non-fatal — cron will catch up
+      console.error('Initial sync after connect:', syncErr.message);
+    }
+
+    // Redirect based on source
+    if (source === 'native') {
+      return res.redirect('peakher://calendar-connected');
+    }
     return res.redirect('/app/#settings?calendar=connected');
   } catch (err) {
     console.error('Calendar callback error:', err.message);
+    // Redirect based on source from query (fallback since state decode failed)
     return res.redirect('/app/#settings?calendar=error');
   }
 };

@@ -10,7 +10,10 @@ module.exports = async function handler(req, res) {
 
   try {
     // Sign the userId into a JWT so the callback can verify it
-    var state = createToken(userId);
+    // Include source (native/web) so callback knows where to redirect
+    var source = req.query.source || 'web';
+    var statePayload = { userId: userId, source: source };
+    var state = require('jsonwebtoken').sign(statePayload, process.env.JWT_SECRET, { expiresIn: '10m' });
     var url = getAuthUrl(state);
 
     return res.status(200).json({ url: url });
