@@ -22,9 +22,17 @@ import { Colors, Typography, Spacing, BorderRadius } from '../../src/constants/t
 import { useAuthStore } from '../../src/stores/authStore';
 import { useBriefingStore } from '../../src/stores/briefingStore';
 import { deleteAccount, exportData } from '../../src/services/api';
+import * as Linking from 'expo-linking';
 import { Button } from '../../src/components/Button';
 import { Input } from '../../src/components/Input';
 import { Slider } from '../../src/components/Slider';
+import {
+  getCalendarAuthUrl,
+  getCalendarStatus,
+  syncCalendar,
+  disconnectCalendar,
+  CalendarStatus,
+} from '../../src/services/api';
 import {
   scheduleDailyReminder,
   cancelDailyReminder,
@@ -75,13 +83,27 @@ export default function SettingsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderHour, setReminderHour] = useState(9);
+  const [calStatus, setCalStatus] = useState<CalendarStatus | null>(null);
+  const [calLoading, setCalLoading] = useState(false);
 
-  // Load reminder settings on mount
+  // Load reminder settings + calendar status on mount
   useEffect(() => {
     getReminderSettings().then(({ enabled, hour }) => {
       setReminderEnabled(enabled);
       setReminderHour(hour);
     });
+    loadCalendarStatus();
+  }, []);
+
+  // Listen for deep link return from OAuth
+  useEffect(() => {
+    const sub = Linking.addEventListener('url', (event) => {
+      if (event.url.includes('calendar-connected')) {
+        loadCalendarStatus();
+        Alert.alert('Calendar Connected', 'Google Calendar is now linked. Dot will use your schedule in daily briefings.');
+      }
+    });
+    return () => sub.remove();
   }, []);
 
   async function handleToggleReminder(value: boolean) {
@@ -98,6 +120,61 @@ export default function SettingsScreen() {
     if (reminderEnabled) {
       await scheduleDailyReminder(hour);
     }
+  }
+
+  async function loadCalendarStatus() {
+    try {
+      const status = await getCalendarStatus();
+      setCalStatus(status);
+    } catch {
+      setCalStatus(null);
+    }
+  }
+
+  async function handleConnectCalendar() {
+    setCalLoading(true);
+    try {
+      const { url } = await getCalendarAuthUrl();
+      await Linking.openURL(url);
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to start calendar connection');
+    } finally {
+      setCalLoading(false);
+    }
+  }
+
+  async function handleSyncCalendar() {
+    setCalLoading(true);
+    try {
+      const result = await syncCalendar();
+      await loadCalendarStatus();
+      Alert.alert('Synced', `Calendar synced. ${result.eventsProcessed || 0} events updated.`);
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Sync failed');
+    } finally {
+      setCalLoading(false);
+    }
+  }
+
+  async function handleDisconnectCalendar() {
+    Alert.alert('Disconnect Calendar', 'Remove Google Calendar connection? Dot will no longer use your schedule in briefings.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Disconnect',
+        style: 'destructive',
+        onPress: async () => {
+          setCalLoading(true);
+          try {
+            await disconnectCalendar();
+            setCalStatus(null);
+          } catch (err) {
+            Alert.alert('Error', err instanceof Error ? err.message : 'Failed to disconnect');
+          } finally {
+            setCalLoading(false);
+          }
+        },
+      },
+    ]);
   }
 
   const onRefresh = useCallback(async () => {
@@ -495,6 +572,73 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* Calendar Integration */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Calendar</Text>
+          <View style={styles.card}>
+            {calStatus?.connected ? (
+              <>
+                <View style={styles.calConnectedRow}>
+                  <View style={styles.calStatusDot} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.calConnectedText}>
+                      Google Calendar connected
+                    </Text>
+                    {calStatus.lastSynced && (
+                      <Text style={styles.calSyncedText}>
+                        Last synced: {new Date(calStatus.lastSynced).toLocaleDateString()}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                <Text style={styles.calDescription}>
+                  Dot uses your schedule to optimize briefings — recommending when to
+                  tackle meetings, what to prep for, and what to reschedule based on
+                  your phase.
+                </Text>
+                <View style={styles.calActions}>
+                  <TouchableOpacity
+                    onPress={handleSyncCalendar}
+                    disabled={calLoading}
+                    style={styles.calActionButton}
+                  >
+                    <Text style={styles.calActionText}>
+                      {calLoading ? 'Syncing...' : 'Sync now'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleDisconnectCalendar}
+                    disabled={calLoading}
+                    style={styles.calActionButton}
+                  >
+                    <Text style={[styles.calActionText, { color: Colors.error }]}>
+                      Disconnect
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={styles.calIcon}>{'\u{1F4C5}'}</Text>
+                <Text style={styles.calTitle}>Connect Google Calendar</Text>
+                <Text style={styles.calDescription}>
+                  Dot reads your schedule (read-only) and weaves it into your daily
+                  briefing. "Your board presentation at 2 PM aligns with Peak — lead
+                  with confidence."
+                </Text>
+                <Button
+                  title={calLoading ? 'Connecting...' : 'Connect Calendar'}
+                  onPress={handleConnectCalendar}
+                  loading={calLoading}
+                  variant="secondary"
+                  size="md"
+                  style={{ marginTop: Spacing.md }}
+                />
+              </>
+            )}
+          </View>
+        </View>
+
         {/* Data */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Your data</Text>
@@ -633,6 +777,61 @@ const styles = StyleSheet.create({
   dotPhaseLabel: {
     fontFamily: Typography.fontFamily.semiBold,
     fontSize: Typography.fontSize.xs,
+  },
+  calConnectedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  calStatusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.rise,
+  },
+  calConnectedText: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.base,
+    color: Colors.textPrimary,
+  },
+  calSyncedText: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textTertiary,
+    marginTop: 2,
+  },
+  calIcon: {
+    fontSize: 28,
+    marginBottom: Spacing.sm,
+  },
+  calTitle: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: Typography.fontSize.md,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
+  },
+  calDescription: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+  },
+  calActions: {
+    flexDirection: 'row',
+    gap: Spacing.xl,
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.surfaceBorder,
+  },
+  calActionButton: {
+    paddingVertical: Spacing.xs,
+  },
+  calActionText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.teal,
   },
   reminderHint: {
     fontFamily: Typography.fontFamily.regular,

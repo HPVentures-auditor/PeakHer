@@ -566,3 +566,30 @@ export async function deleteAccount(
 export async function exportData(): Promise<unknown> {
   return request('/api/export');
 }
+
+// ---------------------------------------------------------------------------
+// Calendar
+// ---------------------------------------------------------------------------
+
+export interface CalendarStatus {
+  connected: boolean;
+  provider?: string;
+  lastSynced?: string;
+  syncStatus?: string;
+}
+
+export async function getCalendarAuthUrl(): Promise<{ url: string }> {
+  return request<{ url: string }>('/api/calendar/auth?source=native');
+}
+
+export async function getCalendarStatus(): Promise<CalendarStatus> {
+  return request<CalendarStatus>('/api/calendar/status');
+}
+
+export async function syncCalendar(): Promise<{ success: boolean; eventsProcessed?: number }> {
+  return request('/api/calendar/sync', { method: 'POST' });
+}
+
+export async function disconnectCalendar(): Promise<{ success: boolean }> {
+  return request('/api/calendar/disconnect', { method: 'POST' });
+}
