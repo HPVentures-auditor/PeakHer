@@ -46,6 +46,12 @@ module.exports = async function handler(req, res) {
           nutritionTips: partnership.share_nutrition_tips,
           emotionalWeather: partnership.share_emotional_weather
         },
+        personalMessages: {
+          restore: partnership.personal_message_restore || '',
+          rise: partnership.personal_message_rise || '',
+          peak: partnership.personal_message_peak || '',
+          sustain: partnership.personal_message_sustain || '',
+        },
         acceptedAt: partnership.accepted_at,
         createdAt: partnership.created_at
       });

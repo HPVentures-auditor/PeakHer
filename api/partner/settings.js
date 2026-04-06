@@ -1,7 +1,8 @@
 /**
  * PUT /api/partner/settings
  * Primary user updates sharing controls for partner.
- * Body: { sharingPaused?, sharePhaseName?, shareEnergyLevel?, shareNutritionTips?, shareEmotionalWeather? }
+ * Body: { sharingPaused?, sharePhaseName?, shareEnergyLevel?, shareNutritionTips?, shareEmotionalWeather?,
+ *         personalMessageRestore?, personalMessageRise?, personalMessagePeak?, personalMessageSustain? }
  */
 const { getDb } = require('../_lib/db');
 const { getUserId, sendError } = require('../_lib/auth');
@@ -46,6 +47,10 @@ module.exports = async function handler(req, res) {
     if (typeof body.shareEnergyLevel === 'boolean') values.share_energy_level = body.shareEnergyLevel;
     if (typeof body.shareNutritionTips === 'boolean') values.share_nutrition_tips = body.shareNutritionTips;
     if (typeof body.shareEmotionalWeather === 'boolean') values.share_emotional_weather = body.shareEmotionalWeather;
+    if (typeof body.personalMessageRestore === 'string') values.personal_message_restore = body.personalMessageRestore.slice(0, 500);
+    if (typeof body.personalMessageRise === 'string') values.personal_message_rise = body.personalMessageRise.slice(0, 500);
+    if (typeof body.personalMessagePeak === 'string') values.personal_message_peak = body.personalMessagePeak.slice(0, 500);
+    if (typeof body.personalMessageSustain === 'string') values.personal_message_sustain = body.personalMessageSustain.slice(0, 500);
 
     if (Object.keys(values).length === 0) {
       return sendError(res, 400, 'No valid settings to update');
@@ -65,6 +70,10 @@ module.exports = async function handler(req, res) {
         share_energy_level = COALESCE(${values.share_energy_level ?? null}, share_energy_level),
         share_nutrition_tips = COALESCE(${values.share_nutrition_tips ?? null}, share_nutrition_tips),
         share_emotional_weather = COALESCE(${values.share_emotional_weather ?? null}, share_emotional_weather),
+        personal_message_restore = COALESCE(${values.personal_message_restore ?? null}, personal_message_restore),
+        personal_message_rise = COALESCE(${values.personal_message_rise ?? null}, personal_message_rise),
+        personal_message_peak = COALESCE(${values.personal_message_peak ?? null}, personal_message_peak),
+        personal_message_sustain = COALESCE(${values.personal_message_sustain ?? null}, personal_message_sustain),
         updated_at = now()
       WHERE id = ${partnership.id}
     `;

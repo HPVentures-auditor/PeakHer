@@ -176,8 +176,18 @@ module.exports = async function handler(req, res) {
       }
     }
 
+    // Get her personal message for this phase
+    var phaseMessageKey = 'personal_message_' + modeName.toLowerCase();
+    var personalMessage = partnership[phaseMessageKey] || null;
+
+    if (personalMessage) {
+      contextParts.push('');
+      contextParts.push('HER PERSONAL MESSAGE FOR THIS PHASE (she wrote this herself, include it prominently):');
+      contextParts.push('"' + personalMessage + '"');
+    }
+
     // Build the AI prompt
-    var systemPrompt = buildPartnerSystemPrompt(modeName, isLateLuteal);
+    var systemPrompt = buildPartnerSystemPrompt(modeName, isLateLuteal, !!personalMessage);
     var userMessage = 'Generate today\'s partner brief.\n\nHer name: ' + firstName + '\n' + contextParts.join('\n');
 
     // Call Claude
@@ -197,12 +207,18 @@ module.exports = async function handler(req, res) {
     }
 
     // Build final response
+    var intel = aiResponse.intel || null;
+    // Ensure fromHer is included if there's a personal message
+    if (intel && personalMessage && !intel.fromHer) {
+      intel.fromHer = firstName + ' says: "' + personalMessage + '"';
+    }
+
     var briefing = {
       date: today,
       mode: modeName,
       modeEmoji: modeEmoji,
       headline: aiResponse.headline || modeName + ' mode. Here\'s your intel.',
-      intel: aiResponse.intel || null,
+      intel: intel,
       dotSignoff: aiResponse.dotSignoff || 'You got this.'
     };
 
@@ -228,7 +244,7 @@ module.exports = async function handler(req, res) {
 };
 
 
-function buildPartnerSystemPrompt(modeName, isLateLuteal) {
+function buildPartnerSystemPrompt(modeName, isLateLuteal, hasPersonalMessage) {
   var parts = [
     'You are Dot, generating a daily partner brief for PeakHer\'s Partner Mode.',
     '',
@@ -265,6 +281,11 @@ function buildPartnerSystemPrompt(modeName, isLateLuteal) {
     parts.push('');
   }
 
+  if (hasPersonalMessage) {
+    parts.push('PERSONAL MESSAGE: She wrote a personal note about what she needs during this phase. This is HER voice, not Dot\'s. Include it prominently in the briefing, either in the headline or as a special "From Her" section in the intel. Respect her words exactly. This is the most important part of the briefing.');
+    parts.push('');
+  }
+
   parts.push('OUTPUT FORMAT (respond with valid JSON only, no markdown):');
   parts.push('{');
   parts.push('  "headline": "Punchy, funny 8-15 word headline. Example: \'Warning: She\'s in Sustain. Proceed with snacks and emotional intelligence.\'",');
@@ -273,7 +294,8 @@ function buildPartnerSystemPrompt(modeName, isLateLuteal) {
   parts.push('    "doThis": "3-4 specific, concrete actions he can take today.",');
   parts.push('    "dontDoThis": "2-3 things to avoid today. Specific enough to prevent common mistakes.",');
   parts.push('    "snackIntel": "1-2 sentences on what food/drink she\'d appreciate and a one-line cool biological reason.",');
-  parts.push('    "connectionTip": "1-2 sentences on the best way to connect with her today."');
+  parts.push('    "connectionTip": "1-2 sentences on the best way to connect with her today.",');
+  parts.push('    "fromHer": "If she included a personal message, include it here exactly as she wrote it, prefixed with her name. If no personal message was provided, set this to null."');
   parts.push('  },');
   parts.push('  "dotSignoff": "Punchy 3-6 word sign-off. Examples: \'Snacks. Silence. Repeat.\' / \'Match her fire.\' / \'Guard the couch.\'"');
   parts.push('}');
