@@ -133,6 +133,7 @@ export interface UserProfile {
   personas: string[];
   coachVoice: string;
   onboardingComplete: boolean;
+  role: 'user' | 'partner';
   createdAt: string;
 }
 
@@ -641,4 +642,105 @@ export async function disconnectWearable(
     method: 'POST',
     body: { provider },
   });
+}
+
+// ---------------------------------------------------------------------------
+// Partner Mode
+// ---------------------------------------------------------------------------
+
+export interface PartnerInviteResponse {
+  inviteCode: string;
+  inviteUrl: string;
+  expiresAt: string;
+}
+
+export interface PartnerInviteInfo {
+  valid: boolean;
+  inviterName?: string;
+  reason?: string;
+}
+
+export interface PartnerIntelSection {
+  vibe: string;
+  doThis: string;
+  dontDoThis: string;
+  snackIntel: string;
+  connectionTip: string;
+}
+
+export interface PartnerBriefingResponse {
+  date: string;
+  mode: string | null;
+  modeEmoji?: string;
+  headline: string;
+  paused?: boolean;
+  message?: string;
+  intel?: PartnerIntelSection;
+  dotSignoff?: string;
+}
+
+export interface PartnershipStatus {
+  hasPartnership: boolean;
+  status?: 'pending' | 'active' | 'paused' | 'revoked';
+  partnerName?: string;
+  primaryName?: string;
+  inviteCode?: string;
+  inviteExpiresAt?: string;
+  sharingPaused?: boolean;
+  shareSettings?: {
+    phaseName: boolean;
+    energyLevel: boolean;
+    nutritionTips: boolean;
+    emotionalWeather: boolean;
+  };
+}
+
+export async function createPartnerInvite(): Promise<PartnerInviteResponse> {
+  return request<PartnerInviteResponse>('/api/partner/invite', { method: 'POST' });
+}
+
+export async function getPartnerInviteInfo(
+  code: string,
+): Promise<PartnerInviteInfo> {
+  return request<PartnerInviteInfo>(
+    `/api/partner/invite-info?code=${code}`,
+    { authenticated: false },
+  );
+}
+
+export async function registerAsPartner(params: {
+  name: string;
+  email: string;
+  password: string;
+  inviteCode: string;
+}): Promise<RegisterResponse> {
+  const data = await request<RegisterResponse>('/api/partner/register', {
+    method: 'POST',
+    body: params,
+    authenticated: false,
+  });
+  await setToken(data.token);
+  return data;
+}
+
+export async function getPartnerBriefing(): Promise<PartnerBriefingResponse> {
+  return request<PartnerBriefingResponse>('/api/partner/briefing');
+}
+
+export async function getPartnershipStatus(): Promise<PartnershipStatus> {
+  return request<PartnershipStatus>('/api/partner/status');
+}
+
+export async function updatePartnerSettings(settings: {
+  sharingPaused?: boolean;
+  sharePhaseName?: boolean;
+  shareEnergyLevel?: boolean;
+  shareNutritionTips?: boolean;
+  shareEmotionalWeather?: boolean;
+}): Promise<{ success: boolean }> {
+  return request('/api/partner/settings', { method: 'PUT', body: settings });
+}
+
+export async function revokePartner(): Promise<{ success: boolean }> {
+  return request('/api/partner/revoke', { method: 'POST' });
 }

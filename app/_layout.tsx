@@ -69,8 +69,10 @@ export default function RootLayout() {
       // Not signed in — redirect to login
       router.replace('/(auth)/login');
     } else if (isAuthenticated && inAuthGroup) {
-      // Signed in but on auth screen — redirect to app
-      if (user && !user.onboardingComplete) {
+      // Signed in but on auth screen — redirect based on role
+      if (user?.role === 'partner') {
+        router.replace('/(partner-tabs)/today');
+      } else if (user && !user.onboardingComplete) {
         router.replace('/onboarding/personas');
       } else {
         router.replace('/(tabs)/today');

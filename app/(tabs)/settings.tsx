@@ -38,6 +38,11 @@ import {
   disconnectWearable,
   WearableStatusResponse,
   WearableProvider,
+  createPartnerInvite,
+  getPartnershipStatus,
+  updatePartnerSettings,
+  revokePartner,
+  PartnershipStatus,
 } from '../../src/services/api';
 import {
   scheduleDailyReminder,
@@ -93,6 +98,8 @@ export default function SettingsScreen() {
   const [calLoading, setCalLoading] = useState(false);
   const [wearStatus, setWearStatus] = useState<WearableStatusResponse | null>(null);
   const [wearLoading, setWearLoading] = useState<WearableProvider | null>(null);
+  const [partnerStatus, setPartnerStatus] = useState<PartnershipStatus | null>(null);
+  const [partnerLoading, setPartnerLoading] = useState(false);
 
   // Load reminder settings + calendar status on mount
   useEffect(() => {
@@ -102,6 +109,7 @@ export default function SettingsScreen() {
     });
     loadCalendarStatus();
     loadWearableStatus();
+    loadPartnerStatus();
   }, []);
 
   // Listen for deep link return from OAuth
@@ -231,6 +239,65 @@ export default function SettingsScreen() {
         },
       },
     ]);
+  }
+
+  async function loadPartnerStatus() {
+    try {
+      const status = await getPartnershipStatus();
+      setPartnerStatus(status);
+    } catch {
+      setPartnerStatus(null);
+    }
+  }
+
+  async function handleCreateInvite() {
+    setPartnerLoading(true);
+    try {
+      const result = await createPartnerInvite();
+      await loadPartnerStatus();
+      Alert.alert(
+        'Invite Created',
+        `Share this code with your partner:\n\n${result.inviteCode}\n\nOr send them this link:\n${result.inviteUrl}\n\nExpires in 48 hours.`,
+      );
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to create invite');
+    } finally {
+      setPartnerLoading(false);
+    }
+  }
+
+  async function handleTogglePartnerPause(paused: boolean) {
+    try {
+      await updatePartnerSettings({ sharingPaused: paused });
+      await loadPartnerStatus();
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to update');
+    }
+  }
+
+  async function handleRevokePartner() {
+    Alert.alert(
+      'Disconnect Partner',
+      'This permanently removes your partner\'s access. They will no longer receive daily intel. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Disconnect',
+          style: 'destructive',
+          onPress: async () => {
+            setPartnerLoading(true);
+            try {
+              await revokePartner();
+              await loadPartnerStatus();
+            } catch (err) {
+              Alert.alert('Error', err instanceof Error ? err.message : 'Failed');
+            } finally {
+              setPartnerLoading(false);
+            }
+          },
+        },
+      ],
+    );
   }
 
   const onRefresh = useCallback(async () => {
@@ -744,6 +811,107 @@ export default function SettingsScreen() {
                 </View>
               );
             })}
+          </View>
+        </View>
+
+        {/* Partner Mode */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Partner Mode</Text>
+          <View style={styles.card}>
+            {partnerStatus?.hasPartnership && partnerStatus.status === 'active' ? (
+              <>
+                <View style={styles.calConnectedRow}>
+                  <View style={styles.calStatusDot} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.calConnectedText}>
+                      {partnerStatus.partnerName || 'Partner'} connected
+                    </Text>
+                    <Text style={styles.calSyncedText}>
+                      Getting daily intel from Dot
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Pause toggle */}
+                <View style={styles.toggleRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.settingLabel}>Pause sharing</Text>
+                    <Text style={styles.reminderHint}>
+                      Temporarily stop partner briefings
+                    </Text>
+                  </View>
+                  <Switch
+                    value={partnerStatus.sharingPaused || false}
+                    onValueChange={handleTogglePartnerPause}
+                    trackColor={{ false: Colors.surfaceLight, true: Colors.sustain }}
+                    thumbColor={Colors.white}
+                  />
+                </View>
+
+                {/* Share toggles */}
+                {partnerStatus.shareSettings && (
+                  <>
+                    <Text style={[styles.settingLabel, { marginTop: Spacing.md }]}>
+                      What your partner sees
+                    </Text>
+                    {([
+                      { key: 'sharePhaseName' as const, label: 'Phase name', field: 'phaseName' as const },
+                      { key: 'shareEnergyLevel' as const, label: 'Energy level', field: 'energyLevel' as const },
+                      { key: 'shareNutritionTips' as const, label: 'Nutrition tips', field: 'nutritionTips' as const },
+                      { key: 'shareEmotionalWeather' as const, label: 'Emotional weather', field: 'emotionalWeather' as const },
+                    ]).map((toggle) => (
+                      <View key={toggle.key} style={styles.toggleRow}>
+                        <Text style={styles.wearableName}>{toggle.label}</Text>
+                        <Switch
+                          value={partnerStatus.shareSettings![toggle.field]}
+                          onValueChange={(val) => updatePartnerSettings({ [toggle.key]: val }).then(loadPartnerStatus)}
+                          trackColor={{ false: Colors.surfaceLight, true: Colors.teal }}
+                          thumbColor={Colors.white}
+                        />
+                      </View>
+                    ))}
+                  </>
+                )}
+
+                <View style={styles.calActions}>
+                  <TouchableOpacity onPress={handleRevokePartner} disabled={partnerLoading}>
+                    <Text style={[styles.calActionText, { color: Colors.error }]}>
+                      Disconnect partner
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : partnerStatus?.hasPartnership && partnerStatus.status === 'pending' ? (
+              <>
+                <Text style={styles.calIcon}>{'\u{1F48C}'}</Text>
+                <Text style={styles.calTitle}>Invite pending</Text>
+                <Text style={styles.calDescription}>
+                  Share this code with your partner:{'\n\n'}
+                  <Text style={{ fontFamily: Typography.fontFamily.bold, color: Colors.teal, fontSize: Typography.fontSize.xl }}>
+                    {partnerStatus.inviteCode}
+                  </Text>
+                  {'\n\n'}They'll create an account with this code to start receiving daily intel from Dot. Expires in 48 hours.
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.calIcon}>{'\u{1F46B}'}</Text>
+                <Text style={styles.calTitle}>Invite your partner</Text>
+                <Text style={styles.calDescription}>
+                  Dot sends your partner daily intel on how to show up — what to do, what
+                  not to do, what snacks to bring. Funny, direct, zero judgment. You control
+                  exactly what they see, and you can pause or disconnect at any time.
+                </Text>
+                <Button
+                  title={partnerLoading ? 'Creating...' : 'Create Invite'}
+                  onPress={handleCreateInvite}
+                  loading={partnerLoading}
+                  variant="secondary"
+                  size="md"
+                  style={{ marginTop: Spacing.md }}
+                />
+              </>
+            )}
           </View>
         </View>
 
