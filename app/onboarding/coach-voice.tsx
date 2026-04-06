@@ -1,58 +1,54 @@
 /**
- * Onboarding Step 2: Coach Voice Selection
- * Choose the AI coach personality that resonates most.
+ * Onboarding Step 2: Meet Dot
+ * Introduces Dot — the AI companion with phase-adjusted tone.
+ * Replaces the old 4-voice picker. One voice, four moods.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, BorderRadius } from '../../src/constants/theme';
 import { Button } from '../../src/components/Button';
 
-const VOICES = [
+const PHASE_PREVIEWS = [
   {
-    id: 'sassy',
-    name: 'Sassy Bestie',
-    emoji: '\u{1F485}',
-    preview:
-      '"Girl, your energy is through the roof this week. Let\'s channel that into something that actually moves the needle."',
-    color: Colors.coral,
+    phase: 'Restore',
+    emoji: '\u{1F319}',
+    color: Colors.restore,
+    dotSays:
+      '"Hey. Today is not the day to prove anything to anyone. Rest is the strategy. I cleared your calendar for heroics — you can be a legend again Thursday."',
   },
   {
-    id: 'scientific',
-    name: 'Science Brain',
-    emoji: '\u{1F9EA}',
-    preview:
-      '"Your cortisol-to-DHEA ratio is favorable today. Based on your data, this is an optimal window for high-cognitive-load tasks."',
-    color: Colors.reflect,
-  },
-  {
-    id: 'spiritual',
-    name: 'Spiritual Guide',
-    emoji: '\u{2728}',
-    preview:
-      '"You\'re in your reflective phase \u2014 a sacred time for inner wisdom. Trust what surfaces today. Your intuition is sharp."',
-    color: Colors.complete,
-  },
-  {
-    id: 'hype',
-    name: 'Hype Motivator',
+    phase: 'Rise',
     emoji: '\u{1F525}',
-    preview:
-      '"YOU ARE ON FIRE TODAY! Peak performance window is OPEN. Go crush that presentation. You were literally BUILT for this moment!"',
-    color: Colors.build,
+    color: Colors.rise,
+    dotSays:
+      '"Your brain just entered creative beast mode. That idea you shelved last week? Today\'s the day. Start messy. Start now. I\'ll remind you to eat."',
+  },
+  {
+    phase: 'Peak',
+    emoji: '\u{1F451}',
+    color: Colors.peak,
+    dotSays:
+      '"You\'re magnetic today — like, scientifically. Schedule the pitch, the date, the hard conversation. Your words hit different right now. Use it."',
+  },
+  {
+    phase: 'Sustain',
+    emoji: '\u{1F3AF}',
+    color: Colors.sustain,
+    dotSays:
+      '"Finish mode: activated. Don\'t start anything new. Wrap up what\'s open, eat the carbs your body is literally asking for, and stop saying yes to things."',
   },
 ];
 
-export default function CoachVoiceScreen() {
-  const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+export default function MeetDotScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
@@ -61,7 +57,7 @@ export default function CoachVoiceScreen() {
       pathname: '/onboarding/cycle-info',
       params: {
         personas: params.personas as string,
-        coachVoice: selectedVoice || 'sassy',
+        coachVoice: 'dot',
       },
     });
   }
@@ -83,51 +79,37 @@ export default function CoachVoiceScreen() {
           <Text style={styles.backText}>{'\u2190'}</Text>
         </TouchableOpacity>
 
-        <Text style={styles.heading}>Pick your coach voice</Text>
+        <Text style={styles.heading}>Meet Dot</Text>
         <Text style={styles.subtext}>
-          How do you want your daily briefings to sound?
+          Your AI companion who actually gets it.{'\n'}
+          One voice. Four moods. Zero judgment.
         </Text>
 
-        {VOICES.map((voice) => {
-          const isSelected = selectedVoice === voice.id;
-          return (
-            <TouchableOpacity
-              key={voice.id}
-              style={[
-                styles.card,
-                isSelected && { borderColor: voice.color },
-              ]}
-              onPress={() => setSelectedVoice(voice.id)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardEmoji}>{voice.emoji}</Text>
-                <Text
-                  style={[
-                    styles.cardName,
-                    isSelected && { color: voice.color },
-                  ]}
-                >
-                  {voice.name}
-                </Text>
-                {isSelected && (
-                  <View style={[styles.checkBadge, { backgroundColor: voice.color }]}>
-                    <Text style={styles.checkMark}>{'\u2713'}</Text>
-                  </View>
-                )}
-              </View>
-              <Text style={styles.cardPreview}>{voice.preview}</Text>
-            </TouchableOpacity>
-          );
-        })}
+        <View style={styles.dotIntro}>
+          <Text style={styles.dotEmoji}>{'\u{1F4AC}'}</Text>
+          <Text style={styles.dotDescription}>
+            Dot adjusts her tone to match your phase — not a personality swap,
+            just the right energy at the right time. Like a best friend who
+            actually read the science.
+          </Text>
+        </View>
+
+        <Text style={styles.previewLabel}>Here's how Dot shows up:</Text>
+
+        {PHASE_PREVIEWS.map((item) => (
+          <View key={item.phase} style={[styles.card, { borderLeftColor: item.color }]}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardEmoji}>{item.emoji}</Text>
+              <Text style={[styles.cardPhase, { color: item.color }]}>
+                {item.phase}
+              </Text>
+            </View>
+            <Text style={styles.cardPreview}>{item.dotSays}</Text>
+          </View>
+        ))}
 
         <View style={styles.bottom}>
-          <Button
-            title="Next"
-            onPress={handleNext}
-            size="lg"
-            disabled={!selectedVoice}
-          />
+          <Button title="I'm into it" onPress={handleNext} size="lg" />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -185,11 +167,38 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: Spacing.xl,
   },
+  dotIntro: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.base,
+    marginBottom: Spacing.xl,
+    flexDirection: 'row',
+    gap: Spacing.md,
+    alignItems: 'flex-start',
+  },
+  dotEmoji: {
+    fontSize: 28,
+    marginTop: 2,
+  },
+  dotDescription: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+    flex: 1,
+  },
+  previewLabel: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textTertiary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: Spacing.md,
+  },
   card: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    borderWidth: 2,
-    borderColor: Colors.surfaceBorder,
+    borderLeftWidth: 4,
     padding: Spacing.base,
     marginBottom: Spacing.md,
   },
@@ -200,25 +209,11 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   cardEmoji: {
-    fontSize: 22,
+    fontSize: 18,
   },
-  cardName: {
+  cardPhase: {
     fontFamily: Typography.fontFamily.bold,
     fontSize: Typography.fontSize.md,
-    color: Colors.textPrimary,
-    flex: 1,
-  },
-  checkBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkMark: {
-    color: Colors.white,
-    fontSize: 14,
-    fontWeight: '700',
   },
   cardPreview: {
     fontFamily: Typography.fontFamily.regular,

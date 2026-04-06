@@ -17,15 +17,11 @@ import { Colors, Typography, Spacing, BorderRadius } from '../../src/constants/t
 import { Button } from '../../src/components/Button';
 
 const PERSONAS = [
-  { id: 'entrepreneur', label: 'Entrepreneur', emoji: '\u{1F4BC}' },
-  { id: 'saleswoman', label: 'Saleswoman', emoji: '\u{1F4B0}' },
+  { id: 'businesswoman', label: 'Business Woman', emoji: '\u{1F4BC}' },
   { id: 'athlete', label: 'Athlete', emoji: '\u{1F3CB}\u{FE0F}\u{200D}\u{2640}\u{FE0F}' },
   { id: 'mom', label: 'Mom', emoji: '\u{1F469}\u{200D}\u{1F467}' },
-  { id: 'executive', label: 'Executive', emoji: '\u{1F451}' },
+  { id: 'caregiver', label: 'Caregiver', emoji: '\u{1F49C}' },
   { id: 'creative', label: 'Creative', emoji: '\u{1F3A8}' },
-  { id: 'student', label: 'Student', emoji: '\u{1F4DA}' },
-  { id: 'caretaker', label: 'Caretaker', emoji: '\u{1F49C}' },
-  { id: 'partner', label: 'Partner', emoji: '\u{1F46B}' },
 ];
 
 export default function PersonasScreen() {
@@ -59,9 +55,10 @@ export default function PersonasScreen() {
           ))}
         </View>
 
-        <Text style={styles.heading}>What hats do you wear?</Text>
+        <Text style={styles.heading}>Which hats do you wear?</Text>
         <Text style={styles.subtext}>
-          Select all that apply. This helps us personalize your experience.
+          Pick all that fit. Dot tailors everything — workouts, meals,
+          schedule intel — to how you actually live.
         </Text>
 
         <View style={styles.grid}>

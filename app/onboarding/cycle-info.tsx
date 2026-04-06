@@ -76,8 +76,9 @@ export default function CycleInfoScreen() {
 
         <Text style={styles.heading}>Cycle tracking</Text>
         <Text style={styles.subtext}>
-          This unlocks phase-based insights — your energy, confidence, and
-          performance mapped to your cycle.
+          This is where the magic happens. Dot maps your energy,
+          confidence, and performance to your cycle — so you stop
+          fighting your biology and start using it.
         </Text>
 
         {/* Toggle */}

@@ -41,8 +41,9 @@ export default function FirstCheckinScreen() {
       const cycleProfile = params.cycleProfile
         ? JSON.parse(params.cycleProfile as string)
         : { trackingEnabled: false };
+      const coachVoice = (params.coachVoice as string) || 'dot';
 
-      await updateProfile({ personas, cycleProfile });
+      await updateProfile({ personas, cycleProfile, coachVoice });
 
       // 2. Submit first check-in
       const today = new Date().toISOString().split('T')[0];
@@ -75,10 +76,10 @@ export default function FirstCheckinScreen() {
           ))}
         </View>
 
-        <Text style={styles.heading}>Your first check-in</Text>
+        <Text style={styles.heading}>Quick pulse check</Text>
         <Text style={styles.subtext}>
-          Quick pulse check. This takes 10 seconds and starts building your
-          performance profile.
+          10 seconds. Two sliders. Dot starts learning your patterns
+          immediately — and you get your first insight right away.
         </Text>
 
         <View style={styles.card}>
@@ -88,7 +89,7 @@ export default function FirstCheckinScreen() {
             onValueChange={setEnergy}
             min={1}
             max={10}
-            color={Colors.build}
+            color={Colors.rise}
           />
 
           <Slider
@@ -105,13 +106,14 @@ export default function FirstCheckinScreen() {
 
         <View style={styles.bottom}>
           <Button
-            title="Let's go!"
+            title="Show me what Dot's got"
             onPress={handleFinish}
             loading={loading}
             size="lg"
           />
           <Text style={styles.note}>
-            You can add sleep, stress, and notes in future check-ins.
+            Sleep, stress, and notes unlock in future check-ins.
+            The more you share, the smarter Dot gets.
           </Text>
         </View>
       </ScrollView>

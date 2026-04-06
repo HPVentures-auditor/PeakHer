@@ -2,6 +2,13 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Text, StyleSheet, View } from 'react-native';
 import { Colors, Typography } from '../../src/constants/theme';
+import { useAuthStore } from '../../src/stores/authStore';
+
+const ADMIN_EMAILS = [
+  'results@jairekrobbins.com',
+  'jairekr@mac.com',
+  'jairekr@me.com',
+];
 
 function TabIcon({ name, focused }: { name: string; focused: boolean }) {
   const icons: Record<string, string> = {
@@ -10,6 +17,7 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
     patterns: '\u{1F4CA}',     // bar chart
     calendar: '\u{1F4C5}',     // calendar
     settings: '\u2699\uFE0F',  // gear
+    admin: '\u{1F6E1}\uFE0F',  // shield
   };
 
   return (
@@ -23,6 +31,9 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
 }
 
 export default function TabLayout() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase().trim());
+
   return (
     <Tabs
       screenOptions={{
@@ -75,6 +86,16 @@ export default function TabLayout() {
           title: 'Settings',
           tabBarIcon: ({ focused }) => (
             <TabIcon name="settings" focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="admin"
+        options={{
+          title: 'Admin',
+          href: isAdmin ? undefined : null,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name="admin" focused={focused} />
           ),
         }}
       />

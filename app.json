@@ -14,7 +14,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ai.peakher.app"
+      "bundleIdentifier": "ai.peakher.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSUserNotificationsUsageDescription": "PeakHer sends you daily briefings, check-in reminders, and personalized insights based on your cycle and performance data."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -39,12 +44,24 @@
           "icon": "./assets/icon.png",
           "color": "#E87461"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
       ]
     ],
     "extra": {
       "router": {
         "origin": "https://peakher.ai"
+      },
+      "eas": {
+        "projectId": "35a35aee-be18-42a0-9b26-772c2801bec9"
       }
-    }
+    },
+    "owner": "peakher1984"
   }
 }

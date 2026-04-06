@@ -1,8 +1,14 @@
-import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, PanResponder, Dimensions } from 'react-native';
+import React, { useCallback, useRef } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  runOnJS,
+} from 'react-native-reanimated';
 import { Colors, Typography, BorderRadius, Spacing } from '../constants/theme';
 
-interface SliderProps {
+export interface SliderProps {
   label: string;
   value: number;
   onValueChange: (value: number) => void;
@@ -26,10 +32,14 @@ export function Slider({
   color = Colors.coral,
   showValue = true,
 }: SliderProps) {
-  const [trackWidth, setTrackWidth] = React.useState(0);
+  const trackWidth = useSharedValue(0);
   const fraction = (value - min) / (max - min);
 
-  const clamp = useCallback(
+  // Keep latest callback in a ref so the gesture always calls the current one
+  const onChangeRef = useRef(onValueChange);
+  onChangeRef.current = onValueChange;
+
+  const clampAndSnap = useCallback(
     (v: number) => {
       const snapped = Math.round(v / step) * step;
       return Math.max(min, Math.min(max, snapped));
@@ -37,26 +47,32 @@ export function Slider({
     [min, max, step],
   );
 
-  const panResponder = React.useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: (evt) => {
-        if (trackWidth > 0) {
-          const x = evt.nativeEvent.locationX;
-          const frac = Math.max(0, Math.min(1, x / trackWidth));
-          onValueChange(clamp(min + frac * (max - min)));
-        }
-      },
-      onPanResponderMove: (evt) => {
-        if (trackWidth > 0) {
-          const x = evt.nativeEvent.locationX;
-          const frac = Math.max(0, Math.min(1, x / trackWidth));
-          onValueChange(clamp(min + frac * (max - min)));
-        }
-      },
-    }),
-  ).current;
+  const updateValue = useCallback(
+    (x: number) => {
+      const w = trackWidth.value;
+      if (w <= 0) return;
+      const frac = Math.max(0, Math.min(1, x / w));
+      const newVal = clampAndSnap(min + frac * (max - min));
+      onChangeRef.current(newVal);
+    },
+    [min, max, clampAndSnap],
+  );
+
+  const pan = Gesture.Pan()
+    .activeOffsetX([-5, 5])
+    .failOffsetY([-20, 20])
+    .onStart((e) => {
+      runOnJS(updateValue)(e.x);
+    })
+    .onUpdate((e) => {
+      runOnJS(updateValue)(e.x);
+    });
+
+  const tap = Gesture.Tap().onEnd((e) => {
+    runOnJS(updateValue)(e.x);
+  });
+
+  const gesture = Gesture.Race(pan, tap);
 
   return (
     <View style={styles.container}>
@@ -66,29 +82,33 @@ export function Slider({
           <Text style={[styles.valueText, { color }]}>{value}</Text>
         )}
       </View>
-      <View
-        style={styles.trackContainer}
-        onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
-        {...panResponder.panHandlers}
-      >
-        <View style={styles.track}>
+      <GestureDetector gesture={gesture}>
+        <Animated.View
+          style={styles.trackContainer}
+          onLayout={(e) => {
+            trackWidth.value = e.nativeEvent.layout.width;
+          }}
+        >
+          <View style={styles.track}>
+            <View
+              style={[
+                styles.trackFill,
+                { width: `${fraction * 100}%`, backgroundColor: color },
+              ]}
+            />
+          </View>
           <View
             style={[
-              styles.trackFill,
-              { width: `${fraction * 100}%`, backgroundColor: color },
+              styles.thumb,
+              {
+                left: `${fraction * 100}%`,
+                marginLeft: -(THUMB_SIZE / 2),
+                backgroundColor: color,
+              },
             ]}
           />
-        </View>
-        <View
-          style={[
-            styles.thumb,
-            {
-              left: fraction * (trackWidth - THUMB_SIZE),
-              backgroundColor: color,
-            },
-          ]}
-        />
-      </View>
+        </Animated.View>
+      </GestureDetector>
       <View style={styles.minMaxRow}>
         <Text style={styles.minMaxText}>{min}</Text>
         <Text style={styles.minMaxText}>{max}</Text>
@@ -117,7 +137,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.xl,
   },
   trackContainer: {
-    height: THUMB_SIZE + 8,
+    height: THUMB_SIZE + 16,
     justifyContent: 'center',
     position: 'relative',
   },
@@ -136,7 +156,7 @@ const styles = StyleSheet.create({
     width: THUMB_SIZE,
     height: THUMB_SIZE,
     borderRadius: THUMB_SIZE / 2,
-    top: (THUMB_SIZE + 8 - THUMB_SIZE) / 2,
+    top: (THUMB_SIZE + 16 - THUMB_SIZE) / 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,

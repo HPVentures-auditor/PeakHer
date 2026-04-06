@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Typography, Spacing, BorderRadius, ModeColors } from '../../src/constants/theme';
+import { Colors, Typography, Spacing, BorderRadius, ModeColors, ModeNames, ModeEmojis } from '../../src/constants/theme';
 import { useBriefingStore } from '../../src/stores/briefingStore';
 import { useAuthStore } from '../../src/stores/authStore';
 import { PhaseIndicator } from '../../src/components/PhaseIndicator';
@@ -59,13 +59,15 @@ export default function TodayScreen() {
           />
         }
       >
-        {/* Header */}
+        {/* Header — Dot greeting */}
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>
               {getGreeting()}, {user?.name?.split(' ')[0] || 'there'}
             </Text>
-            <Text style={styles.date}>{formatDate(new Date())}</Text>
+            <Text style={styles.date}>
+              {formatDate(new Date())} {'\u00B7'} {'\u{1F4AC}'} from Dot
+            </Text>
           </View>
           {streak && streak.current > 0 && (
             <View style={styles.streakBadge}>
@@ -87,12 +89,14 @@ export default function TodayScreen() {
           </View>
         ) : briefing ? (
           <>
-            {/* Phase indicator */}
-            <PhaseIndicator
-              phase={briefing.phase}
-              cycleDay={briefing.cycleDay}
-              totalDays={briefing.phaseTotalDays}
-            />
+            {/* Phase indicator — only show when phase is recognized */}
+            {briefing.phase && ModeColors[briefing.phase] && (
+              <PhaseIndicator
+                phase={briefing.phase}
+                cycleDay={briefing.cycleDay}
+                totalDays={briefing.phaseTotalDays}
+              />
+            )}
 
             {/* Headline */}
             <View style={[styles.headlineCard, { borderLeftColor: phaseColor }]}>
@@ -175,9 +179,17 @@ export default function TodayScreen() {
               </View>
             )}
 
+            {/* Dot sign-off */}
+            <Text style={styles.dotSignoff}>
+              — Dot {briefing.phase ? (ModeEmojis[briefing.phase] || '') : '\u{2728}'}
+            </Text>
+
             {/* Check-in CTA */}
             {!briefing.hasCheckedInToday && (
               <View style={styles.ctaContainer}>
+                <Text style={styles.ctaPrompt}>
+                  Haven't checked in yet — Dot needs your pulse.
+                </Text>
                 <Button
                   title="Check in now"
                   onPress={() => router.push('/(tabs)/checkin')}
@@ -346,7 +358,7 @@ const styles = StyleSheet.create({
   recDoLabel: {
     fontFamily: Typography.fontFamily.semiBold,
     fontSize: Typography.fontSize.xs,
-    color: Colors.build,
+    color: Colors.rise,
     width: 64,
   },
   recDoText: {
@@ -420,6 +432,21 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.xs,
     color: Colors.textTertiary,
     marginTop: Spacing.xs,
+  },
+  dotSignoff: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textTertiary,
+    textAlign: 'right',
+    fontStyle: 'italic',
+    marginBottom: Spacing.xl,
+  },
+  ctaPrompt: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: Spacing.md,
   },
   ctaContainer: {
     marginTop: Spacing.lg,

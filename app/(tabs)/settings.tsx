@@ -26,6 +26,27 @@ import { Button } from '../../src/components/Button';
 import { Input } from '../../src/components/Input';
 import { Slider } from '../../src/components/Slider';
 
+const DOT_PHASES = [
+  { phase: 'Restore', emoji: '\u{1F319}', color: Colors.restore },
+  { phase: 'Rise', emoji: '\u{1F525}', color: Colors.rise },
+  { phase: 'Peak', emoji: '\u{1F451}', color: Colors.peak },
+  { phase: 'Sustain', emoji: '\u{1F3AF}', color: Colors.sustain },
+];
+
+function getDateDaysAgo(daysAgo: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString().split('T')[0];
+}
+
+function getDaysAgo(dateStr: string): number | null {
+  const target = new Date(dateStr + 'T00:00:00');
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const diff = Math.round((now.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
+  return diff >= 0 && diff < 35 ? diff : null;
+}
+
 export default function SettingsScreen() {
   const { user, cycleProfile, streak, checkinCount, updateProfile, logout, loadProfile } =
     useAuthStore();
@@ -41,6 +62,9 @@ export default function SettingsScreen() {
   );
   const [cycleLength, setCycleLength] = useState(
     cycleProfile?.averageCycleLength ?? 28,
+  );
+  const [lastPeriodDay, setLastPeriodDay] = useState<number | null>(
+    cycleProfile?.lastPeriodStart ? getDaysAgo(cycleProfile.lastPeriodStart) : null,
   );
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -71,7 +95,7 @@ export default function SettingsScreen() {
         cycleProfile: {
           trackingEnabled: cycleEnabled,
           averageCycleLength: cycleLength,
-          lastPeriodStart: cycleProfile?.lastPeriodStart || null,
+          lastPeriodStart: lastPeriodDay != null ? getDateDaysAgo(lastPeriodDay) : null,
         },
       });
       setEditingCycle(false);
@@ -226,6 +250,32 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* Dot — AI Companion */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Your AI companion</Text>
+          <View style={styles.card}>
+            <View style={styles.dotHeader}>
+              <Text style={styles.dotEmoji}>{'\u{1F4AC}'}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.dotName}>Dot</Text>
+                <Text style={styles.dotSubtext}>
+                  One voice, four moods. Adjusts to your phase automatically.
+                </Text>
+              </View>
+            </View>
+            <View style={styles.dotPhases}>
+              {DOT_PHASES.map((p) => (
+                <View key={p.phase} style={styles.dotPhaseChip}>
+                  <Text style={styles.dotPhaseEmoji}>{p.emoji}</Text>
+                  <Text style={[styles.dotPhaseLabel, { color: p.color }]}>
+                    {p.phase}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+
         {/* Stats */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Your stats</Text>
@@ -266,15 +316,44 @@ export default function SettingsScreen() {
                   />
                 </View>
                 {cycleEnabled && (
-                  <Slider
-                    label="Cycle length"
-                    value={cycleLength}
-                    onValueChange={(v) => setCycleLength(Math.round(v))}
-                    min={21}
-                    max={40}
-                    step={1}
-                    color={Colors.teal}
-                  />
+                  <>
+                    <Slider
+                      label="Cycle length"
+                      value={cycleLength}
+                      onValueChange={(v) => setCycleLength(Math.round(v))}
+                      min={21}
+                      max={40}
+                      step={1}
+                      color={Colors.teal}
+                    />
+                    <Text style={styles.settingLabel}>When did your last period start?</Text>
+                    <Text style={styles.dateHint}>
+                      Day 1 = first day of full flow (not spotting)
+                    </Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={styles.dayScroll}
+                      contentContainerStyle={styles.dayScrollContent}
+                    >
+                      {Array.from({ length: 35 }, (_, i) => i).map((day) => {
+                        const isSelected = lastPeriodDay === day;
+                        const label =
+                          day === 0 ? 'Today' : day === 1 ? 'Yesterday' : `${day}d ago`;
+                        return (
+                          <TouchableOpacity
+                            key={day}
+                            style={[styles.dayChip, isSelected && styles.dayChipSelected]}
+                            onPress={() => setLastPeriodDay(day)}
+                          >
+                            <Text style={[styles.dayChipText, isSelected && styles.dayChipTextSelected]}>
+                              {label}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  </>
                 )}
                 <View style={styles.editButtons}>
                   <Button
@@ -296,6 +375,7 @@ export default function SettingsScreen() {
                 </View>
               </>
             ) : (
+
               <>
                 <View style={styles.settingRow}>
                   <Text style={styles.settingLabel}>Tracking</Text>
@@ -430,6 +510,49 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     color: Colors.textPrimary,
   },
+  dotHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  dotEmoji: {
+    fontSize: 28,
+    marginTop: 2,
+  },
+  dotName: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: Typography.fontSize.lg,
+    color: Colors.textPrimary,
+  },
+  dotSubtext: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    lineHeight: 18,
+    marginTop: Spacing.xs,
+  },
+  dotPhases: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    flexWrap: 'wrap',
+  },
+  dotPhaseChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.darkNavy,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+  },
+  dotPhaseEmoji: {
+    fontSize: 14,
+  },
+  dotPhaseLabel: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.xs,
+  },
   editIcon: {
     fontFamily: Typography.fontFamily.medium,
     fontSize: Typography.fontSize.sm,
@@ -458,6 +581,40 @@ const styles = StyleSheet.create({
   editButtonText: {
     fontFamily: Typography.fontFamily.medium,
     fontSize: Typography.fontSize.sm,
+    color: Colors.teal,
+  },
+  dateHint: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textTertiary,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.md,
+  },
+  dayScroll: {
+    marginBottom: Spacing.md,
+  },
+  dayScrollContent: {
+    gap: Spacing.sm,
+    paddingVertical: Spacing.xs,
+  },
+  dayChip: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.darkNavy,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.surfaceBorder,
+  },
+  dayChipSelected: {
+    backgroundColor: Colors.tealLight,
+    borderColor: Colors.teal,
+  },
+  dayChipText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+  },
+  dayChipTextSelected: {
     color: Colors.teal,
   },
   statsRow: {

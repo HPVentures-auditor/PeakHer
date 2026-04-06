@@ -178,7 +178,7 @@ export default function CalendarScreen() {
                 <View style={styles.detailRow}>
                   <View style={styles.detailItem}>
                     <Text style={styles.detailLabel}>Energy</Text>
-                    <Text style={[styles.detailValue, { color: Colors.build }]}>
+                    <Text style={[styles.detailValue, { color: Colors.rise }]}>
                       {selectedCheckin.energy}/10
                     </Text>
                   </View>
@@ -194,7 +194,7 @@ export default function CalendarScreen() {
                     {selectedCheckin.sleepQuality != null && (
                       <View style={styles.detailItem}>
                         <Text style={styles.detailLabel}>Sleep</Text>
-                        <Text style={[styles.detailValue, { color: Colors.reflect }]}>
+                        <Text style={[styles.detailValue, { color: Colors.restore }]}>
                           {selectedCheckin.sleepQuality}/10
                         </Text>
                       </View>
@@ -202,7 +202,7 @@ export default function CalendarScreen() {
                     {selectedCheckin.stressLevel != null && (
                       <View style={styles.detailItem}>
                         <Text style={styles.detailLabel}>Stress</Text>
-                        <Text style={[styles.detailValue, { color: Colors.complete }]}>
+                        <Text style={[styles.detailValue, { color: Colors.sustain }]}>
                           {selectedCheckin.stressLevel}/10
                         </Text>
                       </View>

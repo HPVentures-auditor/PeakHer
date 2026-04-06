@@ -131,6 +131,7 @@ export interface UserProfile {
   name: string;
   email: string;
   personas: string[];
+  coachVoice: string;
   onboardingComplete: boolean;
   createdAt: string;
 }
@@ -219,6 +220,7 @@ export async function getProfile(): Promise<UserResponse> {
 export async function updateProfile(params: {
   name?: string;
   personas?: string[];
+  coachVoice?: string;
   cycleProfile?: {
     trackingEnabled: boolean;
     averageCycleLength?: number;
@@ -443,6 +445,83 @@ export async function registerPushToken(pushToken: string): Promise<{ success: b
       keys: { p256dh: 'expo-push', auth: 'expo-push' },
     },
   });
+}
+
+// ---------------------------------------------------------------------------
+// Admin endpoints
+// ---------------------------------------------------------------------------
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  personas: string[];
+  isAdmin: boolean;
+  emailOptOut: boolean;
+  createdAt: string;
+  currentStreak: number;
+  longestStreak: number;
+  lastCheckinDate: string | null;
+  checkinCount: number;
+}
+
+export interface AdminUsersResponse {
+  users: AdminUser[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface AdminStatsResponse {
+  overview: {
+    totalUsers: number;
+    activeThisWeek: number;
+    totalCheckins: number;
+    avgStreak: number;
+    signupsThisWeek: number;
+    checkinsToday: number;
+    usersNeedingReminder: number;
+    neverCheckedIn: number;
+    slipping: number;
+    dormant: number;
+    onFire: number;
+  };
+  segments: Array<{ label: string; count: number; color: string }>;
+  recentSignups: Array<{
+    id: string;
+    name: string;
+    email: string;
+    createdAt: string;
+    currentStreak: number;
+    checkinCount: number;
+  }>;
+  topStreakers: Array<{
+    id: string;
+    name: string;
+    email: string;
+    currentStreak: number;
+    longestStreak: number;
+  }>;
+}
+
+export async function getAdminStats(): Promise<AdminStatsResponse> {
+  return request<AdminStatsResponse>('/api/admin/stats');
+}
+
+export async function getAdminUsers(params?: {
+  search?: string;
+  page?: number;
+  limit?: number;
+}): Promise<AdminUsersResponse> {
+  const qp = new URLSearchParams();
+  if (params?.search) qp.set('search', params.search);
+  if (params?.page) qp.set('page', String(params.page));
+  if (params?.limit) qp.set('limit', String(params.limit));
+  const qs = qp.toString();
+  return request<AdminUsersResponse>(`/api/admin/users${qs ? '?' + qs : ''}`);
 }
 
 // ---------------------------------------------------------------------------

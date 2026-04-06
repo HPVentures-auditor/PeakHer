@@ -31,6 +31,7 @@ interface AuthState {
   updateProfile: (params: {
     name?: string;
     personas?: string[];
+    coachVoice?: string;
     cycleProfile?: {
       trackingEnabled: boolean;
       averageCycleLength?: number;

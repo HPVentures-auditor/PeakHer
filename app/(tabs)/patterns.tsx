@@ -131,7 +131,7 @@ export default function PatternsScreen() {
                 style={[
                   styles.patternCard,
                   {
-                    borderLeftColor: p.positive ? Colors.build : Colors.coral,
+                    borderLeftColor: p.positive ? Colors.rise : Colors.coral,
                   },
                 ]}
               >
@@ -143,7 +143,7 @@ export default function PatternsScreen() {
                     style={[
                       styles.patternConfidence,
                       {
-                        color: p.positive ? Colors.build : Colors.coral,
+                        color: p.positive ? Colors.rise : Colors.coral,
                       },
                     ]}
                   >
@@ -176,7 +176,7 @@ export default function PatternsScreen() {
                       {
                         backgroundColor:
                           insight.sentiment === 'positive'
-                            ? Colors.build
+                            ? Colors.rise
                             : insight.sentiment === 'negative'
                               ? Colors.coral
                               : Colors.gray400,
@@ -233,7 +233,7 @@ export default function PatternsScreen() {
                             rec.priority === 'high'
                               ? Colors.coral
                               : rec.priority === 'medium'
-                                ? Colors.complete
+                                ? Colors.sustain
                                 : Colors.gray400,
                         },
                       ]}

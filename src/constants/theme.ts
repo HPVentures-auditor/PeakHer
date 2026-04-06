@@ -12,11 +12,11 @@ export const Colors = {
   teal: '#2d8a8a',
   tealLight: 'rgba(45, 138, 138, 0.15)',
 
-  // Mode colors
-  reflect: '#7BA7C2',
-  build: '#5EC49A',
-  perform: '#E87461',
-  complete: '#C49A5E',
+  // Phase colors (Restore / Rise / Peak / Sustain)
+  restore: '#9B30FF',
+  rise: '#00E5A0',
+  peak: '#FFD700',
+  sustain: '#FF6B6B',
 
   // Neutrals
   white: '#FFFFFF',
@@ -32,10 +32,10 @@ export const Colors = {
   textMuted: 'rgba(255, 255, 255, 0.25)',
 
   // Semantic
-  success: '#5EC49A',
-  warning: '#C49A5E',
-  error: '#E87461',
-  info: '#7BA7C2',
+  success: '#00E5A0',
+  warning: '#FFD700',
+  error: '#FF6B6B',
+  info: '#9B30FF',
 
   // Surfaces
   surface: '#0f2035',
@@ -51,24 +51,40 @@ export const Colors = {
 } as const;
 
 export const ModeColors: Record<string, string> = {
-  reflect: Colors.reflect,
-  build: Colors.build,
-  perform: Colors.perform,
-  complete: Colors.complete,
+  // New phase names
+  restore: Colors.restore,
+  rise: Colors.rise,
+  peak: Colors.peak,
+  sustain: Colors.sustain,
+  // Backend compat (API may still send old names)
+  reflect: Colors.restore,
+  build: Colors.rise,
+  perform: Colors.peak,
+  complete: Colors.sustain,
 };
 
 export const ModeNames: Record<string, string> = {
-  reflect: 'Reflect Mode',
-  build: 'Build Mode',
-  perform: 'Perform Mode',
-  complete: 'Complete Mode',
+  restore: 'Restore',
+  rise: 'Rise',
+  peak: 'Peak',
+  sustain: 'Sustain',
+  // Backend compat
+  reflect: 'Restore',
+  build: 'Rise',
+  perform: 'Peak',
+  complete: 'Sustain',
 };
 
 export const ModeEmojis: Record<string, string> = {
-  reflect: '\u{1F319}',  // crescent moon
-  build: '\u{1F680}',    // rocket
-  perform: '\u{2B50}',   // star
-  complete: '\u{1F3AF}', // bullseye
+  restore: '\u{1F319}',  // crescent moon — rest & reflect
+  rise: '\u{1F525}',     // fire — energy climbing
+  peak: '\u{1F451}',     // crown — you're magnetic
+  sustain: '\u{1F3AF}',  // bullseye — execution mode
+  // Backend compat
+  reflect: '\u{1F319}',
+  build: '\u{1F525}',
+  perform: '\u{1F451}',
+  complete: '\u{1F3AF}',
 };
 
 export const Typography = {
