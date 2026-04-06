@@ -666,6 +666,7 @@ export interface PartnerIntelSection {
   dontDoThis: string;
   snackIntel: string;
   connectionTip: string;
+  fromHer?: string | null;
 }
 
 export interface PartnerBriefingResponse {
@@ -692,6 +693,12 @@ export interface PartnershipStatus {
     energyLevel: boolean;
     nutritionTips: boolean;
     emotionalWeather: boolean;
+  };
+  personalMessages?: {
+    restore: string;
+    rise: string;
+    peak: string;
+    sustain: string;
   };
 }
 

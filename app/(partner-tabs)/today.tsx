@@ -124,6 +124,14 @@ export default function PartnerTodayScreen() {
                   </Text>
                   <Text style={styles.intelText}>{briefing.intel.connectionTip}</Text>
                 </View>
+
+                {/* From Her — personal message */}
+                {briefing.intel.fromHer && (
+                  <View style={[styles.fromHerCard, { borderLeftColor: phaseColor }]}>
+                    <Text style={styles.fromHerLabel}>{'\u{1F48C}'} From her</Text>
+                    <Text style={styles.fromHerText}>{briefing.intel.fromHer}</Text>
+                  </View>
+                )}
               </>
             )}
 
@@ -243,6 +251,26 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     color: Colors.textSecondary,
     lineHeight: 22,
+  },
+  fromHerCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    borderLeftWidth: 4,
+    padding: Spacing.base,
+    marginBottom: Spacing.md,
+  },
+  fromHerLabel: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.coral,
+    marginBottom: Spacing.sm,
+  },
+  fromHerText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.base,
+    color: Colors.textPrimary,
+    lineHeight: 24,
+    fontStyle: 'italic',
   },
   signoff: {
     fontFamily: Typography.fontFamily.medium,

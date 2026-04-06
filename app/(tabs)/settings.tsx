@@ -12,6 +12,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
   Alert,
   Switch,
   RefreshControl,
@@ -873,6 +874,48 @@ export default function SettingsScreen() {
                   </>
                 )}
 
+                {/* Personal messages per phase */}
+                {partnerStatus.personalMessages && (
+                  <>
+                    <Text style={[styles.settingLabel, { marginTop: Spacing.md }]}>
+                      "What I need from you in each phase"
+                    </Text>
+                    <Text style={styles.reminderHint}>
+                      Your partner sees this front and center in their daily briefing
+                    </Text>
+                    {([
+                      { key: 'personalMessageRestore' as const, phase: 'Restore', emoji: '\u{1F319}', color: Colors.restore, field: 'restore' as const },
+                      { key: 'personalMessageRise' as const, phase: 'Rise', emoji: '\u{1F525}', color: Colors.rise, field: 'rise' as const },
+                      { key: 'personalMessagePeak' as const, phase: 'Peak', emoji: '\u{1F451}', color: Colors.peak, field: 'peak' as const },
+                      { key: 'personalMessageSustain' as const, phase: 'Sustain', emoji: '\u{1F3AF}', color: Colors.sustain, field: 'sustain' as const },
+                    ]).map((item) => (
+                      <View key={item.key} style={styles.personalMessageRow}>
+                        <Text style={[styles.personalMessagePhase, { color: item.color }]}>
+                          {item.emoji} {item.phase}
+                        </Text>
+                        <TextInput
+                          style={styles.personalMessageInput}
+                          value={partnerStatus.personalMessages![item.field]}
+                          onChangeText={(text) => {
+                            setPartnerStatus((prev) => prev ? {
+                              ...prev,
+                              personalMessages: { ...prev.personalMessages!, [item.field]: text }
+                            } : prev);
+                          }}
+                          onBlur={() => {
+                            updatePartnerSettings({ [item.key]: partnerStatus.personalMessages![item.field] });
+                          }}
+                          placeholder={`What do you need during ${item.phase}?`}
+                          placeholderTextColor={Colors.gray400}
+                          multiline
+                          maxLength={500}
+                          textAlignVertical="top"
+                        />
+                      </View>
+                    ))}
+                  </>
+                )}
+
                 <View style={styles.calActions}>
                   <TouchableOpacity onPress={handleRevokePartner} disabled={partnerLoading}>
                     <Text style={[styles.calActionText, { color: Colors.error }]}>
@@ -1091,6 +1134,29 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.regular,
     fontSize: Typography.fontSize.sm,
     color: Colors.textSecondary,
+    lineHeight: 20,
+  },
+  personalMessageRow: {
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.surfaceBorder,
+  },
+  personalMessagePhase: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.sm,
+    marginBottom: Spacing.sm,
+  },
+  personalMessageInput: {
+    backgroundColor: Colors.darkNavy,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.surfaceBorder,
+    padding: Spacing.md,
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textPrimary,
+    minHeight: 60,
     lineHeight: 20,
   },
   wearableRow: {
