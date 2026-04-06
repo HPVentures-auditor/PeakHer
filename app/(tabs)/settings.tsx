@@ -5,7 +5,7 @@
  * logout, delete account.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -25,6 +25,11 @@ import { deleteAccount, exportData } from '../../src/services/api';
 import { Button } from '../../src/components/Button';
 import { Input } from '../../src/components/Input';
 import { Slider } from '../../src/components/Slider';
+import {
+  scheduleDailyReminder,
+  cancelDailyReminder,
+  getReminderSettings,
+} from '../../src/hooks/useNotifications';
 
 const DOT_PHASES = [
   { phase: 'Restore', emoji: '\u{1F319}', color: Colors.restore },
@@ -68,6 +73,32 @@ export default function SettingsScreen() {
   );
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderHour, setReminderHour] = useState(9);
+
+  // Load reminder settings on mount
+  useEffect(() => {
+    getReminderSettings().then(({ enabled, hour }) => {
+      setReminderEnabled(enabled);
+      setReminderHour(hour);
+    });
+  }, []);
+
+  async function handleToggleReminder(value: boolean) {
+    setReminderEnabled(value);
+    if (value) {
+      await scheduleDailyReminder(reminderHour);
+    } else {
+      await cancelDailyReminder();
+    }
+  }
+
+  async function handleChangeReminderHour(hour: number) {
+    setReminderHour(hour);
+    if (reminderEnabled) {
+      await scheduleDailyReminder(hour);
+    }
+  }
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -273,6 +304,56 @@ export default function SettingsScreen() {
                 </View>
               ))}
             </View>
+          </View>
+        </View>
+
+        {/* Daily Reminder */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Daily reminder</Text>
+          <View style={styles.card}>
+            <View style={styles.toggleRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.settingLabel}>Check-in reminder</Text>
+                <Text style={styles.reminderHint}>
+                  Dot nudges you daily to check in
+                </Text>
+              </View>
+              <Switch
+                value={reminderEnabled}
+                onValueChange={handleToggleReminder}
+                trackColor={{
+                  false: Colors.surfaceLight,
+                  true: Colors.teal,
+                }}
+                thumbColor={Colors.white}
+              />
+            </View>
+            {reminderEnabled && (
+              <View style={styles.hourRow}>
+                <Text style={styles.settingLabel}>Remind me at</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.hourScrollContent}
+                >
+                  {[6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21].map((h) => {
+                    const isSelected = reminderHour === h;
+                    const label = h <= 12 ? `${h === 0 ? 12 : h} AM` : `${h - 12} PM`;
+                    return (
+                      <TouchableOpacity
+                        key={h}
+                        style={[styles.hourChip, isSelected && styles.hourChipSelected]}
+                        onPress={() => handleChangeReminderHour(h)}
+                      >
+                        <Text style={[styles.hourChipText, isSelected && styles.hourChipTextSelected]}>
+                          {label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            )}
           </View>
         </View>
 
@@ -552,6 +633,41 @@ const styles = StyleSheet.create({
   dotPhaseLabel: {
     fontFamily: Typography.fontFamily.semiBold,
     fontSize: Typography.fontSize.xs,
+  },
+  reminderHint: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textTertiary,
+    marginTop: 2,
+  },
+  hourRow: {
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.surfaceBorder,
+  },
+  hourScrollContent: {
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+  },
+  hourChip: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.darkNavy,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.surfaceBorder,
+  },
+  hourChipSelected: {
+    backgroundColor: Colors.tealLight,
+    borderColor: Colors.teal,
+  },
+  hourChipText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+  },
+  hourChipTextSelected: {
+    color: Colors.teal,
   },
   editIcon: {
     fontFamily: Typography.fontFamily.medium,
