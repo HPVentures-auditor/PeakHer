@@ -46,6 +46,7 @@ export default function TodayScreen() {
 
   const phase = briefing?.phase || 'build';
   const phaseColor = ModeColors[phase] || Colors.teal;
+  const ai = briefing?.aiBriefing || null;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -127,31 +128,73 @@ export default function TodayScreen() {
               </TouchableOpacity>
             )}
 
-            {/* Headline */}
+            {/* Headline — from AI or static */}
             <View style={[styles.headlineCard, { borderLeftColor: phaseColor }]}>
-              <Text style={styles.headline}>{briefing.headline}</Text>
-              <Text style={styles.summary}>{briefing.summary}</Text>
+              <Text style={styles.headline}>
+                {ai?.phaseOverview?.headline || briefing.headline}
+              </Text>
+              <Text style={styles.summary}>
+                {ai?.phaseOverview?.summary || briefing.summary}
+              </Text>
             </View>
 
-            {/* Energy forecast */}
-            <View style={styles.forecastRow}>
-              <View style={styles.forecastItem}>
-                <Text style={styles.forecastLabel}>Energy</Text>
-                <Text style={[styles.forecastValue, { color: phaseColor }]}>
-                  {briefing.todayEnergy}
-                </Text>
+            {/* Key Insight — screenshot-worthy one-liner */}
+            {ai?.keyInsight && (
+              <View style={[styles.keyInsightCard, { borderColor: phaseColor + '40' }]}>
+                <Text style={styles.keyInsightLabel}>{'\u{1F4F8}'} Today's key insight</Text>
+                <Text style={styles.keyInsightText}>{ai.keyInsight}</Text>
               </View>
-              <View style={styles.forecastDivider} />
-              <View style={styles.forecastItem}>
-                <Text style={styles.forecastLabel}>Forecast</Text>
-                <Text style={[styles.forecastValue, { color: phaseColor }]}>
-                  {briefing.energyForecast}
-                </Text>
-              </View>
-            </View>
+            )}
 
-            {/* Recommendations */}
-            {briefing.recommendations && (
+            {/* AI-enriched sections (v2) — or fallback to v1 recs */}
+            {ai ? (
+              <View style={styles.recsSection}>
+                {/* Nutrition */}
+                <View style={styles.aiSectionCard}>
+                  <Text style={styles.aiSectionIcon}>{'\u{1F372}'}</Text>
+                  <Text style={[styles.aiSectionTitle, { color: Colors.rise }]}>
+                    {ai.nutrition?.headline || 'Nutrition'}
+                  </Text>
+                  <Text style={styles.aiSectionBody}>{ai.nutrition?.body}</Text>
+                </View>
+
+                {/* Movement */}
+                <View style={styles.aiSectionCard}>
+                  <Text style={styles.aiSectionIcon}>{'\u{1F3CB}\u{FE0F}\u{200D}\u{2640}\u{FE0F}'}</Text>
+                  <Text style={[styles.aiSectionTitle, { color: Colors.peak }]}>
+                    {ai.movement?.headline || 'Movement'}
+                  </Text>
+                  <Text style={styles.aiSectionBody}>{ai.movement?.body}</Text>
+                </View>
+
+                {/* Focus / Schedule */}
+                <View style={styles.aiSectionCard}>
+                  <Text style={styles.aiSectionIcon}>{'\u{1F4CB}'}</Text>
+                  <Text style={[styles.aiSectionTitle, { color: Colors.teal }]}>
+                    {ai.focus?.headline || 'Focus'}
+                  </Text>
+                  <Text style={styles.aiSectionBody}>{ai.focus?.body}</Text>
+                </View>
+
+                {/* Emotional Weather */}
+                <View style={styles.aiSectionCard}>
+                  <Text style={styles.aiSectionIcon}>{'\u{1F326}\u{FE0F}'}</Text>
+                  <Text style={[styles.aiSectionTitle, { color: Colors.restore }]}>
+                    {ai.emotionalWeather?.headline || 'Emotional Weather'}
+                  </Text>
+                  <Text style={styles.aiSectionBody}>{ai.emotionalWeather?.body}</Text>
+                </View>
+
+                {/* Schedule Insight (if calendar connected) */}
+                {ai.scheduleInsight && (
+                  <View style={[styles.scheduleCard, { borderLeftColor: phaseColor }]}>
+                    <Text style={styles.scheduleLabel}>{'\u{1F4C5}'} Schedule intel</Text>
+                    <Text style={styles.scheduleText}>{ai.scheduleInsight}</Text>
+                  </View>
+                )}
+              </View>
+            ) : briefing.recommendations ? (
+              /* v1 static fallback */
               <View style={styles.recsSection}>
                 <Text style={styles.recsTitle}>Today's playbook</Text>
                 {Object.entries(briefing.recommendations).map(([key, rec]) => (
@@ -171,10 +214,10 @@ export default function TodayScreen() {
                   </View>
                 ))}
               </View>
-            )}
+            ) : null}
 
-            {/* Fun fact */}
-            {briefing.funFact && (
+            {/* Fun fact (v1 only — AI briefing replaces this) */}
+            {!ai && briefing.funFact && (
               <View style={styles.funFactCard}>
                 <Text style={styles.funFactLabel}>Did you know?</Text>
                 <Text style={styles.funFactText}>{briefing.funFact}</Text>
@@ -210,7 +253,9 @@ export default function TodayScreen() {
 
             {/* Dot sign-off */}
             <Text style={styles.dotSignoff}>
-              — Dot {briefing.phase ? (ModeEmojis[briefing.phase] || '') : '\u{2728}'}
+              {briefing.dotSignoff || ai?.dotSignoff
+                ? `\u2014 Dot: ${briefing.dotSignoff || ai?.dotSignoff}`
+                : `\u2014 Dot ${briefing.phase ? (ModeEmojis[briefing.phase] || '') : '\u{2728}'}`}
             </Text>
 
             {/* Check-in CTA */}
@@ -329,6 +374,67 @@ const styles = StyleSheet.create({
   guideCardArrow: {
     fontSize: 28,
     fontWeight: '300',
+  },
+  keyInsightCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    padding: Spacing.base,
+    marginBottom: Spacing.base,
+  },
+  keyInsightLabel: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.teal,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: Spacing.sm,
+  },
+  keyInsightText: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.md,
+    color: Colors.textPrimary,
+    lineHeight: 24,
+  },
+  aiSectionCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.base,
+    marginBottom: Spacing.md,
+  },
+  aiSectionIcon: {
+    fontSize: 18,
+    marginBottom: Spacing.sm,
+  },
+  aiSectionTitle: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: Typography.fontSize.sm,
+    marginBottom: Spacing.sm,
+  },
+  aiSectionBody: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    lineHeight: 22,
+  },
+  scheduleCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    borderLeftWidth: 4,
+    padding: Spacing.base,
+    marginBottom: Spacing.md,
+  },
+  scheduleLabel: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.teal,
+    marginBottom: Spacing.sm,
+  },
+  scheduleText: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    lineHeight: 20,
   },
   headlineCard: {
     backgroundColor: Colors.surface,

@@ -277,6 +277,22 @@ export async function getCheckins(params?: {
 // Briefing endpoint
 // ---------------------------------------------------------------------------
 
+export interface AIBriefingSection {
+  headline: string;
+  body: string;
+}
+
+export interface AIBriefing {
+  phaseOverview: { headline: string; summary: string };
+  nutrition: AIBriefingSection;
+  movement: AIBriefingSection;
+  focus: AIBriefingSection;
+  emotionalWeather: AIBriefingSection;
+  keyInsight: string;
+  dotSignoff?: string;
+  scheduleInsight?: string;
+}
+
 export interface BriefingResponse {
   phase: string;
   phaseName: string;
@@ -286,6 +302,10 @@ export interface BriefingResponse {
   phaseTotalDays: number | null;
   headline: string;
   summary: string;
+  // v2 AI-enriched briefing (preferred)
+  aiBriefing?: AIBriefing | null;
+  dotSignoff?: string;
+  // v1 static fallback
   recommendations: {
     work: { title: string; tip: string; doThis: string; skipThis: string };
     fitness: { title: string; tip: string; doThis: string; skipThis: string };
@@ -306,6 +326,8 @@ export interface BriefingResponse {
     current: number;
     longest: number;
   };
+  checkinPrompt?: string | null;
+  scheduleInsight?: string;
 }
 
 export async function getBriefing(): Promise<BriefingResponse> {
