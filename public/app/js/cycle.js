@@ -17,24 +17,24 @@ window.PeakHer.Cycle = (function () {
   };
 
   var PHASE_TO_MODE = {
-    menstrual:  'Reflect',
-    follicular: 'Build',
-    ovulatory:  'Perform',
-    luteal:     'Complete'
+    menstrual:  'Restore',
+    follicular: 'Rise',
+    ovulatory:  'Peak',
+    luteal:     'Sustain'
   };
 
   var MODE_COLORS = {
-    Reflect:  '#7BA7C2',
-    Build:    '#5EC49A',
-    Perform:  '#E87461',
-    Complete: '#C49A5E'
+    Restore:  '#9B30FF',
+    Rise:     '#00E5A0',
+    Peak:     '#FFD700',
+    Sustain:  '#FF6B6B'
   };
 
   var MODE_DESCRIPTIONS = {
-    Reflect:  'Rest and recharge. Honor your energy.',
-    Build:    'Rising energy. Start new projects.',
-    Perform:  'Peak performance. Go bold.',
-    Complete: 'Wrap up and refine. Finish strong.'
+    Restore:  'Rest and recharge. Honor your energy.',
+    Rise:     'Rising energy. Start new projects.',
+    Peak:     'Peak performance. Go bold.',
+    Sustain:  'Wrap up and refine. Finish strong.'
   };
 
   var PHASE_EMOJIS = {
@@ -91,10 +91,10 @@ window.PeakHer.Cycle = (function () {
   /**
    * Map a cycle phase to its performance mode name.
    * @param {string} phase
-   * @returns {string} "Reflect" | "Build" | "Perform" | "Complete"
+   * @returns {string} "Restore" | "Rise" | "Peak" | "Sustain"
    */
   function getPerformanceMode(phase) {
-    return PHASE_TO_MODE[phase] || 'Build';
+    return PHASE_TO_MODE[phase] || 'Rise';
   }
 
   /**
@@ -103,7 +103,7 @@ window.PeakHer.Cycle = (function () {
    * @returns {string}
    */
   function getModeColor(mode) {
-    return MODE_COLORS[mode] || '#5EC49A';
+    return MODE_COLORS[mode] || '#00E5A0';
   }
 
   /**

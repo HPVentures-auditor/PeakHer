@@ -74,7 +74,7 @@ window.PeakHer.WeekAhead = (function () {
     '.wa-signal { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 8px; margin-top: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }',
     '.wa-signal.teal { background: rgba(45,138,138,0.15); color: var(--teal); }',
     '.wa-signal.coral { background: rgba(232,116,97,0.15); color: var(--coral); }',
-    '.wa-signal.gold { background: rgba(196,154,94,0.15); color: #C49A5E; }',
+    '.wa-signal.gold { background: rgba(255,107,107,0.15); color: #FF6B6B; }',
 
     /* Expanded detail section */
     '.wa-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light); opacity: 0; transition: opacity 0.25s ease 0.1s; }',
@@ -85,7 +85,7 @@ window.PeakHer.WeekAhead = (function () {
     '.wa-detail-phase-desc { font-size: 12px; color: var(--gray-text); margin-top: 6px; font-style: italic; line-height: 1.4; }',
     '.wa-confidence-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-top: 6px; }',
     '.wa-confidence-badge.high { background: rgba(45,138,138,0.15); color: var(--teal); }',
-    '.wa-confidence-badge.moderate { background: rgba(196,154,94,0.15); color: #C49A5E; }',
+    '.wa-confidence-badge.moderate { background: rgba(255,107,107,0.15); color: #FF6B6B; }',
     '.wa-confidence-badge.low { background: rgba(232,116,97,0.15); color: var(--coral); }',
 
     /* Best day callout */
@@ -101,7 +101,7 @@ window.PeakHer.WeekAhead = (function () {
     /* AI Narrative card */
     '.wa-ai-section { margin-bottom: 20px; }',
     '.wa-ai-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }',
-    '.wa-ai-badge { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; background: linear-gradient(135deg, rgba(45,138,138,0.25), rgba(232,116,97,0.25)); color: #5EC49A; }',
+    '.wa-ai-badge { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; background: linear-gradient(135deg, rgba(45,138,138,0.25), rgba(232,116,97,0.25)); color: #00E5A0; }',
     '.wa-ai-narrative { background: linear-gradient(135deg, rgba(45,138,138,0.08), rgba(232,116,97,0.05)); border: 1px solid rgba(45,138,138,0.15); border-radius: 12px; padding: 16px; }',
     '.wa-ai-summary { font-size: 15px; color: var(--text-body); line-height: 1.55; margin-bottom: 12px; }',
     '.wa-ai-detail-item { margin-bottom: 10px; }',
@@ -421,12 +421,12 @@ window.PeakHer.WeekAhead = (function () {
     var e = pred.predictedEnergy;
     var phase = pred.cyclePhase;
 
-    // High-stakes event on a low-energy day or Reflect phase = conflict
+    // High-stakes event on a low-energy day or Restore phase = conflict
     if (hasHighStakes && (e <= 4 || phase === 'menstrual')) {
       return { text: 'Schedule Conflict', cls: 'conflict' };
     }
 
-    // High-stakes event during Perform phase with good energy = perfect
+    // High-stakes event during Peak phase with good energy = perfect
     if (hasHighStakes && phase === 'ovulatory' && e >= 6) {
       return { text: 'Peak Alignment', cls: 'aligned' };
     }

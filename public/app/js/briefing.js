@@ -200,10 +200,10 @@ window.PeakHer.Briefing = (function () {
 
   function renderV2(target, data) {
     var phaseColors = {
-      menstrual: 'var(--reflect, #7BA7C2)', reflect: 'var(--reflect, #7BA7C2)',
-      follicular: 'var(--build, #5EC49A)', build: 'var(--build, #5EC49A)',
-      ovulatory: 'var(--perform, #E87461)', perform: 'var(--perform, #E87461)',
-      luteal: 'var(--complete, #C49A5E)', complete: 'var(--complete, #C49A5E)'
+      menstrual: 'var(--reflect, #9B30FF)', reflect: 'var(--reflect, #9B30FF)',
+      follicular: 'var(--build, #00E5A0)', build: 'var(--build, #00E5A0)',
+      ovulatory: 'var(--perform, #FFD700)', perform: 'var(--perform, #FFD700)',
+      luteal: 'var(--complete, #FF6B6B)', complete: 'var(--complete, #FF6B6B)'
     };
     var phaseBadgeClasses = {
       menstrual: 'badge-reflect', reflect: 'badge-reflect',
@@ -302,10 +302,10 @@ window.PeakHer.Briefing = (function () {
 
   function renderV1(target, data) {
     var phaseColors = {
-      menstrual: 'var(--reflect, #7BA7C2)', reflect: 'var(--reflect, #7BA7C2)',
-      follicular: 'var(--build, #5EC49A)', build: 'var(--build, #5EC49A)',
-      ovulatory: 'var(--perform, #E87461)', perform: 'var(--perform, #E87461)',
-      luteal: 'var(--complete, #C49A5E)', complete: 'var(--complete, #C49A5E)'
+      menstrual: 'var(--reflect, #9B30FF)', reflect: 'var(--reflect, #9B30FF)',
+      follicular: 'var(--build, #00E5A0)', build: 'var(--build, #00E5A0)',
+      ovulatory: 'var(--perform, #FFD700)', perform: 'var(--perform, #FFD700)',
+      luteal: 'var(--complete, #FF6B6B)', complete: 'var(--complete, #FF6B6B)'
     };
     var phaseBadgeClasses = {
       menstrual: 'badge-reflect', reflect: 'badge-reflect',

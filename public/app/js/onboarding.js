@@ -25,7 +25,7 @@ window.PeakHer.Onboarding = (function () {
     cycleLength: 28,
     lastPeriodDate: '',
     cycleDateConfidence: 'exact',
-    coachVoice: 'sassy',
+    coachVoice: 'dot',
     onboardingComplete: false
   };
 
@@ -335,12 +335,11 @@ window.PeakHer.Onboarding = (function () {
   // ── Step 2: Hat Selection ───────────────────────────────────────────
 
   var HATS = [
-    { id: 'founder',   label: 'Founder',   emoji: '\uD83D\uDE80' },
-    { id: 'creative',  label: 'Creative',  emoji: '\uD83C\uDFA8' },
-    { id: 'executive', label: 'Executive', emoji: '\uD83D\uDCBC' },
-    { id: 'caregiver', label: 'Caregiver', emoji: '\uD83D\uDC9B' },
-    { id: 'athlete',   label: 'Athlete',   emoji: '\uD83C\uDFC3\u200D\u2640\uFE0F' },
-    { id: 'student',   label: 'Student',   emoji: '\uD83D\uDCDA' }
+    { id: 'businesswoman', label: 'Business Woman', emoji: '\uD83D\uDCBC' },
+    { id: 'athlete',       label: 'Athlete',        emoji: '\uD83C\uDFCB\uFE0F\u200D\u2640\uFE0F' },
+    { id: 'mom',           label: 'Mom',             emoji: '\uD83D\uDC69\u200D\uD83D\uDC67' },
+    { id: 'caregiver',     label: 'Caregiver',       emoji: '\uD83D\uDC9C' },
+    { id: 'creative',      label: 'Creative',        emoji: '\uD83C\uDFA8' }
   ];
 
   function buildStep2() {
@@ -673,74 +672,54 @@ window.PeakHer.Onboarding = (function () {
     return step;
   }
 
-  // ── Step 4: Voice Persona Selector (NEW) ──────────────────────────
-
-  var VOICES = [
-    {
-      id: 'sassy',
-      name: 'Sassy Bestie',
-      emoji: '\uD83D\uDC85',
-      preview: "Girl, you're on day 14. Go get that raise and eat a steak tonight. This is YOUR window."
-    },
-    {
-      id: 'scientific',
-      name: 'Science-Backed & Precise',
-      emoji: '\uD83D\uDD2C',
-      preview: 'Estrogen peaks around ovulation, day 14. Verbal fluency and spatial reasoning are elevated. Optimal for high-stakes communication.'
-    },
-    {
-      id: 'spiritual',
-      name: 'Spiritually Centered',
-      emoji: '\uD83C\uDF19',
-      preview: "You're entering your inner summer. Your energy wants to expand outward. Honor that flow and let your light radiate today."
-    },
-    {
-      id: 'hype',
-      name: 'Hyped Motivator',
-      emoji: '\uD83D\uDD25',
-      preview: 'THIS IS YOUR WINDOW! Day 14! You are MAGNETIC right now! Go crush that meeting, hit the gym hard, OWN today!'
-    }
-  ];
+  // ── Step 4: Meet Dot ────────────────────────────────────────────────
 
   function buildStep4() {
     var step = el('div', 'onboarding-step');
     step.setAttribute('data-step', '4');
 
-    step.appendChild(el('h2', 'ob-heading', 'Choose Your Coach Voice'));
-    step.appendChild(el('p', 'ob-subtext', 'How should your daily briefings sound? You can change this anytime.'));
+    step.appendChild(el('h2', 'ob-heading', 'Meet Dot'));
+    step.appendChild(el('p', 'ob-subtext', 'Your AI companion. One voice, four moods \u2014 she adjusts her tone to match your phase automatically.'));
 
-    var grid = el('div', 'ob-voice-grid');
-    var selectedVoice = 'sassy'; // default
+    var infoCard = el('div', '', '');
+    infoCard.style.cssText = 'background:rgba(45,138,138,0.06);border:2px solid var(--teal,#2d8a8a);border-radius:12px;padding:20px;width:100%;margin-bottom:24px;';
 
-    VOICES.forEach(function (voice) {
-      var card = el('div', 'ob-voice-card' + (voice.id === selectedVoice ? ' selected' : ''));
-      card.setAttribute('data-voice', voice.id);
-      card.innerHTML =
-        '<div class="ob-voice-header">' +
-          '<span class="ob-voice-emoji">' + voice.emoji + '</span>' +
-          '<span class="ob-voice-name">' + voice.name + '</span>' +
+    infoCard.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">' +
+        '<span style="font-size:28px;">\uD83D\uDCAC</span>' +
+        '<span style="font-size:17px;font-weight:700;color:var(--text-dark,#1a1a2e);">Dot \u2014 Your AI Companion</span>' +
+      '</div>' +
+      '<div style="font-size:14px;color:var(--gray-text,#6b7280);line-height:1.6;margin-bottom:16px;">' +
+        'Dot is the voice behind every briefing, insight, and recommendation. She\'s direct, informed, cheeky, and warm \u2014 like the slightly unhinged friend who built an algorithm around your cycle.' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;">' +
+        '<div style="font-size:13px;color:var(--text-body,#374151);display:flex;align-items:flex-start;gap:10px;">' +
+          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#9B30FF;flex-shrink:0;margin-top:4px;"></span>' +
+          '<span><strong>Restore phase:</strong> &ldquo;Your body is doing important work. Let\'s keep today strategic and slow.&rdquo;</span>' +
         '</div>' +
-        '<div class="ob-voice-preview">"' + voice.preview + '"</div>';
+        '<div style="font-size:13px;color:var(--text-body,#374151);display:flex;align-items:flex-start;gap:10px;">' +
+          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#00E5A0;flex-shrink:0;margin-top:4px;"></span>' +
+          '<span><strong>Rise phase:</strong> &ldquo;Ideas are firing. Start that thing you\'ve been thinking about.&rdquo;</span>' +
+        '</div>' +
+        '<div style="font-size:13px;color:var(--text-body,#374151);display:flex;align-items:flex-start;gap:10px;">' +
+          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FFD700;flex-shrink:0;margin-top:4px;"></span>' +
+          '<span><strong>Peak phase:</strong> &ldquo;This is YOUR window. Go get that raise and own the room.&rdquo;</span>' +
+        '</div>' +
+        '<div style="font-size:13px;color:var(--text-body,#374151);display:flex;align-items:flex-start;gap:10px;">' +
+          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FF6B6B;flex-shrink:0;margin-top:4px;"></span>' +
+          '<span><strong>Sustain phase:</strong> &ldquo;Finish line energy. Let\'s close some loops and wrap up strong.&rdquo;</span>' +
+        '</div>' +
+      '</div>';
 
-      card.addEventListener('click', function () {
-        grid.querySelectorAll('.ob-voice-card').forEach(function (c) {
-          c.classList.remove('selected');
-        });
-        card.classList.add('selected');
-        selectedVoice = voice.id;
-      });
-
-      grid.appendChild(card);
-    });
+    step.appendChild(infoCard);
 
     var btn = el('button', 'ob-btn', 'Continue');
     btn.type = 'button';
     btn.addEventListener('click', function () {
-      userData.coachVoice = selectedVoice;
+      userData.coachVoice = 'dot';
       showStep(5);
     });
 
-    step.appendChild(grid);
     step.appendChild(el('div', 'ob-spacer'));
     step.appendChild(btn);
 

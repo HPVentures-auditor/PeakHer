@@ -268,111 +268,37 @@ window.PeakHer.Settings = (function () {
 
   // ── Coach Voice ────────────────────────────────────────────────────
 
-  var VOICE_OPTIONS = [
-    {
-      id: 'sassy',
-      name: 'Sassy Bestie',
-      emoji: '\uD83D\uDC85',
-      preview: "Girl, you're on day 14. Go get that raise and eat a steak tonight. This is YOUR window."
-    },
-    {
-      id: 'scientific',
-      name: 'Science-Backed & Precise',
-      emoji: '\uD83D\uDD2C',
-      preview: 'Estrogen peaks around ovulation, day 14. Verbal fluency and spatial reasoning are elevated. Optimal for high-stakes communication.'
-    },
-    {
-      id: 'spiritual',
-      name: 'Spiritually Centered',
-      emoji: '\uD83C\uDF19',
-      preview: "You're entering your inner summer. Your energy wants to expand outward. Honor that flow and let your light radiate today."
-    },
-    {
-      id: 'hype',
-      name: 'Hyped Motivator',
-      emoji: '\uD83D\uDD25',
-      preview: 'THIS IS YOUR WINDOW! Day 14! You are MAGNETIC right now! Go crush that meeting, hit the gym hard, OWN today!'
-    }
-  ];
+  // Dot is the single AI companion voice — no user selection needed.
+  // Dot adjusts her tone automatically based on the user's current phase.
 
   function renderCoachVoiceSection() {
-    var user = Store.getUser() || {};
-    var currentVoice = user.coachVoice || 'sassy';
-
     var html = '<div class="ph-settings-section">';
-    html += '<h3>Coach Voice</h3>';
-    html += '<p>Choose how your daily briefings sound</p>';
+    html += '<h3>Your AI Companion</h3>';
+    html += '<p>Meet the voice behind every briefing, insight, and recommendation</p>';
 
-    for (var i = 0; i < VOICE_OPTIONS.length; i++) {
-      var voice = VOICE_OPTIONS[i];
-      var isSelected = voice.id === currentVoice;
-      var borderStyle = isSelected ? 'border:2px solid var(--teal,#2d8a8a);background:rgba(45,138,138,0.06);' : 'border:2px solid transparent;background:var(--warm-gray,#f3f0ec);';
-      html += '<div class="ph-voice-card" data-voice-id="' + voice.id + '" style="' + borderStyle + 'border-radius:12px;padding:14px 18px;margin-bottom:10px;cursor:pointer;transition:all 0.2s;">';
-      html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">';
-      html += '<span style="font-size:22px;">' + voice.emoji + '</span>';
-      html += '<span style="font-size:15px;font-weight:700;color:var(--text-dark,#1a1a2e);">' + escapeHtml(voice.name) + '</span>';
-      if (isSelected) {
-        html += '<span style="margin-left:auto;font-size:12px;color:var(--teal,#2d8a8a);font-weight:600;background:rgba(45,138,138,0.1);padding:2px 8px;border-radius:10px;">Active</span>';
-      }
-      html += '</div>';
-      html += '<div style="font-size:12px;line-height:1.5;color:var(--gray-text,#6b7280);font-style:italic;">&ldquo;' + escapeHtml(voice.preview) + '&rdquo;</div>';
-      html += '</div>';
-    }
+    html += '<div style="border:2px solid var(--teal,#2d8a8a);background:rgba(45,138,138,0.06);border-radius:12px;padding:18px 20px;">';
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">';
+    html += '<span style="font-size:28px;">\uD83D\uDCAC</span>';
+    html += '<span style="font-size:17px;font-weight:700;color:var(--text-dark,#1a1a2e);">Dot &mdash; Your AI Companion</span>';
+    html += '</div>';
+    html += '<div style="font-size:14px;line-height:1.6;color:var(--gray-text,#6b7280);margin-bottom:14px;">One voice, four moods. Dot adjusts her tone to match your phase automatically.</div>';
 
-    html += '<div id="voiceStatus" style="font-size:13px;text-align:center;min-height:20px;margin-top:4px;"></div>';
+    html += '<div style="display:flex;flex-direction:column;gap:8px;">';
+    html += '<div style="font-size:12px;color:var(--gray-text,#6b7280);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#9B30FF;"></span> <strong>Restore:</strong> Gentle, reflective, validating</div>';
+    html += '<div style="font-size:12px;color:var(--gray-text,#6b7280);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00E5A0;"></span> <strong>Rise:</strong> Encouraging, curious, energizing</div>';
+    html += '<div style="font-size:12px;color:var(--gray-text,#6b7280);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FFD700;"></span> <strong>Peak:</strong> Bold, direct, cheeky</div>';
+    html += '<div style="font-size:12px;color:var(--gray-text,#6b7280);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FF6B6B;"></span> <strong>Sustain:</strong> Warm, structured, reassuring</div>';
+    html += '</div>';
+
+    html += '</div>';
+
     html += '</div>';
 
     return html;
   }
 
   function bindVoiceEvents() {
-    var cards = document.querySelectorAll('.ph-voice-card');
-    for (var i = 0; i < cards.length; i++) {
-      (function (card) {
-        card.addEventListener('click', function () {
-          var voiceId = card.getAttribute('data-voice-id');
-          if (!voiceId) return;
-
-          // Update local store
-          var user = Store.getUser() || {};
-          user.coachVoice = voiceId;
-          Store.setUser(user);
-
-          // Re-render just the voice section
-          render();
-
-          // Re-load SMS settings (already cached)
-          refreshSmsContent();
-
-          // Push to server
-          var statusEl = document.getElementById('voiceStatus');
-          if (API.isLoggedIn()) {
-            if (statusEl) {
-              statusEl.textContent = 'Saving...';
-              statusEl.style.color = 'var(--gray-text,#6b7280)';
-            }
-
-            API.updateUser({ coachVoice: voiceId })
-              .then(function () {
-                if (statusEl) {
-                  statusEl.textContent = 'Saved! Your next briefing will use this voice.';
-                  statusEl.style.color = 'var(--teal,#2d8a8a)';
-                }
-                setTimeout(function () {
-                  if (statusEl) statusEl.textContent = '';
-                }, 3000);
-              })
-              .catch(function (err) {
-                if (statusEl) {
-                  statusEl.textContent = 'Saved locally. Will sync when online.';
-                  statusEl.style.color = 'var(--gray-text,#6b7280)';
-                }
-                console.warn('Voice save failed:', err.message);
-              });
-          }
-        });
-      })(cards[i]);
-    }
+    // No voice selection events needed — Dot is the single voice.
   }
 
   function renderSmsContent() {

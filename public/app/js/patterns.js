@@ -66,8 +66,8 @@ window.PeakHer.Patterns = (function () {
     '.pat-card-desc { font-size: 16px; color: var(--text-dark, #1a1a2e); line-height: 1.45; margin-bottom: 8px; }',
     '.pat-card-meta { display: flex; align-items: center; gap: 12px; }',
     '.pat-conf-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 4px; }',
-    '.pat-conf-high { background: rgba(45,138,138,0.2); color: #5EC49A; }',
-    '.pat-conf-moderate { background: rgba(196,154,94,0.2); color: #C49A5E; }',
+    '.pat-conf-high { background: rgba(45,138,138,0.2); color: #00E5A0; }',
+    '.pat-conf-moderate { background: rgba(255,107,107,0.2); color: #FF6B6B; }',
     '.pat-conf-emerging { background: rgba(0,0,0,0.05); color: var(--gray-text, #6b7280); }',
     '.pat-card-points { font-size: 12px; color: var(--gray-text, #6b7280); }',
 
@@ -77,7 +77,7 @@ window.PeakHer.Patterns = (function () {
     /* AI Insights section */
     '.pat-ai-section { margin-bottom: 28px; }',
     '.pat-ai-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }',
-    '.pat-ai-badge { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; background: linear-gradient(135deg, rgba(45,138,138,0.25), rgba(232,116,97,0.25)); color: #5EC49A; }',
+    '.pat-ai-badge { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; background: linear-gradient(135deg, rgba(45,138,138,0.25), rgba(232,116,97,0.25)); color: #00E5A0; }',
     '.pat-ai-card { background: linear-gradient(135deg, rgba(45,138,138,0.08), rgba(232,116,97,0.05)); border: 1px solid rgba(45,138,138,0.15); border-radius: 12px; padding: 16px; margin-bottom: 10px; }',
     '.pat-ai-card-title { font-size: 15px; font-weight: 700; color: var(--text-dark, #1a1a2e); margin-bottom: 6px; }',
     '.pat-ai-card-desc { font-size: 14px; color: var(--text-body, #374151); line-height: 1.5; margin-bottom: 8px; }',
@@ -98,7 +98,7 @@ window.PeakHer.Patterns = (function () {
     /* AI recommendation cards */
     '.pat-ai-rec { background: var(--warm-gray, #f3f0ec); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid; }',
     '.pat-ai-rec.high { border-left-color: #E87461; }',
-    '.pat-ai-rec.medium { border-left-color: #C49A5E; }',
+    '.pat-ai-rec.medium { border-left-color: #FF6B6B; }',
     '.pat-ai-rec.low { border-left-color: rgba(0,0,0,0.12); }',
     '.pat-ai-rec-text { font-size: 14px; color: var(--text-body, #374151); line-height: 1.45; }',
     '.pat-ai-rec-meta { font-size: 11px; color: var(--gray-text, #6b7280); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }'
