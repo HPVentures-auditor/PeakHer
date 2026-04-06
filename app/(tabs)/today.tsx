@@ -5,7 +5,7 @@
  * streak info, and a check-in button.
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,9 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,18 +25,38 @@ import { useAuthStore } from '../../src/stores/authStore';
 import { PhaseIndicator } from '../../src/components/PhaseIndicator';
 import { BriefingSkeleton } from '../../src/components/LoadingSkeleton';
 import { Button } from '../../src/components/Button';
+import { getDailyMode, DailyModeResponse } from '../../src/services/api';
+
+// Enable LayoutAnimation on Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export default function TodayScreen() {
   const { briefing, isLoading, error, fetchBriefing } = useBriefingStore();
   const { user, streak } = useAuthStore();
   const router = useRouter();
 
+  const [dailyMode, setDailyMode] = useState<DailyModeResponse | null>(null);
+  const [dailyModeExpanded, setDailyModeExpanded] = useState(false);
+
   useEffect(() => {
     fetchBriefing();
+    getDailyMode()
+      .then(setDailyMode)
+      .catch(() => setDailyMode(null));
   }, []);
 
   const onRefresh = useCallback(() => {
     fetchBriefing(true);
+    getDailyMode()
+      .then(setDailyMode)
+      .catch(() => setDailyMode(null));
+  }, []);
+
+  const toggleDailyModeExpanded = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setDailyModeExpanded((prev) => !prev);
   }, []);
 
   if (isLoading && !briefing) {
@@ -97,6 +120,218 @@ export default function TodayScreen() {
                 cycleDay={briefing.cycleDay}
                 totalDays={briefing.phaseTotalDays}
               />
+            )}
+
+            {/* Daily Mode — traffic-light card */}
+            {dailyMode && (
+              <TouchableOpacity
+                style={[
+                  styles.dailyModeCard,
+                  {
+                    borderLeftColor:
+                      dailyMode.mode === 'green'
+                        ? '#00E5A0'
+                        : dailyMode.mode === 'yellow'
+                        ? '#FFD700'
+                        : '#FF6B6B',
+                  },
+                ]}
+                onPress={toggleDailyModeExpanded}
+                activeOpacity={0.8}
+              >
+                {/* Top row: emoji + label + score */}
+                <View style={styles.dailyModeHeader}>
+                  <Text style={styles.dailyModeEmoji}>{dailyMode.emoji}</Text>
+                  <View style={styles.dailyModeHeaderText}>
+                    <Text
+                      style={[
+                        styles.dailyModeLabel,
+                        {
+                          color:
+                            dailyMode.mode === 'green'
+                              ? '#00E5A0'
+                              : dailyMode.mode === 'yellow'
+                              ? '#FFD700'
+                              : '#FF6B6B',
+                        },
+                      ]}
+                    >
+                      {dailyMode.label}
+                    </Text>
+                    <View style={styles.dailyModeScoreRow}>
+                      <View
+                        style={[
+                          styles.dailyModeScoreBar,
+                          {
+                            backgroundColor:
+                              dailyMode.mode === 'green'
+                                ? 'rgba(0, 229, 160, 0.15)'
+                                : dailyMode.mode === 'yellow'
+                                ? 'rgba(255, 215, 0, 0.15)'
+                                : 'rgba(255, 107, 107, 0.15)',
+                          },
+                        ]}
+                      >
+                        <View
+                          style={[
+                            styles.dailyModeScoreFill,
+                            {
+                              width: `${dailyMode.score}%`,
+                              backgroundColor:
+                                dailyMode.mode === 'green'
+                                  ? '#00E5A0'
+                                  : dailyMode.mode === 'yellow'
+                                  ? '#FFD700'
+                                  : '#FF6B6B',
+                            },
+                          ]}
+                        />
+                      </View>
+                      <Text style={styles.dailyModeScoreText}>{dailyMode.score}</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.dailyModeChevron}>
+                    {dailyModeExpanded ? '\u25B2' : '\u25BC'}
+                  </Text>
+                </View>
+
+                {/* Headline from Dot */}
+                <Text style={styles.dailyModeHeadline}>{dailyMode.headline}</Text>
+
+                {/* Factor chips */}
+                <View style={styles.dailyModeFactors}>
+                  {dailyMode.factors.phase && (
+                    <View style={styles.dailyModeChip}>
+                      <View
+                        style={[
+                          styles.dailyModeChipDot,
+                          {
+                            backgroundColor:
+                              dailyMode.factors.phase.contribution === 'positive'
+                                ? '#00E5A0'
+                                : dailyMode.factors.phase.contribution === 'neutral'
+                                ? '#FFD700'
+                                : '#FF6B6B',
+                          },
+                        ]}
+                      />
+                      <Text style={styles.dailyModeChipText}>
+                        {dailyMode.factors.phase.label}
+                      </Text>
+                    </View>
+                  )}
+                  {dailyMode.factors.energy && (
+                    <View style={styles.dailyModeChip}>
+                      <View
+                        style={[
+                          styles.dailyModeChipDot,
+                          {
+                            backgroundColor:
+                              dailyMode.factors.energy.contribution === 'positive'
+                                ? '#00E5A0'
+                                : dailyMode.factors.energy.contribution === 'neutral'
+                                ? '#FFD700'
+                                : '#FF6B6B',
+                          },
+                        ]}
+                      />
+                      <Text style={styles.dailyModeChipText}>
+                        {dailyMode.factors.energy.label}
+                      </Text>
+                    </View>
+                  )}
+                  {dailyMode.factors.recovery && (
+                    <View style={styles.dailyModeChip}>
+                      <View
+                        style={[
+                          styles.dailyModeChipDot,
+                          {
+                            backgroundColor:
+                              dailyMode.factors.recovery.contribution === 'positive'
+                                ? '#00E5A0'
+                                : dailyMode.factors.recovery.contribution === 'neutral'
+                                ? '#FFD700'
+                                : '#FF6B6B',
+                          },
+                        ]}
+                      />
+                      <Text style={styles.dailyModeChipText}>
+                        {dailyMode.factors.recovery.label}
+                      </Text>
+                    </View>
+                  )}
+                  {dailyMode.factors.calendar && (
+                    <View style={styles.dailyModeChip}>
+                      <View
+                        style={[
+                          styles.dailyModeChipDot,
+                          {
+                            backgroundColor:
+                              dailyMode.factors.calendar.contribution === 'positive'
+                                ? '#00E5A0'
+                                : dailyMode.factors.calendar.contribution === 'neutral'
+                                ? '#FFD700'
+                                : '#FF6B6B',
+                          },
+                        ]}
+                      />
+                      <Text style={styles.dailyModeChipText}>
+                        {dailyMode.factors.calendar.label}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                {/* Expandable action items */}
+                {dailyModeExpanded && (
+                  <View style={styles.dailyModeActions}>
+                    <View style={styles.dailyModeActionRow}>
+                      <View style={[styles.dailyModeActionIcon, { backgroundColor: 'rgba(0, 229, 160, 0.15)' }]}>
+                        <Text style={styles.dailyModeActionEmoji}>{'\u26A1'}</Text>
+                      </View>
+                      <View style={styles.dailyModeActionContent}>
+                        <Text style={[styles.dailyModeActionLabel, { color: '#00E5A0' }]}>
+                          Tackle
+                        </Text>
+                        <Text style={styles.dailyModeActionText}>
+                          {dailyMode.actions.tackle}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.dailyModeActionRow}>
+                      <View style={[styles.dailyModeActionIcon, { backgroundColor: 'rgba(255, 215, 0, 0.15)' }]}>
+                        <Text style={styles.dailyModeActionEmoji}>{'\u23F3'}</Text>
+                      </View>
+                      <View style={styles.dailyModeActionContent}>
+                        <Text style={[styles.dailyModeActionLabel, { color: '#FFD700' }]}>
+                          Defer
+                        </Text>
+                        <Text style={styles.dailyModeActionText}>
+                          {dailyMode.actions.defer}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.dailyModeActionRow}>
+                      <View style={[styles.dailyModeActionIcon, { backgroundColor: 'rgba(255, 107, 107, 0.15)' }]}>
+                        <Text style={styles.dailyModeActionEmoji}>{'\u{1F6E1}\u{FE0F}'}</Text>
+                      </View>
+                      <View style={styles.dailyModeActionContent}>
+                        <Text style={[styles.dailyModeActionLabel, { color: '#FF6B6B' }]}>
+                          Protect
+                        </Text>
+                        <Text style={styles.dailyModeActionText}>
+                          {dailyMode.actions.protect}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Dot note */}
+                    <Text style={styles.dailyModeDotNote}>
+                      {'\u{1F4AC}'} {dailyMode.dotNote}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
             )}
 
             {/* Phase Guide quick access */}
@@ -613,5 +848,137 @@ const styles = StyleSheet.create({
   },
   ctaContainer: {
     marginTop: Spacing.lg,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Daily Mode card
+  // ---------------------------------------------------------------------------
+  dailyModeCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    borderLeftWidth: 4,
+    padding: Spacing.base,
+    marginBottom: Spacing.base,
+  },
+  dailyModeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  dailyModeEmoji: {
+    fontSize: 36,
+  },
+  dailyModeHeaderText: {
+    flex: 1,
+  },
+  dailyModeLabel: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: Typography.fontSize.lg,
+    marginBottom: Spacing.xs,
+  },
+  dailyModeScoreRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  dailyModeScoreBar: {
+    flex: 1,
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  dailyModeScoreFill: {
+    height: 6,
+    borderRadius: 3,
+  },
+  dailyModeScoreText: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textTertiary,
+    width: 24,
+    textAlign: 'right',
+  },
+  dailyModeChevron: {
+    fontSize: 10,
+    color: Colors.textTertiary,
+    marginLeft: Spacing.xs,
+  },
+  dailyModeHeadline: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.base,
+    color: Colors.textSecondary,
+    lineHeight: 22,
+    marginTop: Spacing.md,
+  },
+  dailyModeFactors: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+  },
+  dailyModeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    gap: 6,
+  },
+  dailyModeChipDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  dailyModeChipText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textSecondary,
+  },
+  dailyModeActions: {
+    marginTop: Spacing.base,
+    paddingTop: Spacing.base,
+    borderTopWidth: 1,
+    borderTopColor: Colors.surfaceBorder,
+    gap: Spacing.md,
+  },
+  dailyModeActionRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+  },
+  dailyModeActionIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dailyModeActionEmoji: {
+    fontSize: 14,
+  },
+  dailyModeActionContent: {
+    flex: 1,
+  },
+  dailyModeActionLabel: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: Typography.fontSize.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 2,
+  },
+  dailyModeActionText: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+  },
+  dailyModeDotNote: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textTertiary,
+    fontStyle: 'italic',
+    marginTop: Spacing.sm,
+    lineHeight: 20,
   },
 });

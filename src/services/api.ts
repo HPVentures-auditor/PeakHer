@@ -751,3 +751,34 @@ export async function updatePartnerSettings(settings: {
 export async function revokePartner(): Promise<{ success: boolean }> {
   return request('/api/partner/revoke', { method: 'POST' });
 }
+
+// ---------------------------------------------------------------------------
+// Daily Mode
+// ---------------------------------------------------------------------------
+
+export interface DailyModeFactors {
+  phase?: { label: string; contribution: 'positive' | 'neutral' | 'negative' };
+  energy?: { label: string; contribution: 'positive' | 'neutral' | 'negative' };
+  recovery?: { label: string; contribution: 'positive' | 'neutral' | 'negative' };
+  calendar?: { label: string; contribution: 'positive' | 'neutral' | 'negative' };
+}
+
+export interface DailyModeResponse {
+  date: string;
+  mode: 'green' | 'yellow' | 'red';
+  label: string;
+  emoji: string;
+  score: number;
+  headline: string;
+  actions: {
+    tackle: string;
+    defer: string;
+    protect: string;
+  };
+  factors: DailyModeFactors;
+  dotNote: string;
+}
+
+export async function getDailyMode(): Promise<DailyModeResponse> {
+  return request<DailyModeResponse>('/api/daily-mode');
+}
