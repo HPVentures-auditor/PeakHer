@@ -98,6 +98,35 @@ export default function TodayScreen() {
               />
             )}
 
+            {/* Phase Guide quick access */}
+            {briefing.phase && (
+              <TouchableOpacity
+                style={[styles.guideCard, { borderColor: phaseColor + '40' }]}
+                onPress={() => {
+                  const phaseKey =
+                    briefing.phase === 'reflect' ? 'restore' :
+                    briefing.phase === 'build' ? 'rise' :
+                    briefing.phase === 'perform' ? 'peak' :
+                    briefing.phase === 'complete' ? 'sustain' :
+                    briefing.phase;
+                  router.push({ pathname: '/phase-guide', params: { phase: phaseKey } });
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={styles.guideCardContent}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.guideCardTitle}>
+                      {ModeEmojis[briefing.phase]} What to eat, do & know right now
+                    </Text>
+                    <Text style={styles.guideCardSubtext}>
+                      Nutrition, workouts, fasting & schedule tips for {ModeNames[briefing.phase]}
+                    </Text>
+                  </View>
+                  <Text style={[styles.guideCardArrow, { color: phaseColor }]}>{'\u203A'}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+
             {/* Headline */}
             <View style={[styles.headlineCard, { borderLeftColor: phaseColor }]}>
               <Text style={styles.headline}>{briefing.headline}</Text>
@@ -272,6 +301,34 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     color: Colors.error,
     textAlign: 'center',
+  },
+  guideCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    padding: Spacing.base,
+    marginBottom: Spacing.base,
+  },
+  guideCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  guideCardTitle: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
+  },
+  guideCardSubtext: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textTertiary,
+    lineHeight: 16,
+  },
+  guideCardArrow: {
+    fontSize: 28,
+    fontWeight: '300',
   },
   headlineCard: {
     backgroundColor: Colors.surface,
