@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const [user] = await sql`
-      SELECT id, name, email, password_hash, personas, onboarding_complete, created_at
+      SELECT id, name, email, password_hash, personas, onboarding_complete, role, created_at
       FROM users WHERE email = ${email.toLowerCase().trim()}
     `;
 
@@ -66,6 +66,7 @@ module.exports = async function handler(req, res) {
         email: user.email,
         personas: user.personas,
         onboardingComplete: user.onboarding_complete,
+        role: user.role || 'user',
         createdAt: user.created_at
       },
       cycleProfile: cycleProfile ? {

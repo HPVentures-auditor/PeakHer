@@ -12,7 +12,7 @@ module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const [user] = await sql`
-        SELECT id, name, email, personas, onboarding_complete, created_at
+        SELECT id, name, email, personas, onboarding_complete, role, created_at
         FROM users WHERE id = ${userId}
       `;
       if (!user) return sendError(res, 404, 'User not found');
@@ -39,6 +39,7 @@ module.exports = async function handler(req, res) {
           email: user.email,
           personas: user.personas,
           onboardingComplete: user.onboarding_complete,
+          role: user.role || 'user',
           createdAt: user.created_at
         },
         cycleProfile: cycleProfile ? {
