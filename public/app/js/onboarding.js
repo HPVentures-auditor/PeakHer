@@ -739,9 +739,9 @@ window.PeakHer.Onboarding = (function () {
     step.setAttribute('data-step', '5');
 
     step.appendChild(el('h2', 'ob-heading', 'Connect Your Calendar'));
-    step.appendChild(el('p', 'ob-subtext', 'See how your schedule aligns with your cycle — get smarter predictions and briefings'));
+    step.appendChild(el('p', 'ob-subtext', 'See how your schedule aligns with your cycle -get smarter predictions and briefings'));
 
-    // Google Calendar — active
+    // Google Calendar -active
     var calCard = el('div', 'ob-int-card');
     calCard.style.opacity = '1';
     calCard.style.cursor = 'pointer';

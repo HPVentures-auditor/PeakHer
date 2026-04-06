@@ -268,7 +268,7 @@ window.PeakHer.Settings = (function () {
 
   // ── Coach Voice ────────────────────────────────────────────────────
 
-  // Dot is the single AI companion voice — no user selection needed.
+  // Dot is the single AI companion voice -no user selection needed.
   // Dot adjusts her tone automatically based on the user's current phase.
 
   function renderCoachVoiceSection() {
@@ -298,7 +298,7 @@ window.PeakHer.Settings = (function () {
   }
 
   function bindVoiceEvents() {
-    // No voice selection events needed — Dot is the single voice.
+    // No voice selection events needed -Dot is the single voice.
   }
 
   function renderSmsContent() {
@@ -736,7 +736,7 @@ window.PeakHer.Settings = (function () {
             connectBtn.style.background = 'var(--coral)';
           }
         }).catch(function () {
-          connectBtn.textContent = 'Error — try again';
+          connectBtn.textContent = 'Error -try again';
           connectBtn.disabled = false;
         });
       });

@@ -983,7 +983,7 @@ window.PeakHer.WeekAhead = (function () {
     API.getCalendarEvents(startDate, endDate).then(function (result) {
       if (!result || !result.events || result.events.length === 0) return;
 
-      // Store already hydrated by the API module — regenerate forecast with calendar data
+      // Store already hydrated by the API module -regenerate forecast with calendar data
       var oldPredictions = lastPredictions;
       var newPredictions = generateForecast();
 
@@ -995,7 +995,7 @@ window.PeakHer.WeekAhead = (function () {
         });
       }
     }).catch(function () {
-      // Calendar fetch failed — predictions still work without it
+      // Calendar fetch failed -predictions still work without it
     });
   }
 
