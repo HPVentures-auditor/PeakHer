@@ -87,12 +87,33 @@ module.exports = async function handler(req, res) {
       console.error('Calendar events fetch warning:', calErr.message);
     }
 
-    // 7. Build the briefing
+    // 7. Fetch recent wearable data (last 7 days)
+    var sevenDaysAgo = addDays(today, -7);
+    var wearableData = [];
+    try {
+      wearableData = await sql`
+        SELECT date, provider, hrv_avg, hrv_max, resting_hr,
+               sleep_duration_min, sleep_quality_score, deep_sleep_min, rem_sleep_min,
+               sleep_efficiency, recovery_score, readiness_score, strain_score,
+               stress_avg, body_battery_start, body_battery_end, steps,
+               calories_active, skin_temp_deviation, respiratory_rate, spo2_avg
+        FROM wearable_data
+        WHERE user_id = ${userId}
+          AND date >= ${sevenDaysAgo}
+          AND date <= ${today}
+        ORDER BY date DESC
+      `;
+    } catch (wErr) {
+      // Wearable table may not exist yet — gracefully degrade
+      console.error('Wearable data fetch warning:', wErr.message);
+    }
+
+    // 8. Build the briefing
     var trackingEnabled = cycleProfile && cycleProfile.tracking_enabled;
     var briefing;
 
     if (trackingEnabled && cycleProfile.last_period_start) {
-      briefing = await buildCycleBriefing(today, user, cycleProfile, todayCheckin, recentCheckins, streak, calendarEvents);
+      briefing = await buildCycleBriefing(today, user, cycleProfile, todayCheckin, recentCheckins, streak, calendarEvents, wearableData);
     } else {
       briefing = buildGeneralBriefing(today, todayCheckin, recentCheckins, streak);
     }
@@ -653,7 +674,7 @@ var VOICE_INSTRUCTIONS = {
 //  AI SYSTEM PROMPT BUILDER
 // ══════════════════════════════════════════════════════════════════════════
 
-function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents) {
+function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData) {
   var phaseBioName = getPhaseMapName(phase);
   var knowledge = PHASE_KNOWLEDGE[phaseBioName];
   var voiceInstructions = VOICE_INSTRUCTIONS.dot;
@@ -785,6 +806,58 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
     parts.push('- In Emotional Weather: flag high-stakes events and how the phase interacts ("The investor pitch Thursday falls during your ' + getModeName(phase) + ' window, here is how to prepare").');
     parts.push('- In Nutrition: time meals and snacks around events ("Have a protein-rich lunch before your afternoon meetings").');
     parts.push('- Do NOT just list the schedule back. WEAVE events into phase-specific guidance naturally.');
+    parts.push('');
+  }
+
+  // Wearable data context
+  var hasWearableData = wearableData && wearableData.length > 0;
+  if (hasWearableData) {
+    parts.push('═══ WEARABLE DATA ═══');
+    parts.push('The user has a connected wearable device. Use this biometric data to make guidance SPECIFIC and personalized.');
+    parts.push('');
+
+    // Find today's data and recent averages
+    var todayWearable = wearableData.find(function (w) { return String(w.date).split('T')[0] === today; });
+    var recentDays = wearableData.slice(0, 7);
+
+    if (todayWearable) {
+      parts.push('TODAY\'S BIOMETRICS (' + (todayWearable.provider || 'wearable') + '):');
+      if (todayWearable.sleep_duration_min) parts.push('- Sleep: ' + Math.round(todayWearable.sleep_duration_min / 60 * 10) / 10 + ' hours' + (todayWearable.sleep_quality_score ? ' (quality: ' + Math.round(todayWearable.sleep_quality_score) + '/100)' : '') + (todayWearable.deep_sleep_min ? ', deep: ' + todayWearable.deep_sleep_min + 'min, REM: ' + (todayWearable.rem_sleep_min || '?') + 'min' : ''));
+      if (todayWearable.hrv_avg) parts.push('- HRV: ' + Math.round(todayWearable.hrv_avg) + 'ms' + (todayWearable.hrv_max ? ' (max: ' + Math.round(todayWearable.hrv_max) + 'ms)' : ''));
+      if (todayWearable.resting_hr) parts.push('- Resting HR: ' + Math.round(todayWearable.resting_hr) + ' bpm');
+      if (todayWearable.recovery_score != null) parts.push('- Recovery: ' + Math.round(todayWearable.recovery_score) + '%');
+      if (todayWearable.readiness_score != null) parts.push('- Readiness: ' + Math.round(todayWearable.readiness_score) + '/100');
+      if (todayWearable.strain_score != null) parts.push('- Strain: ' + (Math.round(todayWearable.strain_score * 10) / 10));
+      if (todayWearable.stress_avg != null) parts.push('- Stress: ' + Math.round(todayWearable.stress_avg) + '/100');
+      if (todayWearable.body_battery_start != null) parts.push('- Body Battery: ' + todayWearable.body_battery_start + ' → ' + (todayWearable.body_battery_end || '?'));
+      if (todayWearable.skin_temp_deviation != null) parts.push('- Skin temp deviation: ' + (todayWearable.skin_temp_deviation > 0 ? '+' : '') + todayWearable.skin_temp_deviation + '\u00B0C');
+      if (todayWearable.respiratory_rate) parts.push('- Respiratory rate: ' + todayWearable.respiratory_rate + ' breaths/min');
+      parts.push('');
+    }
+
+    // Calculate 7-day averages for trend context
+    if (recentDays.length >= 3) {
+      var avgSleep = 0, avgHrv = 0, avgRecovery = 0, sleepCount = 0, hrvCount = 0, recCount = 0;
+      for (var wi = 0; wi < recentDays.length; wi++) {
+        if (recentDays[wi].sleep_duration_min) { avgSleep += recentDays[wi].sleep_duration_min; sleepCount++; }
+        if (recentDays[wi].hrv_avg) { avgHrv += recentDays[wi].hrv_avg; hrvCount++; }
+        if (recentDays[wi].recovery_score != null) { avgRecovery += recentDays[wi].recovery_score; recCount++; }
+      }
+      parts.push('7-DAY AVERAGES:');
+      if (sleepCount) parts.push('- Sleep: ' + Math.round(avgSleep / sleepCount / 60 * 10) / 10 + ' hours/night');
+      if (hrvCount) parts.push('- HRV: ' + Math.round(avgHrv / hrvCount) + 'ms');
+      if (recCount) parts.push('- Recovery: ' + Math.round(avgRecovery / recCount) + '%');
+      parts.push('');
+    }
+
+    parts.push('WEARABLE DATA RULES:');
+    parts.push('- Use SPECIFIC numbers: "Your HRV of 38ms is below your 7-day average of 45ms, which suggests..." not "your recovery seems low."');
+    parts.push('- In Movement: adjust workout intensity based on recovery/HRV/strain. Low recovery = low intensity. High HRV = green light for intensity.');
+    parts.push('- In Nutrition: reference sleep quality ("You only got 5.8 hours of deep sleep, so extra magnesium and an earlier bedtime tonight").');
+    parts.push('- In Emotional Weather: connect biometrics to mood ("Low HRV + late luteal = your stress tolerance is genuinely lower today, not just a feeling").');
+    parts.push('- In Focus: use readiness/body battery to guide scheduling ("Readiness is 62, so front-load important work before 11 AM while your battery is highest").');
+    parts.push('- Compare today to their 7-day trend when relevant.');
+    parts.push('- Skin temp deviation is cycle-relevant: rises after ovulation (progesterone effect).');
     parts.push('');
   }
 
@@ -939,7 +1012,7 @@ function buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, rece
 
 // ── Briefing builders ───────────────────────────────────────────────────
 
-async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recentCheckins, streak, calendarEvents) {
+async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recentCheckins, streak, calendarEvents, wearableData) {
   var lastPeriodStart = cycleProfile.last_period_start instanceof Date
     ? cycleProfile.last_period_start.toISOString().split('T')[0]
     : String(cycleProfile.last_period_start);
@@ -968,7 +1041,7 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   }
 
   // Build the AI-generated briefing sections
-  var systemPrompt = buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents);
+  var systemPrompt = buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData);
   var userMessage = buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak, todayEvents, weekEvents);
 
   var aiBriefing = null;
