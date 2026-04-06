@@ -32,6 +32,12 @@ import {
   syncCalendar,
   disconnectCalendar,
   CalendarStatus,
+  getWearableAuthUrl,
+  getWearableStatus,
+  syncWearable,
+  disconnectWearable,
+  WearableStatusResponse,
+  WearableProvider,
 } from '../../src/services/api';
 import {
   scheduleDailyReminder,
@@ -85,6 +91,8 @@ export default function SettingsScreen() {
   const [reminderHour, setReminderHour] = useState(9);
   const [calStatus, setCalStatus] = useState<CalendarStatus | null>(null);
   const [calLoading, setCalLoading] = useState(false);
+  const [wearStatus, setWearStatus] = useState<WearableStatusResponse | null>(null);
+  const [wearLoading, setWearLoading] = useState<WearableProvider | null>(null);
 
   // Load reminder settings + calendar status on mount
   useEffect(() => {
@@ -93,6 +101,7 @@ export default function SettingsScreen() {
       setReminderHour(hour);
     });
     loadCalendarStatus();
+    loadWearableStatus();
   }, []);
 
   // Listen for deep link return from OAuth
@@ -101,6 +110,10 @@ export default function SettingsScreen() {
       if (event.url.includes('calendar-connected')) {
         loadCalendarStatus();
         Alert.alert('Calendar Connected', 'Google Calendar is now linked. Dot will use your schedule in daily briefings.');
+      }
+      if (event.url.includes('wearable-connected')) {
+        loadWearableStatus();
+        Alert.alert('Wearable Connected', 'Your wearable is linked. Dot will use your biometrics in daily briefings.');
       }
     });
     return () => sub.remove();
@@ -171,6 +184,49 @@ export default function SettingsScreen() {
             Alert.alert('Error', err instanceof Error ? err.message : 'Failed to disconnect');
           } finally {
             setCalLoading(false);
+          }
+        },
+      },
+    ]);
+  }
+
+  async function loadWearableStatus() {
+    try {
+      const status = await getWearableStatus();
+      setWearStatus(status);
+    } catch {
+      setWearStatus(null);
+    }
+  }
+
+  async function handleConnectWearable(provider: WearableProvider) {
+    setWearLoading(provider);
+    try {
+      const { url } = await getWearableAuthUrl(provider);
+      await Linking.openURL(url);
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to connect');
+    } finally {
+      setWearLoading(null);
+    }
+  }
+
+  async function handleDisconnectWearable(provider: WearableProvider) {
+    const name = provider.charAt(0).toUpperCase() + provider.slice(1);
+    Alert.alert('Disconnect ' + name, 'Remove ' + name + ' connection? Dot will no longer use this data in briefings.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Disconnect',
+        style: 'destructive',
+        onPress: async () => {
+          setWearLoading(provider);
+          try {
+            await disconnectWearable(provider);
+            await loadWearableStatus();
+          } catch (err) {
+            Alert.alert('Error', err instanceof Error ? err.message : 'Failed');
+          } finally {
+            setWearLoading(null);
           }
         },
       },
@@ -639,6 +695,58 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* Wearables */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Wearables</Text>
+          <View style={styles.card}>
+            <Text style={styles.calDescription}>
+              Connect a wearable and Dot uses your HRV, sleep, recovery, and strain
+              to personalize every briefing with real biometric data.
+            </Text>
+            {([
+              { key: 'oura' as WearableProvider, name: 'Oura Ring', emoji: '\u{1F48D}' },
+              { key: 'whoop' as WearableProvider, name: 'Whoop', emoji: '\u{231A}' },
+              { key: 'garmin' as WearableProvider, name: 'Garmin', emoji: '\u{2328}\u{FE0F}' },
+            ]).map((device) => {
+              const status = wearStatus?.[device.key];
+              const isConnected = status?.connected;
+              const isLoading = wearLoading === device.key;
+              return (
+                <View key={device.key} style={styles.wearableRow}>
+                  <Text style={styles.wearableEmoji}>{device.emoji}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.wearableName}>{device.name}</Text>
+                    {isConnected && status?.lastSynced && (
+                      <Text style={styles.calSyncedText}>
+                        Synced: {new Date(status.lastSynced).toLocaleDateString()}
+                      </Text>
+                    )}
+                  </View>
+                  {isConnected ? (
+                    <TouchableOpacity
+                      onPress={() => handleDisconnectWearable(device.key)}
+                      disabled={isLoading}
+                    >
+                      <Text style={[styles.calActionText, { color: Colors.error }]}>
+                        {isLoading ? '...' : 'Disconnect'}
+                      </Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() => handleConnectWearable(device.key)}
+                      disabled={isLoading}
+                    >
+                      <Text style={styles.calActionText}>
+                        {isLoading ? 'Connecting...' : 'Connect'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        </View>
+
         {/* Data */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Your data</Text>
@@ -816,6 +924,22 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     color: Colors.textSecondary,
     lineHeight: 20,
+  },
+  wearableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.surfaceBorder,
+  },
+  wearableEmoji: {
+    fontSize: 20,
+  },
+  wearableName: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.base,
+    color: Colors.textPrimary,
   },
   calActions: {
     flexDirection: 'row',

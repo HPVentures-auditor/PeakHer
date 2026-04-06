@@ -593,3 +593,52 @@ export async function syncCalendar(): Promise<{ success: boolean; eventsProcesse
 export async function disconnectCalendar(): Promise<{ success: boolean }> {
   return request('/api/calendar/disconnect', { method: 'POST' });
 }
+
+// ---------------------------------------------------------------------------
+// Wearables (Oura, Whoop, Garmin)
+// ---------------------------------------------------------------------------
+
+export type WearableProvider = 'oura' | 'whoop' | 'garmin';
+
+export interface WearableConnectionStatus {
+  connected: boolean;
+  lastSynced?: string;
+  connectedAt?: string;
+  syncStatus?: string;
+}
+
+export interface WearableStatusResponse {
+  oura: WearableConnectionStatus;
+  whoop: WearableConnectionStatus;
+  garmin: WearableConnectionStatus;
+}
+
+export async function getWearableAuthUrl(
+  provider: WearableProvider,
+): Promise<{ url: string }> {
+  return request<{ url: string }>(
+    `/api/wearable/auth?provider=${provider}&source=native`,
+  );
+}
+
+export async function getWearableStatus(): Promise<WearableStatusResponse> {
+  return request<WearableStatusResponse>('/api/wearable/status');
+}
+
+export async function syncWearable(
+  provider?: WearableProvider,
+): Promise<{ success: boolean; synced?: number }> {
+  return request('/api/wearable/sync', {
+    method: 'POST',
+    body: provider ? { provider } : undefined,
+  });
+}
+
+export async function disconnectWearable(
+  provider: WearableProvider,
+): Promise<{ success: boolean }> {
+  return request('/api/wearable/disconnect', {
+    method: 'POST',
+    body: { provider },
+  });
+}
