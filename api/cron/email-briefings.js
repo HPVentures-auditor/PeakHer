@@ -9,7 +9,7 @@
  */
 
 var { getDb } = require('../_lib/db');
-var { sendEmail } = require('../_lib/resend');
+var { sendEmail } = require('../_lib/email');
 var emailBrief = require('../email-brief');
 
 module.exports = async function handler(req, res) {
@@ -123,7 +123,8 @@ module.exports = async function handler(req, res) {
         var result = await sendEmail({
           to: user.email,
           subject: subject,
-          html: emailHtml
+          html: emailHtml,
+          firstName: user.name || ''
         });
 
         if (result.skipped) {

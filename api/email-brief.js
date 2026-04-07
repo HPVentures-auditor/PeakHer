@@ -11,7 +11,7 @@
 var { getDb } = require('./_lib/db');
 var { getUserId, sendError } = require('./_lib/auth');
 var { sendMessage } = require('./_lib/claude');
-var { sendEmail } = require('./_lib/resend');
+var { sendEmail } = require('./_lib/email');
 
 
 // ── Date helpers ────────────────────────────────────────────────────────
@@ -713,7 +713,8 @@ module.exports = async function handler(req, res) {
         var sendResult = await sendEmail({
           to: user.email,
           subject: subject,
-          html: emailHtml
+          html: emailHtml,
+          firstName: user.name || ''
         });
         return res.status(200).json({
           sent: true,
