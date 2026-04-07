@@ -208,7 +208,7 @@
   .hero .subtitle {
     font-size: 20px;
     color: var(--gray-text);
-    max-width: 560px;
+    max-width: 620px;
     margin-bottom: 40px;
     line-height: 1.6;
   }
@@ -261,6 +261,32 @@
     margin-bottom: 40px;
   }
 
+  /* ---- MEET DOT ---- */
+  .meet-dot-section {
+    background: var(--white);
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+  }
+  .meet-dot-inner {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 64px 24px;
+  }
+  .meet-dot-inner h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--text-dark);
+  }
+  .meet-dot-inner p {
+    font-size: 18px;
+    color: var(--gray-text);
+    line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
   /* ---- STATS BAR ---- */
   .stats-bar {
     display: flex;
@@ -268,7 +294,7 @@
     gap: 48px;
     flex-wrap: wrap;
     padding: 40px 24px;
-    background: var(--white);
+    background: var(--cream);
     border-top: 1px solid var(--border-light);
     border-bottom: 1px solid var(--border-light);
   }
@@ -424,7 +450,7 @@
   /* ---- FEATURES ---- */
   .features-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
   }
   .feature-card {
@@ -517,6 +543,7 @@
     .features-grid { grid-template-columns: 1fr; }
     .quiz-card { padding: 32px 24px; }
     .final-cta h2 { font-size: 32px; }
+    .meet-dot-inner h2 { font-size: 26px; }
   }
 </style>
 </head>
@@ -545,8 +572,8 @@
 <div class="hero">
   <div class="logo">PeakHer</div>
   <p style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; color: var(--teal); margin-bottom: 16px;">Hormonal Intelligence</p>
-  <h1>Your Biology Is <span>the Strategy</span></h1>
-  <p class="subtitle">Meet Dot:your AI companion who adjusts to your phase, reads your biometrics, and tells you exactly what to do today.</p>
+  <h1>Your biology is <span>the strategy.</span></h1>
+  <p class="subtitle">PeakHer is the first Hormonal Intelligence engine. One daily brief that sorts your calendar, picks your workout, adjusts your fasting window, and tells you what to eat. All matched to your cycle phase. All delivered by Dot.</p>
 
   <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px;">
     <a href="/login/?mode=signup" class="btn btn-coral">Start Free. Sign Up Today</a>
@@ -558,6 +585,27 @@
 
   <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
     <a href="/quiz/" class="btn btn-outline">Take the Quiz</a>
+  </div>
+</div>
+
+<!-- ==================== MEET DOT ==================== -->
+<div class="meet-dot-section">
+  <div class="meet-dot-inner">
+    <div style="margin-bottom: 20px;">
+      <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="48" r="32" fill="url(#dotGradHero)"/>
+        <ellipse cx="40" cy="46" rx="4.5" ry="5" fill="#2D0A31"/>
+        <ellipse cx="60" cy="46" rx="4.5" ry="5" fill="#2D0A31"/>
+        <circle cx="42" cy="44" r="1.8" fill="#fff"/>
+        <circle cx="62" cy="44" r="1.8" fill="#fff"/>
+        <path d="M44 58 Q50 62 56 58" stroke="#2D0A31" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <ellipse cx="34" cy="54" rx="5" ry="3" fill="#9B30FF" opacity="0.2"/>
+        <ellipse cx="66" cy="54" rx="5" ry="3" fill="#9B30FF" opacity="0.2"/>
+        <defs><radialGradient id="dotGradHero" cx="0.38" cy="0.32" r="0.68"><stop offset="0%" stop-color="#FF5A9E"/><stop offset="100%" stop-color="#D91A65"/></radialGradient></defs>
+      </svg>
+    </div>
+    <h2>Meet Dot. Your Hormonal Intelligence AI.</h2>
+    <p>Every morning, Dot reads your biology, your calendar, and your biometrics. Then she tells you exactly how to show up for your day. She's direct, she's cheeky, she's backed by science, and she genuinely wants you to win.</p>
   </div>
 </div>
 
@@ -649,40 +697,55 @@
 <!-- ==================== WHAT YOU GET ==================== -->
 <section id="modes-guide" style="background: var(--warm-gray); max-width: none; padding-left: 0; padding-right: 0;">
 <div style="max-width: 900px; margin: 0 auto; padding: 0 24px;">
-  <div class="section-label">Meet Dot</div>
+  <div class="section-label">What Dot Delivers</div>
   <h2>Your Daily Intelligence Engine</h2>
-  <p class="section-sub">Dot is your Hormonal Intelligence AI. She reads your phase, biometrics, and schedule -- then tells you exactly what to do today.</p>
+  <p class="section-sub">Not a tracker. Not tips. A decision engine powered by your biology.</p>
 
   <div class="features-grid">
     <div class="feature-card">
-      <div class="feat-icon" style="font-size: 40px;">&#128994;&#128993;&#128308;</div>
-      <h4>Daily Mode: Green, Yellow, Red</h4>
-      <p>Every morning, Dot analyzes your cycle phase, sleep, recovery, and schedule to set your mode. Green = go hard. Yellow = be selective. Red = rest is the strategy.</p>
+      <div class="feat-icon">&#9728;&#65039;</div>
+      <h4>Daily Brief</h4>
+      <p>Every morning, Dot builds your plan. Movement, nutrition, fasting, calendar -- all phase-matched.</p>
     </div>
     <div class="feature-card">
-      <div class="feat-icon">&#9968;&#65039;</div>
-      <h4>Oura, Whoop &amp; Garmin</h4>
-      <p>Your sleep, HRV, recovery, and strain feed directly into Dot's daily intelligence. Real data, real decisions.</p>
+      <div class="feat-icon" style="font-size: 40px;">&#128994;&#128993;&#128308;</div>
+      <h4>Readiness Score</h4>
+      <p>A 1-10 score that tells you how much capacity you have today. Detail work or big presentation? Dot knows.</p>
     </div>
     <div class="feature-card">
       <div class="feat-icon">&#128197;</div>
       <h4>Calendar Intelligence</h4>
-      <p>Dot reads your Google Calendar and weaves it into your briefing. Board presentation at 2 PM aligns with Peak -- lead with confidence.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feat-icon">&#128149;</div>
-      <h4>Partner Mode</h4>
-      <p>Daily intel for the person who loves you. What to do, what not to do, what snacks to bring. Funny, direct, zero judgment. You control exactly what they see.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feat-icon">&#128274;</div>
-      <h4>Works for ALL Women</h4>
-      <p>On birth control, irregular cycles, perimenopause -- Dot tracks energy patterns, not just cycles.</p>
+      <p>Dot reads your calendar through a hormone lens. That 3pm meeting in Sustain? She'll tell you to prep before noon.</p>
     </div>
     <div class="feature-card">
       <div class="feat-icon">&#129504;</div>
-      <h4>Beyond "Can I Work Out?"</h4>
-      <p>Should you pitch the client? Start the project? Cancel the dinner? Dot turns biology into decisions across every role you play.</p>
+      <h4>Hormonal Intelligence</h4>
+      <p>Not a period tracker. Not tips. A decision engine powered by your biology.</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px;">
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feat-icon">&#9968;&#65039;</div>
+        <h4>Oura, Whoop &amp; Garmin</h4>
+        <p>Your sleep, HRV, recovery, and strain feed directly into Dot's daily intelligence. Real data, real decisions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">&#128149;</div>
+        <h4>Partner Mode</h4>
+        <p>Daily intel for the person who loves you. What to do, what not to do, what snacks to bring. Funny, direct, zero judgment.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">&#128274;</div>
+        <h4>Works for ALL Women</h4>
+        <p>On birth control, irregular cycles, perimenopause -- Dot tracks energy patterns, not just cycles.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">&#128170;</div>
+        <h4>Beyond "Can I Work Out?"</h4>
+        <p>Should you pitch the client? Start the project? Cancel the dinner? Dot turns biology into decisions across every role you play.</p>
+      </div>
     </div>
   </div>
 </div>

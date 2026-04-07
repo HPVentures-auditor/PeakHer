@@ -1,22 +1,28 @@
 /**
- * PeakHer Daily Briefing API, v2 (AI-enriched)
+ * PeakHer Daily Briefing API, v3 (Dot-powered)
  *
  * GET /api/briefing. Returns today's personalized "cycle weather report."
  * Auth required. Calculates cycle phase from onboarding data (cycle_profiles)
  * and generates a rich, multi-domain daily briefing using Claude AI with
  * comprehensive phase-specific knowledge.
  *
+ * Dot is PeakHer's single AI voice with phase-adjusted tone:
+ *   - Restore: gentle, protective
+ *   - Rise: energized, encouraging
+ *   - Peak: hyped, confident
+ *   - Sustain: warm, grounded, practical
+ *
  * Supports:
- *   - coach_voice: 'sassy' | 'scientific' | 'spiritual' | 'hype' (default: 'sassy')
  *   - cycle_date_confidence: 'exact' | 'estimated' (default: 'estimated')
  *   - Rich day-1 briefings (no check-in history required)
- *   - 6-section structured output (phase overview, nutrition, movement,
- *     focus, emotional weather, key insight)
+ *   - Structured JSON output with calendar intelligence, nutrition, movement,
+ *     fasting, focus, emotional weather, hormone download, and Dot sign-offs
  *   - Luteal emotional toolkit with proactive late-luteal support
+ *   - Backward-compatible with v2 frontend fields
  */
-const { getDb } = require('./_lib/db');
-const { getUserId, sendError } = require('./_lib/auth');
-const { sendMessage } = require('./_lib/claude');
+var { getDb } = require('./_lib/db');
+var { getUserId, sendError } = require('./_lib/auth');
+var { sendMessage } = require('./_lib/claude');
 
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -36,10 +42,10 @@ module.exports = async function handler(req, res) {
     `;
     var user = users.length > 0 ? users[0] : { name: '', personas: [] };
 
-    // 2. Fetch cycle profile (includes coach_voice and cycle_date_confidence)
+    // 2. Fetch cycle profile
     var profiles = await sql`
       SELECT last_period_start, average_cycle_length, tracking_enabled,
-             coach_voice, cycle_date_confidence
+             cycle_date_confidence
       FROM cycle_profiles WHERE user_id = ${userId} LIMIT 1
     `;
     var cycleProfile = profiles.length > 0 ? profiles[0] : null;
@@ -88,7 +94,7 @@ module.exports = async function handler(req, res) {
     }
 
     // 7. Fetch recent wearable data (last 7 days)
-    var sevenDaysAgo = addDays(today, -7);
+    var sevenDaysAgo2 = addDays(today, -7);
     var wearableData = [];
     try {
       wearableData = await sql`
@@ -99,7 +105,7 @@ module.exports = async function handler(req, res) {
                calories_active, skin_temp_deviation, respiratory_rate, spo2_avg
         FROM wearable_data
         WHERE user_id = ${userId}
-          AND date >= ${sevenDaysAgo}
+          AND date >= ${sevenDaysAgo2}
           AND date <= ${today}
         ORDER BY date DESC
       `;
@@ -618,55 +624,21 @@ var PHASE_KNOWLEDGE = {
 
 
 // ══════════════════════════════════════════════════════════════════════════
-//  COACH VOICE DEFINITIONS
+//  DOT GREETINGS AND SIGN-OFFS (exact copy per spec)
 // ══════════════════════════════════════════════════════════════════════════
 
-var VOICE_INSTRUCTIONS = {
-  // Single Dot voice — phase-adjusted tone, not personality swap
-  dot: [
-    'VOICE: You are Dot, PeakHer\'s Hormonal Intelligence AI companion.',
-    'Personality: Direct, informed, cheeky, warm, slightly unhinged best friend who built an algorithm around her cycle.',
-    'You are NOT a medical professional, chatbot, or generic assistant. You are Dot.',
-    '',
-    'CORE RULES:',
-    '1. Always lead with the ACTION (never lead with data)',
-    '2. Be specific: name times, foods, specific actions. Never "eat well and exercise."',
-    '3. Validate feelings as biological, then redirect with an action',
-    '4. Use "I" and "your" — never "we" or "users"',
-    '5. One voice, phase-adjusted tone:',
-    '   - Restore phase: gentle, validating, protective. "Rest is the strategy today."',
-    '   - Rise phase: energized, encouraging, creative. "Start messy. Start now."',
-    '   - Peak phase: confident, magnetic, bold. "You\'re magnetic today. Use it."',
-    '   - Sustain phase: grounded, practical, no-BS. "Finish what you started. Skip the heroics."',
-    '',
-    'TONE GUIDE:',
-    '- Funny but not trying too hard. Irreverent but not mean.',
-    '- Science-backed but delivered like you\'re talking over coffee, not in a lab coat.',
-    '- Short punchy sentences mixed with explanations.',
-    '- Swear lightly if it fits (damn, hell yes) but keep it classy.',
-    '- Anti-corporate. No "empowering women" cliches. No stock wellness language.',
-    '- Reference hormones specifically (progesterone, estrogen, cortisol) but explain what they DO.',
-    '',
-    'PHASE NAME RULE: Use Restore/Rise/Peak/Sustain in consumer copy. Clinical terms (luteal, follicular) as secondary context only.',
-    '  Example: "You\'re in Sustain, what science calls the luteal phase."',
-    '',
-    'SIGN-OFF: End every briefing with a short Dot sign-off. Phase-specific, memorable, 3-8 words.',
-    '  Restore examples: "Rest now. Rise soon." / "The couch is calling. Answer it."',
-    '  Rise examples: "Build the thing. Worry later." / "Your brain is on fire. Feed it."',
-    '  Peak examples: "Crown\'s on. Go make your move." / "Words hit different today. Use them."',
-    '  Sustain examples: "Close the loops." / "The fire comes back. It always does."',
-    '',
-    'Example Restore tone: "Your uterus has been doing the heavy lifting all month. She deserves a rest day and so do you. That email? It can wait. The soup and the couch? Non-negotiable."',
-    'Example Rise tone: "Your brain just entered creative beast mode. That idea you shelved? Today\'s the day. Start messy. I\'ll remind you to eat."',
-    'Example Peak tone: "You\'re magnetic today, like, scientifically. Schedule the pitch, the date, the hard conversation. Your words hit different right now."',
-    'Example Sustain tone: "Don\'t start anything new. Wrap up what\'s open, eat the carbs your body is literally asking for, and stop saying yes to things."'
-  ].join('\n'),
+var DOT_GREETINGS = {
+  reflect: function (name) { return name + ', gentle morning. Your body did a lot this month. Let\'s keep it low today.'; },
+  build:   function (name) { return name + ', today\'s going to be one of those days. The good kind.'; },
+  perform: function (name) { return name + ', you\'re in your main character era. Literally. Biologically. Let\'s go.'; },
+  complete: function (name) { return name + ', your uterus sent a memo.'; }
+};
 
-  // Legacy voice keys — all map to Dot now
-  sassy: null,
-  scientific: null,
-  spiritual: null,
-  hype: null
+var DOT_SIGNOFFS = {
+  reflect: 'The to-do list can wait. Today is about the basics: warmth, nourishment, rest. Your body just completed a full cycle. Be gentle. I\'ll have a fresh plan when you\'re ready.',
+  build: 'Go be ambitious today. Your energy is climbing and your brain is wired for novelty. Start the thing. Say yes to the thing. I\'ll be here tomorrow with your next plan.',
+  perform: 'You are genuinely, biologically peaking right now. Crush it. I\'ll tell you when to ease off. Not today.',
+  complete: 'You don\'t need to be a productivity machine today. Eat the carbs, do the gentle yoga, crush that Q2 review. The sourdough believes in you.'
 };
 
 
@@ -674,10 +646,9 @@ var VOICE_INSTRUCTIONS = {
 //  AI SYSTEM PROMPT BUILDER
 // ══════════════════════════════════════════════════════════════════════════
 
-function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData) {
+function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData) {
   var phaseBioName = getPhaseMapName(phase);
   var knowledge = PHASE_KNOWLEDGE[phaseBioName];
-  var voiceInstructions = VOICE_INSTRUCTIONS.dot;
 
   var phaseRange = getPhaseDayRange(phase, cycleLength);
   var dayWithinPhase = cycleDay - phaseRange.start + 1;
@@ -693,18 +664,45 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
 
   var parts = [];
 
-  parts.push('You are Dot, the AI companion for PeakHer, a Hormonal Intelligence platform.');
-  parts.push('You generate a personalized daily briefing that covers nutrition, movement, productivity, and emotional weather.');
-  parts.push('PeakHer is NOT a period tracker. It is a decision engine. Every recommendation should lead with what to DO.');
+  // ── Dot's identity and voice ──
+  parts.push('You are Dot, PeakHer\'s Hormonal Intelligence AI.');
+  parts.push('You generate a personalized daily briefing that covers hormones, calendar, nutrition, movement, fasting, productivity, and emotional weather.');
+  parts.push('PeakHer is NOT a period tracker. It is a decision engine. Every recommendation leads with what to DO, then explains the science.');
   parts.push('');
-  parts.push(voiceInstructions);
+  parts.push('DOT\'S PERSONALITY: Direct, informed, cheeky, warm, systematic. The slightly unhinged friend who built an algorithm around your cycle and sends you a brief every morning so you don\'t have to think.');
+  parts.push('You are NOT a medical professional, chatbot, or generic assistant. You are Dot.');
+  parts.push('');
+  parts.push('DOT\'S CORE RULES:');
+  parts.push('1. Always lead with the ACTION, then explain the science. Never lead with data.');
+  parts.push('2. Be specific: name times, foods, amounts, durations. Never "eat well and exercise."');
+  parts.push('3. Validate feelings as biological, then redirect with a specific action.');
+  parts.push('4. Use "I" and "your". Never "we" or "users".');
+  parts.push('5. Never dump data without a decision.');
+  parts.push('');
+  parts.push('PHASE-ADJUSTED TONE (one voice, four tones):');
+  parts.push('- Restore: gentle, validating, protective. Speak softly. "Rest is the strategy today."');
+  parts.push('- Rise: energized, encouraging, creative. Build momentum. "Start messy. Start now."');
+  parts.push('- Peak: hyped, confident, bold. Full gas. "You\'re magnetic today. Use it."');
+  parts.push('- Sustain: warm, grounded, practical, no-BS. "Finish what you started. Skip the heroics."');
+  parts.push('');
+  parts.push('TONE GUIDE:');
+  parts.push('- Funny but not trying too hard. Irreverent but not mean.');
+  parts.push('- Science-backed but delivered like you\'re talking over coffee, not in a lab coat.');
+  parts.push('- Short punchy sentences mixed with explanations.');
+  parts.push('- Swear lightly if it fits (damn, hell yes) but keep it classy.');
+  parts.push('- Anti-corporate. No "empowering women" cliches. No stock wellness language.');
+  parts.push('- Reference hormones specifically (progesterone, estrogen, cortisol) but explain what they DO.');
+  parts.push('- Never use em dashes. Use commas, colons, semicolons, periods, or connecting words.');
+  parts.push('');
+  parts.push('PHASE NAME RULE: Use Restore/Rise/Peak/Sustain in consumer copy. Clinical terms (luteal, follicular) as secondary context only.');
+  parts.push('  Example: "You\'re in Sustain, what science calls the luteal phase."');
   parts.push('');
   parts.push('CYCLE DATE CONFIDENCE:');
   parts.push(confidenceLanguage);
   parts.push('');
 
-  // Phase-specific knowledge dump
-  parts.push('═══ PHASE KNOWLEDGE: ' + knowledge.bioName + ' (' + knowledge.modeName + ') ═══');
+  // ── Phase-specific knowledge dump ──
+  parts.push('=== PHASE KNOWLEDGE: ' + knowledge.bioName + ' (' + knowledge.modeName + ') ===');
   parts.push('Typical cycle days: ' + knowledge.typicalDays);
   parts.push('Hormonal context: ' + knowledge.hormones);
   parts.push('');
@@ -747,10 +745,10 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
   parts.push('FUN FACTS (use ONE per briefing): ' + knowledge.funFacts.join(' | '));
   parts.push('');
 
-  // Late luteal special toolkit
+  // ── Late luteal special toolkit ──
   if (isLateLuteal) {
     var toolkit = PHASE_KNOWLEDGE.luteal.lateLutealToolkit;
-    parts.push('══════════════════════════════════════════');
+    parts.push('======================================');
     parts.push('!!! LATE LUTEAL EMOTIONAL TOOLKIT - CRITICAL !!!');
     parts.push('The user is in LATE LUTEAL (the hardest emotional days of the cycle).');
     parts.push('This briefing MUST include proactive emotional support.');
@@ -762,14 +760,14 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
     parts.push('EMERGENCY ACTIONS (include 2-3 of these): ' + toolkit.emergencyActions.join(' | '));
     parts.push('');
     parts.push('REFRAME (include this concept): ' + toolkit.reframe);
-    parts.push('══════════════════════════════════════════');
+    parts.push('======================================');
     parts.push('');
   }
 
-  // Calendar context
+  // ── Calendar context with energy tagging instructions ──
   var hasCalendarData = (todayEvents && todayEvents.length > 0) || (weekEvents && weekEvents.length > 0);
   if (hasCalendarData) {
-    parts.push('═══ CALENDAR CONTEXT ═══');
+    parts.push('=== CALENDAR INTELLIGENCE ===');
     parts.push('The user has connected their calendar. Use their actual schedule to make guidance concrete and actionable.');
     parts.push('');
 
@@ -799,25 +797,31 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
       parts.push('');
     }
 
-    parts.push('CALENDAR INTEGRATION RULES:');
+    parts.push('CALENDAR INTELLIGENCE RULES:');
+    parts.push('- For EACH meeting today, tag it with an energy level: "high", "steady", or "low". Base this on the time of day combined with the current phase:');
+    parts.push('  - Restore: morning = steady, afternoon = low, evening = low');
+    parts.push('  - Rise: morning = high, afternoon = high, evening = steady');
+    parts.push('  - Peak: morning = high, afternoon = high, evening = high');
+    parts.push('  - Sustain: morning = steady, afternoon = low, evening = low');
+    parts.push('- For EACH meeting, provide Dot\'s phase-specific advice (what to eat before, how to prepare energy-wise, what to watch out for).');
     parts.push('- Reference SPECIFIC events by name and time in your guidance sections.');
-    parts.push('- In Focus: mention upcoming meetings/events and how the current phase affects preparation ("Your board presentation at 2 PM falls during ' + getModeName(phase) + ' mode, which means...").');
-    parts.push('- In Movement: suggest timing movement around the schedule ("A 15-minute walk before your 2 PM call can help center your energy").');
-    parts.push('- In Emotional Weather: flag high-stakes events and how the phase interacts ("The investor pitch Thursday falls during your ' + getModeName(phase) + ' window, here is how to prepare").');
-    parts.push('- In Nutrition: time meals and snacks around events ("Have a protein-rich lunch before your afternoon meetings").');
+    parts.push('- In Focus: mention upcoming meetings/events and how the current phase affects preparation.');
+    parts.push('- In Movement: suggest timing movement around the schedule.');
+    parts.push('- In Emotional Weather: flag high-stakes events and how the phase interacts.');
+    parts.push('- In Nutrition: time meals and snacks around events.');
     parts.push('- Do NOT just list the schedule back. WEAVE events into phase-specific guidance naturally.');
     parts.push('');
   }
 
-  // Wearable data context
+  // ── Wearable data context ──
   var hasWearableData = wearableData && wearableData.length > 0;
   if (hasWearableData) {
-    parts.push('═══ WEARABLE DATA ═══');
+    parts.push('=== WEARABLE DATA ===');
     parts.push('The user has a connected wearable device. Use this biometric data to make guidance SPECIFIC and personalized.');
     parts.push('');
 
-    // Find today's data and recent averages
-    var todayWearable = wearableData.find(function (w) { return String(w.date).split('T')[0] === today; });
+    var todayStr = new Date().toISOString().split('T')[0];
+    var todayWearable = wearableData.find(function (w) { return String(w.date).split('T')[0] === todayStr; });
     var recentDays = wearableData.slice(0, 7);
 
     if (todayWearable) {
@@ -829,19 +833,18 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
       if (todayWearable.readiness_score != null) parts.push('- Readiness: ' + Math.round(todayWearable.readiness_score) + '/100');
       if (todayWearable.strain_score != null) parts.push('- Strain: ' + (Math.round(todayWearable.strain_score * 10) / 10));
       if (todayWearable.stress_avg != null) parts.push('- Stress: ' + Math.round(todayWearable.stress_avg) + '/100');
-      if (todayWearable.body_battery_start != null) parts.push('- Body Battery: ' + todayWearable.body_battery_start + ' → ' + (todayWearable.body_battery_end || '?'));
+      if (todayWearable.body_battery_start != null) parts.push('- Body Battery: ' + todayWearable.body_battery_start + ' \u2192 ' + (todayWearable.body_battery_end || '?'));
       if (todayWearable.skin_temp_deviation != null) parts.push('- Skin temp deviation: ' + (todayWearable.skin_temp_deviation > 0 ? '+' : '') + todayWearable.skin_temp_deviation + '\u00B0C');
       if (todayWearable.respiratory_rate) parts.push('- Respiratory rate: ' + todayWearable.respiratory_rate + ' breaths/min');
       parts.push('');
     }
 
-    // Calculate 7-day averages for trend context
     if (recentDays.length >= 3) {
       var avgSleep = 0, avgHrv = 0, avgRecovery = 0, sleepCount = 0, hrvCount = 0, recCount = 0;
-      for (var wi = 0; wi < recentDays.length; wi++) {
-        if (recentDays[wi].sleep_duration_min) { avgSleep += recentDays[wi].sleep_duration_min; sleepCount++; }
-        if (recentDays[wi].hrv_avg) { avgHrv += recentDays[wi].hrv_avg; hrvCount++; }
-        if (recentDays[wi].recovery_score != null) { avgRecovery += recentDays[wi].recovery_score; recCount++; }
+      for (var wdi = 0; wdi < recentDays.length; wdi++) {
+        if (recentDays[wdi].sleep_duration_min) { avgSleep += recentDays[wdi].sleep_duration_min; sleepCount++; }
+        if (recentDays[wdi].hrv_avg) { avgHrv += recentDays[wdi].hrv_avg; hrvCount++; }
+        if (recentDays[wdi].recovery_score != null) { avgRecovery += recentDays[wdi].recovery_score; recCount++; }
       }
       parts.push('7-DAY AVERAGES:');
       if (sleepCount) parts.push('- Sleep: ' + Math.round(avgSleep / sleepCount / 60 * 10) / 10 + ' hours/night');
@@ -852,16 +855,16 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
 
     parts.push('WEARABLE DATA RULES:');
     parts.push('- Use SPECIFIC numbers: "Your HRV of 38ms is below your 7-day average of 45ms, which suggests..." not "your recovery seems low."');
-    parts.push('- In Movement: adjust workout intensity based on recovery/HRV/strain. Low recovery = low intensity. High HRV = green light for intensity.');
-    parts.push('- In Nutrition: reference sleep quality ("You only got 5.8 hours of deep sleep, so extra magnesium and an earlier bedtime tonight").');
-    parts.push('- In Emotional Weather: connect biometrics to mood ("Low HRV + late luteal = your stress tolerance is genuinely lower today, not just a feeling").');
-    parts.push('- In Focus: use readiness/body battery to guide scheduling ("Readiness is 62, so front-load important work before 11 AM while your battery is highest").');
+    parts.push('- In Movement: adjust workout intensity based on recovery/HRV/strain.');
+    parts.push('- In Nutrition: reference sleep quality.');
+    parts.push('- In Emotional Weather: connect biometrics to mood.');
+    parts.push('- In Focus: use readiness/body battery to guide scheduling.');
     parts.push('- Compare today to their 7-day trend when relevant.');
     parts.push('- Skin temp deviation is cycle-relevant: rises after ovulation (progesterone effect).');
     parts.push('');
   }
 
-  // Check-in data instructions
+  // ── Check-in data instructions ──
   if (!hasCheckinData) {
     parts.push('NOTE: The user has NO check-in history yet. This is their first or early briefing.');
     parts.push('Generate a FULL, RICH briefing using ONLY phase knowledge. Do NOT say "we need more data."');
@@ -873,48 +876,108 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateCo
     parts.push('');
   }
 
-  // Output format
-  parts.push('═══ OUTPUT FORMAT ═══');
+  // ── Structured JSON output format ──
+  parts.push('=== OUTPUT FORMAT ===');
   parts.push('You MUST respond with valid JSON only. No markdown, no backticks, no explanation outside the JSON.');
   parts.push('');
   parts.push('{');
+  parts.push('  "greeting": "Phase-specific Dot greeting for the user by name. Use these EXACT templates:');
+  parts.push('    Restore: [Name], gentle morning. Your body did a lot this month. Let\'s keep it low today.');
+  parts.push('    Rise: [Name], today\'s going to be one of those days. The good kind.');
+  parts.push('    Peak: [Name], you\'re in your main character era. Literally. Biologically. Let\'s go.');
+  parts.push('    Sustain: [Name], your uterus sent a memo.');
+  parts.push('    Replace [Name] with the user\'s actual name.",');
+  parts.push('');
+  parts.push('  "hormone_download": "2-4 sentences about what is happening hormonally RIGHT NOW in Dot\'s voice. Be specific about which hormones, what they are doing, and how that translates to how she feels. This is not a textbook; it is Dot explaining biology like a friend.",');
+  parts.push('');
+  if (hasCalendarData) {
+    parts.push('  "calendar_intelligence": [');
+    parts.push('    {');
+    parts.push('      "time": "The meeting time (e.g. 9:00 AM)",');
+    parts.push('      "title": "The meeting title",');
+    parts.push('      "energy_tag": "high | steady | low (based on time of day + current phase)",');
+    parts.push('      "dot_says": "1-2 sentences of Dot\'s phase-specific advice for this meeting. Be concrete: what to eat before, how to manage energy, what to watch out for."');
+    parts.push('    }');
+    parts.push('  ],');
+    parts.push('');
+  }
+  parts.push('  "movement": {');
+  parts.push('    "do_this": { "name": "Specific workout name", "duration": "e.g. 30 minutes", "why": "1 sentence linking to hormones/phase" },');
+  parts.push('    "skip_this": { "name": "Specific workout to avoid", "why": "1 sentence linking to hormones/phase" }');
+  parts.push('  },');
+  parts.push('');
+  parts.push('  "nutrition": {');
+  parts.push('    "eat": [');
+  parts.push('      { "food": "Specific food name", "emoji": "single relevant food emoji", "why": "1 sentence linking to hormones/phase" }');
+  parts.push('    ],');
+  parts.push('    "ease_up": [');
+  parts.push('      { "food": "Specific food to reduce", "emoji": "single relevant emoji", "why": "1 sentence linking to hormones/phase" }');
+  parts.push('    ]');
+  parts.push('  },');
+  parts.push('');
+  parts.push('  "fasting": {');
+  parts.push('    "protocol": "e.g. 12:12, 14:10, 16:8, or No fasting today",');
+  parts.push('    "fasting_window": "e.g. 8 PM to 8 AM",');
+  parts.push('    "eating_window": "e.g. 8 AM to 8 PM",');
+  parts.push('    "why": "1-2 sentences explaining why this protocol fits today\'s hormonal state"');
+  parts.push('  },');
+  parts.push('');
+  parts.push('  "focus": "2-3 sentences about what type of work to prioritize today, specific task types, and one scheduling tip. Link to hormones.",');
+  parts.push('');
+  parts.push('  "emotional_weather": "2-4 sentences about what to expect emotionally and how to handle it. Validate the feeling as biological, then give a specific action. If late luteal, this should be longer (4-6 sentences) and include the toolkit elements.",');
+  parts.push('');
+  parts.push('  "key_insight": "One science-backed insight in Dot\'s voice. The single most important thing to remember today. Make it screenshot-worthy.",');
+  parts.push('');
+  parts.push('  "sign_off": "Phase-specific Dot sign-off. Use these EXACT sign-offs:');
+  parts.push('    Restore: The to-do list can wait. Today is about the basics: warmth, nourishment, rest. Your body just completed a full cycle. Be gentle. I\'ll have a fresh plan when you\'re ready.');
+  parts.push('    Rise: Go be ambitious today. Your energy is climbing and your brain is wired for novelty. Start the thing. Say yes to the thing. I\'ll be here tomorrow with your next plan.');
+  parts.push('    Peak: You are genuinely, biologically peaking right now. Crush it. I\'ll tell you when to ease off. Not today.');
+  parts.push('    Sustain: You don\'t need to be a productivity machine today. Eat the carbs, do the gentle yoga, crush that Q2 review. The sourdough believes in you.",');
+  parts.push('');
+  parts.push('  "phase_overview": "2-3 sentences summarizing the current phase, what hormones are doing, and the overall energy forecast. Keep for backward compatibility.",');
+  parts.push('');
   parts.push('  "phaseOverview": {');
   parts.push('    "headline": "An engaging, memorable headline for the day (10-20 words)",');
-  parts.push('    "summary": "2-3 sentences about where she is in her cycle, what hormones are doing, and the overall energy forecast for today. Make it specific and biological, not vague."');
+  parts.push('    "summary": "2-3 sentences about where she is in her cycle, what hormones are doing, and the overall energy forecast. Same content as phase_overview."');
   parts.push('  },');
-  parts.push('  "nutrition": {');
+  parts.push('  "nutritionSection": {');
   parts.push('    "headline": "Short nutrition headline (5-10 words)",');
-  parts.push('    "body": "3-5 sentences covering: what to eat today and WHY (link to hormones), one specific meal or snack suggestion, fasting window guidance, and any craving decoding relevant to this phase day. Be SPECIFIC: name foods, not food groups."');
+  parts.push('    "body": "3-5 sentences covering what to eat, fasting, and craving decoding. Be SPECIFIC."');
   parts.push('  },');
-  parts.push('  "movement": {');
+  parts.push('  "movementSection": {');
   parts.push('    "headline": "Short movement headline (5-10 words)",');
-  parts.push('    "body": "3-5 sentences covering: what type of workout to do today, intensity guidance with a reason (link to hormones/recovery), one specific workout suggestion, and what to avoid. Be SPECIFIC: name workouts, not concepts."');
+  parts.push('    "body": "3-5 sentences covering workout type, intensity, and what to avoid."');
   parts.push('  },');
-  parts.push('  "focus": {');
+  parts.push('  "focusSection": {');
   parts.push('    "headline": "Short productivity headline (5-10 words)",');
-  parts.push('    "body": "3-5 sentences covering: what types of tasks to prioritize today, what to defer, one specific scheduling suggestion, and what kind of meetings align with today\'s energy. Actionable and specific."');
+  parts.push('    "body": "3-5 sentences covering tasks to prioritize, what to defer, scheduling."');
   parts.push('  },');
   parts.push('  "emotionalWeather": {');
   parts.push('    "headline": "Short emotional headline (5-10 words)",');
-  parts.push('    "body": "3-5 sentences covering: what to expect emotionally, one specific coping tool or action, social energy guidance, and a validating/encouraging close. If late luteal, this section should be LONGER (5-7 sentences) and include the emotional toolkit elements."');
+  parts.push('    "body": "3-5 sentences covering emotional forecast, coping tools, social energy."');
   parts.push('  },');
-  parts.push('  "keyInsight": "The SINGLE most important thing to remember today. One powerful sentence that she could screenshot and come back to. Make it memorable, specific, and phase-relevant.",');
-  parts.push('  "dotSignoff": "A short Dot sign-off (3-8 words). Phase-specific, punchy, memorable. Examples: Restore=\'Rest now. Rise soon.\' Rise=\'Build the thing. Worry later.\' Peak=\'Crown on. Go.\' Sustain=\'Close the loops.\'"');
+  parts.push('  "keyInsight": "Same content as key_insight. One powerful sentence.",');
+  parts.push('  "dotSignoff": "Same content as sign_off."');
 
   if (hasCalendarData) {
-    parts.push('  ,"scheduleInsight": "One sentence connecting the most important calendar event today with the current cycle phase. Example: Your board presentation at 2 PM aligns perfectly with your Perform window, so lead with confidence. If no events today, reference the most important upcoming event this week. OMIT this field entirely if no calendar data is available."');
+    parts.push('  ,"scheduleInsight": "One sentence connecting the most important calendar event today with the current cycle phase."');
   }
 
   parts.push('}');
   parts.push('');
   parts.push('IMPORTANT RULES:');
-  parts.push('- Cover ALL 6 sections. Do not skip any.');
+  parts.push('- Cover ALL sections. Do not skip any.');
+  parts.push('- Provide 3-5 items in the nutrition.eat array and 1-3 in nutrition.ease_up.');
+  if (hasCalendarData) {
+    parts.push('- Provide a calendar_intelligence entry for EVERY meeting today.');
+  }
   parts.push('- Be SPECIFIC. Name foods, workouts, task types. No generic "eat well and exercise."');
   parts.push('- Every recommendation should link back to WHAT IS HAPPENING HORMONALLY.');
   parts.push('- Vary the content. If this is day 3 vs day 5 of the same phase, the guidance should shift.');
-  parts.push('- Make the keyInsight something she would actually screenshot and save.');
+  parts.push('- Make the key_insight / keyInsight something she would actually screenshot and save.');
   parts.push('- Never use the word "journey." Never say "listen to your body" without specifying WHAT to listen for.');
   parts.push('- Never use em dashes. Use commas, colons, semicolons, periods, or connecting words like "and," "so," "because," or "to" instead.');
+  parts.push('- The greeting and sign_off MUST use the exact templates provided. Do not improvise them.');
 
   return parts.join('\n');
 }
@@ -973,14 +1036,15 @@ function buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, rece
     parts.push('');
   }
 
-  // Calendar events context
+  // Calendar events context (detailed for calendar intelligence)
   if (todayEvents && todayEvents.length > 0) {
     parts.push('TODAY\'S CALENDAR (' + todayEvents.length + ' events):');
     for (var tei = 0; tei < todayEvents.length; tei++) {
       var tev = todayEvents[tei];
       var tTimeStr = tev.is_all_day ? 'All day' : formatEventTime(tev.start_time);
       var tImp = tev.estimated_importance ? ', importance: ' + tev.estimated_importance + '/10' : '';
-      parts.push('- ' + tTimeStr + ': ' + tev.title + ' (' + (tev.event_type || 'meeting') + tImp + ')');
+      var tAttendees = tev.attendee_count > 1 ? ', ' + tev.attendee_count + ' attendees' : '';
+      parts.push('- ' + tTimeStr + ': ' + tev.title + ' (' + (tev.event_type || 'meeting') + tImp + tAttendees + ')');
     }
     parts.push('');
   }
@@ -1021,7 +1085,6 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   var phase = getPhaseForCycleDay(cycleDay, cycleLength);
   var phaseRange = getPhaseDayRange(phase, cycleLength);
 
-  var coachVoice = cycleProfile.coach_voice || 'sassy';
   var cycleDateConfidence = cycleProfile.cycle_date_confidence || 'estimated';
   var hasCheckinData = recentCheckins && recentCheckins.length > 0;
 
@@ -1041,7 +1104,7 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   }
 
   // Build the AI-generated briefing sections
-  var systemPrompt = buildSystemPrompt(phase, cycleDay, cycleLength, coachVoice, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData);
+  var systemPrompt = buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData);
   var userMessage = buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak, todayEvents, weekEvents);
 
   var aiBriefing = null;
@@ -1049,7 +1112,7 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     var aiResult = await sendMessage({
       system: systemPrompt,
       userMessage: userMessage,
-      maxTokens: 2048,
+      maxTokens: 3000,
       temperature: 0.7
     });
 
@@ -1078,6 +1141,12 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   var currentStreak = streak.current_streak || 0;
   var streakMessage = getStreakMessage(currentStreak);
 
+  // Determine Dot greeting and sign-off (use AI if available, fall back to templates)
+  var userName = user.name || 'Friend';
+  var dotGreeting = (aiBriefing && aiBriefing.greeting) ? aiBriefing.greeting : DOT_GREETINGS[phase](userName);
+  var dotSignoff = (aiBriefing && aiBriefing.sign_off) ? aiBriefing.sign_off : DOT_SIGNOFFS[phase];
+
+  // Build backward-compatible briefing response
   var briefing = {
     date: today,
     cycleDay: cycleDay,
@@ -1086,15 +1155,27 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     phaseName: staticContent.phaseName,
     phaseEmoji: staticContent.phaseEmoji,
     phaseDayRange: phaseRange,
-    coachVoice: coachVoice,
     cycleDateConfidence: cycleDateConfidence,
 
-    // v2 AI-enriched sections (preferred by frontend)
+    // v3 Dot-powered structured sections
+    greeting: dotGreeting,
+    hormone_download: aiBriefing ? aiBriefing.hormone_download : null,
+    calendar_intelligence: aiBriefing ? (aiBriefing.calendar_intelligence || null) : null,
+    movement: aiBriefing ? aiBriefing.movement : null,
+    nutrition: aiBriefing ? aiBriefing.nutrition : null,
+    fasting: aiBriefing ? aiBriefing.fasting : null,
+    focus: aiBriefing ? aiBriefing.focus : null,
+    emotional_weather: aiBriefing ? aiBriefing.emotional_weather : null,
+    key_insight: aiBriefing ? aiBriefing.key_insight : null,
+    sign_off: dotSignoff,
+    phase_overview: aiBriefing ? aiBriefing.phase_overview : null,
+
+    // v2 AI-enriched sections (backward compat for frontend)
     aiBriefing: aiBriefing,
 
     // v1 static fallback (used if AI fails or frontend is old)
-    headline: aiBriefing ? aiBriefing.phaseOverview.headline : staticContent.headlines[headlineIndex],
-    summary: aiBriefing ? aiBriefing.phaseOverview.summary : staticContent.summaries[summaryIndex],
+    headline: aiBriefing && aiBriefing.phaseOverview ? aiBriefing.phaseOverview.headline : staticContent.headlines[headlineIndex],
+    summary: aiBriefing && aiBriefing.phaseOverview ? aiBriefing.phaseOverview.summary : staticContent.summaries[summaryIndex],
     recommendations: staticContent.recommendations,
     todayEnergy: staticContent.todayEnergy,
     energyForecast: staticContent.energyForecast,
@@ -1107,7 +1188,14 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     checkinPrompt: todayCheckin
       ? null
       : 'Hey, quick pulse check? Two sliders, 10 seconds. The more you share, the smarter I get. \u2014 Dot',
-    trackingEnabled: true
+    trackingEnabled: true,
+
+    // v2 backward compat: dotSignoff
+    dotSignoff: dotSignoff,
+
+    // AI-generated briefing text (backward compat: combined text)
+    briefing: aiBriefing ? buildLegacyBriefingText(aiBriefing, dotGreeting, dotSignoff) : null,
+    aiGenerated: !!aiBriefing
   };
 
   // Add schedule insight from AI if available
@@ -1115,16 +1203,58 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     briefing.scheduleInsight = aiBriefing.scheduleInsight;
   }
 
-  // Add Dot sign-off from AI
-  if (aiBriefing && aiBriefing.dotSignoff) {
-    briefing.dotSignoff = aiBriefing.dotSignoff;
-  }
-
   if (personalization) {
     briefing.personalization = personalization;
   }
 
   return briefing;
+}
+
+
+/**
+ * Build a legacy plain-text briefing from the structured AI response
+ * so the old frontend can still render it as a single block of text.
+ */
+function buildLegacyBriefingText(ai, greeting, signoff) {
+  var sections = [];
+
+  if (greeting) sections.push(greeting);
+  if (ai.hormone_download) sections.push('\n' + ai.hormone_download);
+
+  if (ai.phaseOverview && ai.phaseOverview.summary) {
+    sections.push('\n' + ai.phaseOverview.summary);
+  }
+
+  if (ai.focusSection) {
+    sections.push('\n' + ai.focusSection.headline + '\n' + ai.focusSection.body);
+  } else if (ai.focus) {
+    sections.push('\nFocus\n' + ai.focus);
+  }
+
+  if (ai.nutritionSection) {
+    sections.push('\n' + ai.nutritionSection.headline + '\n' + ai.nutritionSection.body);
+  }
+
+  if (ai.movementSection) {
+    sections.push('\n' + ai.movementSection.headline + '\n' + ai.movementSection.body);
+  }
+
+  if (ai.emotionalWeather) {
+    var ew = ai.emotionalWeather;
+    if (typeof ew === 'object' && ew.headline) {
+      sections.push('\n' + ew.headline + '\n' + ew.body);
+    } else if (typeof ew === 'string') {
+      sections.push('\nEmotional Weather\n' + ew);
+    }
+  }
+
+  if (ai.key_insight || ai.keyInsight) {
+    sections.push('\n' + (ai.key_insight || ai.keyInsight));
+  }
+
+  if (signoff) sections.push('\n' + signoff);
+
+  return sections.join('\n');
 }
 
 
@@ -1504,10 +1634,10 @@ function getMiniPhraseBriefing(lastPeriodStart, cycleLength, dateStr) {
   if (!content) return null;
 
   var miniPhrases = {
-    reflect: 'You\'re in Reflect mode today, and your intuition is sharpest now. Check in to keep tracking your rhythm.',
-    build: 'You\'re in Build mode today, and your brain is primed for creativity. Check in to keep your streak alive.',
-    perform: 'You\'re in Perform mode today, with peak confidence and communication. Check in to capture your peak.',
-    complete: 'You\'re in Complete mode today, perfect for finishing what you started. Check in to keep the data flowing.'
+    reflect: 'You\'re in Restore mode today, and your intuition is sharpest now. Check in to keep tracking your rhythm.',
+    build: 'You\'re in Rise mode today, and your brain is primed for creativity. Check in to keep your streak alive.',
+    perform: 'You\'re in Peak mode today, with peak confidence and communication. Check in to capture your peak.',
+    complete: 'You\'re in Sustain mode today, perfect for finishing what you started. Check in to keep the data flowing.'
   };
 
   return {

@@ -1033,6 +1033,37 @@
     .briefing-do-skip { grid-template-columns: 1fr; }
     .briefing-section-content { padding-left: 44px; }
   }
+
+  /* v3: Structured briefing sections */
+  .briefing-v3-section {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+  .briefing-v3-section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-dark, #1a1a2e);
+    margin-bottom: 10px;
+  }
+  .briefing-v3-text {
+    font-size: 14px;
+    color: var(--text-body, #374151);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .briefing-meeting-card {
+    background: var(--cream, #faf8f5);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .briefing-meeting-card:last-child {
+    margin-bottom: 0;
+  }
+  @media (max-width: 380px) {
+    .briefing-v3-section { padding: 12px 16px; }
+  }
 </style>
 </head>
 <body>

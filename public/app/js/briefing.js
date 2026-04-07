@@ -1,5 +1,5 @@
 /**
- * PeakHer Daily Briefing, v2 (AI-enriched)
+ * PeakHer Daily Briefing, v3 (AI-enriched + structured sections)
  * Shows a rich "cycle weather report" card at the top of the check-in screen.
  * Fetches from GET /api/briefing and falls back to a local computation
  * when the server is unavailable or the user is offline.
@@ -9,6 +9,17 @@
  *     movement, focus, emotionalWeather, keyInsight)
  *   - Falls back to v1 collapsible sections if AI data is missing
  *   - Supports coach_voice indicator badge
+ *
+ * v3 additions:
+ *   - Dot Greeting rendered at top with phase color
+ *   - Calendar Intelligence: meeting cards with energy tags (green/yellow/red)
+ *   - Movement Do/Skip: side-by-side green/red cards
+ *   - Nutrition Eat/Ease: two-column food items
+ *   - Fasting Intelligence: protocol, visual windows, explanation
+ *   - Dot Sign-off: avatar + phase-specific sign-off at bottom
+ *   - Small 32px Dot avatar next to briefing title
+ *   - Phase color accents throughout (Restore/Rise/Peak/Sustain)
+ *   - Backward compatible: renders new format if present, falls back to v2/v1
  */
 window.PeakHer = window.PeakHer || {};
 
@@ -19,6 +30,32 @@ window.PeakHer.Briefing = (function () {
   var Cycle  = window.PeakHer.Cycle;
   var Utils  = window.PeakHer.Utils;
   var API    = window.PeakHer.API;
+
+  // ── Phase colors (v3) ────────────────────────────────────────────────
+  var PHASE_COLORS = {
+    menstrual: '#9B30FF', restore: '#9B30FF',
+    follicular: '#00E5A0', rise: '#00E5A0',
+    ovulatory: '#FFD700', peak: '#FFD700',
+    luteal: '#FF6B6B', sustain: '#FF6B6B'
+  };
+
+  // ── Dot avatar SVG (32px for inline, returns HTML string) ────────────
+  function dotAvatarSVG(size) {
+    size = size || 32;
+    var scale = size / 100;
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 100 100" fill="none" style="vertical-align:middle;">' +
+      '<circle cx="50" cy="48" r="32" fill="url(#dotGradBrief)"/>' +
+      '<ellipse cx="40" cy="46" rx="4.5" ry="5" fill="#2D0A31"/>' +
+      '<ellipse cx="60" cy="46" rx="4.5" ry="5" fill="#2D0A31"/>' +
+      '<circle cx="42" cy="44" r="1.8" fill="#fff"/>' +
+      '<circle cx="62" cy="44" r="1.8" fill="#fff"/>' +
+      '<path d="M44 58 Q50 62 56 58" stroke="#2D0A31" stroke-width="1.8" stroke-linecap="round" fill="none"/>' +
+      '<ellipse cx="34" cy="54" rx="5" ry="3" fill="#9B30FF" opacity="0.2"/>' +
+      '<ellipse cx="66" cy="54" rx="5" ry="3" fill="#9B30FF" opacity="0.2"/>' +
+      '<defs><radialGradient id="dotGradBrief" cx="0.38" cy="0.32" r="0.68">' +
+      '<stop offset="0%" stop-color="#FF5A9E"/><stop offset="100%" stop-color="#D91A65"/>' +
+      '</radialGradient></defs></svg>';
+  }
 
   // ── Phase content database (v1 local fallback) ────────────────────────
   var PHASE_CONTENT = {
@@ -126,6 +163,35 @@ window.PeakHer.Briefing = (function () {
     { key: 'emotionalWeather',  icon: '\uD83D\uDC9C', label: 'Emotional Weather' }
   ];
 
+  // ── Helpers ──────────────────────────────────────────────────────────
+
+  function getPhaseColor(phase) {
+    return PHASE_COLORS[phase] || PHASE_COLORS[(phase || '').toLowerCase()] || '#2d8a8a';
+  }
+
+  function getEnergyBadge(level) {
+    var colors = {
+      green: { bg: '#e6f9f0', color: '#059669', label: 'High Energy' },
+      yellow: { bg: '#fef9e7', color: '#d97706', label: 'Moderate' },
+      red: { bg: '#fef2f2', color: '#dc2626', label: 'Low Energy' }
+    };
+    var cfg = colors[level] || colors.yellow;
+    return '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;' +
+      'background:' + cfg.bg + ';color:' + cfg.color + ';">' + cfg.label + '</span>';
+  }
+
+  // ── Detect v3 structured data ────────────────────────────────────────
+  function hasV3Data(data) {
+    return data && (
+      data.dotGreeting ||
+      data.calendarIntelligence ||
+      data.movementDoSkip ||
+      data.nutritionEatEase ||
+      data.fastingIntelligence ||
+      data.dotSignoff
+    );
+  }
+
   // ── Local briefing builder ──────────────────────────────────────────
 
   function buildLocalBriefing() {
@@ -185,6 +251,12 @@ window.PeakHer.Briefing = (function () {
       return;
     }
 
+    // v3 structured sections (new format)
+    if (hasV3Data(data)) {
+      renderV3(target, data);
+      return;
+    }
+
     // If we have AI-enriched data, use the v2 renderer
     if (data.aiBriefing) {
       renderV2(target, data);
@@ -193,6 +265,247 @@ window.PeakHer.Briefing = (function () {
 
     // Otherwise fall back to v1 renderer
     renderV1(target, data);
+  }
+
+
+  // ── v3 Renderer (structured sections with Dot personality) ────────
+
+  function renderV3(target, data) {
+    var phase = data.phase || '';
+    var color = getPhaseColor(phase);
+    var phaseBadgeClasses = {
+      menstrual: 'badge-reflect', restore: 'badge-reflect',
+      follicular: 'badge-build', rise: 'badge-build',
+      ovulatory: 'badge-perform', peak: 'badge-perform',
+      luteal: 'badge-complete', sustain: 'badge-complete'
+    };
+    var badgeClass = phaseBadgeClasses[phase] || 'badge-teal';
+    var emoji = data.phaseEmoji || (Cycle.getPhaseEmoji ? Cycle.getPhaseEmoji(phase) : '');
+    var modeName = data.phaseName || '';
+
+    var html = '';
+
+    // Phase accent bar
+    html += '<div class="briefing-phase-bar" style="background:' + color + ';"></div>';
+
+    // ── Dot Greeting ──
+    if (data.dotGreeting) {
+      html += '<div style="padding:20px 20px 0;display:flex;align-items:flex-start;gap:12px;">';
+      html += '<div style="flex-shrink:0;margin-top:2px;">' + dotAvatarSVG(32) + '</div>';
+      html += '<div>';
+      html += '<div style="font-size:22px;font-weight:700;color:' + color + ';line-height:1.3;margin-bottom:4px;">' + escapeHtml(data.dotGreeting) + '</div>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    // Header row: phase badge + cycle day
+    html += '<div class="briefing-header">';
+    html += '<span class="briefing-phase-badge ' + badgeClass + '">' + emoji + ' ' + modeName + '</span>';
+    if (data.cycleDay && data.totalCycleDays) {
+      html += '<span class="briefing-cycle-day">Day ' + data.cycleDay + ' of ' + data.totalCycleDays + '</span>';
+    }
+    html += '</div>';
+
+    // Phase Overview (from aiBriefing if present)
+    if (data.aiBriefing && data.aiBriefing.phaseOverview) {
+      html += '<div class="briefing-headline">' + escapeHtml(data.aiBriefing.phaseOverview.headline) + '</div>';
+      html += '<div class="briefing-summary">' + escapeHtml(data.aiBriefing.phaseOverview.summary) + '</div>';
+    }
+
+    // ── Calendar Intelligence ──
+    if (data.calendarIntelligence) {
+      var cal = data.calendarIntelligence;
+      html += '<div class="briefing-v3-section">';
+      html += '<div class="briefing-v3-section-title" style="border-left:3px solid ' + color + ';padding-left:12px;">&#128197; Calendar Intelligence</div>';
+      if (cal.summary) {
+        html += '<p class="briefing-v3-text">' + escapeHtml(cal.summary) + '</p>';
+      }
+      if (cal.meetings && cal.meetings.length > 0) {
+        for (var m = 0; m < cal.meetings.length; m++) {
+          var mtg = cal.meetings[m];
+          html += '<div class="briefing-meeting-card">';
+          html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+          html += '<strong style="font-size:14px;">' + escapeHtml(mtg.title || 'Meeting') + '</strong>';
+          if (mtg.energy) {
+            html += getEnergyBadge(mtg.energy);
+          }
+          html += '</div>';
+          if (mtg.time) {
+            html += '<div style="font-size:12px;color:#6b7280;margin-bottom:4px;">' + escapeHtml(mtg.time) + '</div>';
+          }
+          if (mtg.advice) {
+            html += '<div style="font-size:13px;color:#374151;font-style:italic;">' + escapeHtml(mtg.advice) + '</div>';
+          }
+          html += '</div>';
+        }
+      }
+      html += '</div>';
+    }
+
+    // ── Movement Do/Skip ──
+    if (data.movementDoSkip) {
+      var mv = data.movementDoSkip;
+      html += '<div class="briefing-v3-section">';
+      html += '<div class="briefing-v3-section-title" style="border-left:3px solid ' + color + ';padding-left:12px;">&#127947;&#65039; Movement</div>';
+      if (mv.summary) {
+        html += '<p class="briefing-v3-text">' + escapeHtml(mv.summary) + '</p>';
+      }
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      // Do This card
+      html += '<div style="background:#e6f9f0;border-radius:10px;padding:14px;">';
+      html += '<div style="font-size:13px;font-weight:700;color:#059669;margin-bottom:6px;">Do This</div>';
+      if (mv.doThis) {
+        var doItems = Array.isArray(mv.doThis) ? mv.doThis : [mv.doThis];
+        for (var d = 0; d < doItems.length; d++) {
+          html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(doItems[d]) + '</div>';
+        }
+      }
+      html += '</div>';
+      // Skip This card
+      html += '<div style="background:#fef2f2;border-radius:10px;padding:14px;">';
+      html += '<div style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:6px;">Skip This</div>';
+      if (mv.skipThis) {
+        var skipItems = Array.isArray(mv.skipThis) ? mv.skipThis : [mv.skipThis];
+        for (var s = 0; s < skipItems.length; s++) {
+          html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(skipItems[s]) + '</div>';
+        }
+      }
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    // ── Nutrition Eat/Ease ──
+    if (data.nutritionEatEase) {
+      var nut = data.nutritionEatEase;
+      html += '<div class="briefing-v3-section">';
+      html += '<div class="briefing-v3-section-title" style="border-left:3px solid ' + color + ';padding-left:12px;">&#129367; Nutrition</div>';
+      if (nut.summary) {
+        html += '<p class="briefing-v3-text">' + escapeHtml(nut.summary) + '</p>';
+      }
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      // Eat column
+      html += '<div style="background:#e6f9f0;border-radius:10px;padding:14px;">';
+      html += '<div style="font-size:13px;font-weight:700;color:#059669;margin-bottom:6px;">Eat</div>';
+      if (nut.eat) {
+        var eatItems = Array.isArray(nut.eat) ? nut.eat : [nut.eat];
+        for (var e = 0; e < eatItems.length; e++) {
+          html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(eatItems[e]) + '</div>';
+        }
+      }
+      html += '</div>';
+      // Ease column
+      html += '<div style="background:#fef9e7;border-radius:10px;padding:14px;">';
+      html += '<div style="font-size:13px;font-weight:700;color:#d97706;margin-bottom:6px;">Ease Up On</div>';
+      if (nut.ease) {
+        var easeItems = Array.isArray(nut.ease) ? nut.ease : [nut.ease];
+        for (var ea = 0; ea < easeItems.length; ea++) {
+          html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(easeItems[ea]) + '</div>';
+        }
+      }
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    // ── Fasting Intelligence ──
+    if (data.fastingIntelligence) {
+      var fast = data.fastingIntelligence;
+      html += '<div class="briefing-v3-section">';
+      html += '<div class="briefing-v3-section-title" style="border-left:3px solid ' + color + ';padding-left:12px;">&#9201;&#65039; Fasting Intelligence</div>';
+      if (fast.protocol) {
+        html += '<div style="font-size:15px;font-weight:700;color:' + color + ';margin-bottom:6px;">' + escapeHtml(fast.protocol) + '</div>';
+      }
+      // Visual fasting window bar
+      if (fast.eatStart && fast.eatEnd) {
+        html += '<div style="background:#f3f0ec;border-radius:8px;height:28px;position:relative;overflow:hidden;margin-bottom:10px;">';
+        // Calculate approximate positions (assuming 24h day)
+        var startH = parseTimeHour(fast.eatStart);
+        var endH = parseTimeHour(fast.eatEnd);
+        var leftPct = (startH / 24 * 100).toFixed(1);
+        var widthPct = ((endH - startH) / 24 * 100).toFixed(1);
+        if (endH > startH) {
+          html += '<div style="position:absolute;left:' + leftPct + '%;width:' + widthPct + '%;height:100%;background:' + color + ';opacity:0.3;border-radius:8px;"></div>';
+          html += '<div style="position:absolute;left:' + leftPct + '%;width:' + widthPct + '%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:' + color + ';">' +
+            escapeHtml(fast.eatStart) + ' - ' + escapeHtml(fast.eatEnd) + '</div>';
+        }
+        html += '</div>';
+      }
+      if (fast.explanation) {
+        html += '<p class="briefing-v3-text">' + escapeHtml(fast.explanation) + '</p>';
+      }
+      html += '</div>';
+    }
+
+    // ── AI Briefing sections (v2 accordion, if present alongside v3 data) ──
+    if (data.aiBriefing) {
+      var ai = data.aiBriefing;
+      var hasAISections = false;
+      for (var a = 0; a < AI_SECTION_CONFIG.length; a++) {
+        if (ai[AI_SECTION_CONFIG[a].key]) { hasAISections = true; break; }
+      }
+      if (hasAISections) {
+        html += '<div class="briefing-sections">';
+        for (var i = 0; i < AI_SECTION_CONFIG.length; i++) {
+          var cfg = AI_SECTION_CONFIG[i];
+          var sectionData = ai[cfg.key];
+          if (!sectionData) continue;
+
+          var sectionId = 'briefing-v3-ai-section-' + cfg.key;
+          html += '<div class="briefing-section">';
+          html += '<button class="briefing-section-toggle" data-section="' + sectionId + '" type="button">';
+          html += '<span class="section-icon">' + cfg.icon + '</span>';
+          html += '<span>' + escapeHtml(sectionData.headline || cfg.label) + '</span>';
+          html += '<span class="section-arrow">\u25BC</span>';
+          html += '</button>';
+          html += '<div class="briefing-section-body" id="' + sectionId + '">';
+          html += '<div class="briefing-section-content">';
+          html += '<p>' + escapeHtml(sectionData.body) + '</p>';
+          html += '</div>';
+          html += '</div>';
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+    }
+
+    // Key Insight
+    if (data.aiBriefing && data.aiBriefing.keyInsight) {
+      html += '<div class="briefing-key-insight">';
+      html += '<div class="briefing-key-insight-label">\uD83D\uDD11 Key Insight</div>';
+      html += '<div class="briefing-key-insight-text">' + escapeHtml(data.aiBriefing.keyInsight) + '</div>';
+      html += '</div>';
+    }
+
+    // Fun fact
+    if (data.funFact) {
+      html += '<div class="briefing-funfact"><strong>Did you know? </strong>' + escapeHtml(data.funFact) + '</div>';
+    }
+
+    // Streak
+    var streakCount = data.streakInfo ? data.streakInfo.current : (data.streak ? data.streak.current : 0);
+    if (streakCount > 1) {
+      html += '<div class="briefing-streak">\uD83D\uDD25 ' + streakCount + '-day check-in streak</div>';
+    }
+
+    // Check-in prompt
+    var checkedIn = data.hasCheckedInToday || data.checkedInToday;
+    if (!checkedIn) {
+      html += '<div class="briefing-checkin-prompt" style="padding:12px 20px;font-size:13px;color:var(--gray-text,#6b7280);text-align:center;border-top:1px solid rgba(0,0,0,0.04);">';
+      html += '\u2728 Check in below to keep your data growing';
+      html += '</div>';
+    }
+
+    // ── Dot Sign-off ──
+    if (data.dotSignoff) {
+      html += '<div style="padding:16px 20px;display:flex;align-items:center;gap:10px;border-top:1px solid rgba(0,0,0,0.04);background:rgba(0,0,0,0.01);">';
+      html += '<div style="flex-shrink:0;">' + dotAvatarSVG(28) + '</div>';
+      html += '<div style="font-size:14px;color:' + color + ';font-weight:600;font-style:italic;">' + escapeHtml(data.dotSignoff) + '</div>';
+      html += '</div>';
+    }
+
+    target.innerHTML = '<div class="briefing-card">' + html + '</div>';
+    attachToggleListeners(target);
   }
 
 
@@ -223,9 +536,12 @@ window.PeakHer.Briefing = (function () {
     // Phase accent bar
     html += '<div class="briefing-phase-bar" style="background:' + color + ';"></div>';
 
-    // Header row: phase badge + cycle day
+    // Header row: phase badge + cycle day (with Dot avatar)
     html += '<div class="briefing-header">';
+    html += '<div style="display:flex;align-items:center;gap:8px;">';
+    html += dotAvatarSVG(32);
     html += '<span class="briefing-phase-badge ' + badgeClass + '">' + emoji + ' ' + modeName + '</span>';
+    html += '</div>';
     if (data.cycleDay && data.totalCycleDays) {
       html += '<span class="briefing-cycle-day">Day ' + data.cycleDay + ' of ' + data.totalCycleDays + '</span>';
     }
@@ -324,9 +640,12 @@ window.PeakHer.Briefing = (function () {
     // Phase accent bar
     html += '<div class="briefing-phase-bar" style="background:' + color + ';"></div>';
 
-    // Header row
+    // Header row (with Dot avatar)
     html += '<div class="briefing-header">';
+    html += '<div style="display:flex;align-items:center;gap:8px;">';
+    html += dotAvatarSVG(32);
     html += '<span class="briefing-phase-badge ' + badgeClass + '">' + emoji + ' ' + (data.phaseName || data.mode || '') + '</span>';
+    html += '</div>';
     if (data.cycleDay) {
       var totalDays = data.totalCycleDays || data.cycleLength || '';
       html += '<span class="briefing-cycle-day">Day ' + data.cycleDay + (totalDays ? ' of ' + totalDays : '') + '</span>';
@@ -434,6 +753,21 @@ window.PeakHer.Briefing = (function () {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  /** Parse a time string like "12:00 PM" or "14:00" into an hour float (0-24) */
+  function parseTimeHour(timeStr) {
+    if (!timeStr) return 0;
+    var t = timeStr.trim().toUpperCase();
+    var pm = t.indexOf('PM') !== -1;
+    var am = t.indexOf('AM') !== -1;
+    t = t.replace(/[APM\s]/g, '');
+    var parts = t.split(':');
+    var h = parseInt(parts[0], 10) || 0;
+    var m = parseInt(parts[1], 10) || 0;
+    if (pm && h < 12) h += 12;
+    if (am && h === 12) h = 0;
+    return h + m / 60;
   }
 
   // ── Init ──────────────────────────────────────────────────────────
