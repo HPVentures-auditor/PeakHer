@@ -94,58 +94,70 @@ Dot is PeakHer's Hormonal Intelligence AI. She is the voice of every recommendat
 - "Period" as primary frame (shrinks us to period tracker)
 - "Hormonal blueprint" (static; "intelligence" is dynamic)
 
-## Current Scoreboard (April 2, 2026)
+## Current Scoreboard (April 8, 2026)
 - **Users:** 5 total (3 real: Amanda, Katika, Mina + Jairek + test account)
 - **Check-ins:** 12 total
-- **Top streak:** Jairek — 4 days
+- **Top streak:** Jairek -- 4 days
 - **SMS:** Not yet live (awaiting provider approval)
+- **Email Briefs:** Live via GHL (daily cron at 7 AM EST)
 - **Revenue:** $0 (pre-launch, pre-revenue)
 - **Stage:** BUILD MODE
 
 ## What's Built (Shipped Features)
 
 ### Core App
-- **Onboarding:** 6-step flow, Day 1 education, exact vs estimated date modes, voice persona selector
-- **Daily AI Briefings:** 800+ lines phase-specific knowledge (nutrition, fasting, fitness, productivity, emotional weather). Luteal emotional toolkit (days 24-28). Voice personas. Day-1 rich briefings.
+- **Onboarding:** 6-step flow, Day 1 education, exact vs estimated date modes
+- **Daily AI Briefings:** Dot single voice (phase-adjusted tone), structured JSON output (greeting, hormone_download, calendar_intelligence, movement, nutrition, fasting, sign_off). Calendar events wired into AI context.
+- **Readiness Score:** Composite 1-10 score from phase/checkin/wearable/calendar with Dot voice summaries (`GET /api/readiness`)
+- **Fasting Intelligence:** Phase-aware IF windows -- 12:12 Restore, 16:8 Rise, 14:10 Peak/Sustain (`GET /api/fasting`)
+- **Task Intelligence:** AI-powered "Great for Today / Consider Moving" classification (`POST /api/task-sort`)
+- **Email Daily Brief:** Full 12-section HTML email via GHL, daily cron at 7 AM EST (`GET/POST /api/email-brief`, `api/cron/email-briefings.js`)
+- **Daily Mode:** Hormonal Intelligence traffic-light system (`/api/daily-mode.js`)
 - **Daily Check-ins:** Energy + confidence sliders, optional sleep/stress/notes. Streak tracking.
 - **Pattern Dashboard:** Unlocks at 14 check-ins. Pearson correlation, day-of-week analysis, phase averages.
 - **AI Insights:** Unlocks at 25 check-ins. Full AI pattern analysis, cached in DB.
 - **Week Ahead Forecast:** 7-day prediction with best-day highlight.
 - **Events:** Quick-log wins, challenges, flow states with category tags.
-- **Settings:** Voice changer, SMS prefs, phone verification, data export, account deletion.
+- **Settings:** SMS prefs, phone verification, data export, account deletion, cycle tracking.
+- **Partner Mode:** Invite, register, phase-specific briefings, consent controls, personal messages per phase.
 
 ### Infrastructure
-- **SMS (Twilio):** Conversational check-ins, morning briefings, OTP verification, state machine. Webhook pending.
-- **Google Calendar:** OAuth flow built, incremental sync, event classification + importance scoring. Needs wiring to briefings.
-- **Wearable Schema:** Oura, Whoop, Garmin tables + sync logic built. Needs API connections.
+- **SMS (Twilio):** Conversational check-ins, morning briefings, OTP verification, state machine. Webhook pending provider approval.
+- **Google Calendar:** OAuth flow, incremental sync, event classification + importance scoring. Wired into briefings.
+- **Wearable Backend (Oura, Whoop, Garmin):** Full OAuth libs, unified sync engine, API endpoints (data/status/sync/disconnect), Garmin webhook handler, daily sync cron, DB migration. OAuth connect flows and briefing integration in progress.
 - **Billing (Stripe):** Checkout, portal, webhooks, 14-day trial, founding member pricing.
 - **Admin Dashboard:** User stats, segments, activity tracking, user management.
 - **Waitlist + Beta Automation:** Quiz lead magnet, GHL integration, auto-invite system.
 - **Push Notifications:** Web Push via VAPID.
 - **Native iOS App:** Expo React Native, 14 screens, compiles. Apple Developer enrolled (Team ID: 6LD6UBS889). Pending App Store submission.
+- **Landing Page:** "Your biology is the strategy" hero, "Meet Dot" section with SVG avatar, 4 feature cards.
 
 ## What's In Progress / Next
 
-### This Week (April 2-7, 2026)
-1. **Amanda's walkthrough DONE.** Follow-up questions sent. Awaiting her ranked top 3 priorities.
-2. **Google Calendar integration** — wire synced events into Daily Brief AI context
-3. **Health wearable integrations** — Oura, Whoop, Garmin API connections
-4. **Implement Amanda's UX/brand feedback** (after she submits priorities)
+### This Week (April 8, 2026)
+1. **Wearable OAuth connect flows** -- build callback endpoints for Oura/Whoop/Garmin, add connect UI in settings
+2. **Wire wearable data into briefings** -- feed HRV, sleep, recovery, strain into Dot's AI context
+3. **iOS build** -- run `eas build --platform ios --profile production` interactively for credentials
+4. **Amanda's top 3 priorities** -- follow-up questions sent April 2, still awaiting response
 
-### Pending Product Changes (From Brand Alignment April 2)
-- [ ] Rename phases: Reflect→Restore, Build→Rise, Perform→Peak, Complete→Sustain
-- [ ] Update phase colors: #7BA7C2→#9B30FF, #5EC49A→#00E5A0, #E87461→#FFD700, #C49A5E→#FF6B6B
-- [ ] Decide: consolidate 4 voice personas → single Dot voice with phase-adjusted tone
-- [ ] Build Readiness Score (most referenced feature in brand strategy)
-- [ ] Build Calendar Intelligence (surface in briefings)
-- [ ] Build Task Sorting (completes "decision engine" positioning)
-- [ ] Rebuild onboarding in Dot's conversational voice
-- [ ] Dot sign-offs on every briefing (phase-specific, from Dot Guidelines)
-- [ ] SMS provider approval → configure Twilio webhook
-- [ ] Apple App Store submission retry
+### Completed (April 7, 2026)
+- [x] Rename phases: Reflect->Restore, Build->Rise, Perform->Peak, Complete->Sustain
+- [x] Update phase colors: #9B30FF, #00E5A0, #FFD700, #FF6B6B
+- [x] Consolidate 4 voice personas -> single Dot voice with phase-adjusted tone
+- [x] Build Readiness Score (composite 1-10, GET /api/readiness)
+- [x] Build Calendar Intelligence (wired into briefings)
+- [x] Build Task Sorting (POST /api/task-sort)
+- [x] Build Fasting Intelligence (GET /api/fasting)
+- [x] Build Email Daily Brief (12-section HTML via GHL)
+- [x] Dot sign-offs on every briefing (phase-specific)
+- [x] Landing page overhaul ("Your biology is the strategy")
+- [x] Switch email from Resend to GHL
+
+### Blocked
+- [ ] SMS provider approval -> configure Twilio webhook
+- [ ] Apple App Store submission (needs iOS build first)
 
 ### Future
-- Partner Mode ("she's in Sustain, bring snacks")
 - ML pattern engine (replace statistical when data justifies)
 - Community (Discord at 1,000+ users)
 - Social media launch (12-week plan written, held until product is solid)
