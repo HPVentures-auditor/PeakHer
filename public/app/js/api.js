@@ -576,6 +576,34 @@ window.PeakHer.API = (function () {
       });
   }
 
+  // ── Wearables ──────────────────────────────────────────────────
+
+  function getWearableStatus() {
+    return request('GET', '/wearable/status')
+      .catch(function (err) {
+        console.warn('Fetch wearable status failed:', err.message);
+        return { whoop: { connected: false }, oura: { connected: false }, garmin: { connected: false } };
+      });
+  }
+
+  function startWearableAuth(provider) {
+    return request('GET', '/wearable/auth?provider=' + encodeURIComponent(provider));
+  }
+
+  function disconnectWearable(provider) {
+    return request('POST', '/wearable/disconnect', { provider: provider });
+  }
+
+  function syncWearable(provider) {
+    return request('POST', '/wearable/sync', provider ? { provider: provider } : {});
+  }
+
+  function getWearableData(start, end, provider) {
+    var qs = '?start=' + encodeURIComponent(start) + '&end=' + encodeURIComponent(end);
+    if (provider) qs += '&provider=' + encodeURIComponent(provider);
+    return request('GET', '/wearable/data' + qs);
+  }
+
   // ── Public API ───────────────────────────────────────────────────
 
   return {
@@ -612,6 +640,11 @@ window.PeakHer.API = (function () {
     getCalendarStatus: getCalendarStatus,
     startCalendarAuth: startCalendarAuth,
     syncCalendar: syncCalendar,
-    disconnectCalendar: disconnectCalendar
+    disconnectCalendar: disconnectCalendar,
+    getWearableStatus: getWearableStatus,
+    startWearableAuth: startWearableAuth,
+    disconnectWearable: disconnectWearable,
+    syncWearable: syncWearable,
+    getWearableData: getWearableData
   };
 })();

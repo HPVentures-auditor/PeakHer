@@ -229,6 +229,9 @@ window.PeakHer.Settings = (function () {
     // ── Calendar Integration Section ────────────────────────────
     html += renderCalendarSection();
 
+    // ── Wearable Integration Section ────────────────────────────
+    html += renderWearableSection();
+
     // ── Account Section ─────────────────────────────────────────
     html += '<div class="ph-settings-section">';
     html += '<h3>Account</h3>';
@@ -257,12 +260,30 @@ window.PeakHer.Settings = (function () {
     bindVoiceEvents();
     bindCycleEvents();
     bindCalendarEvents();
+    bindWearableEvents();
 
     // Check URL for calendar callback status
     if (window.location.hash.indexOf('calendar=connected') !== -1) {
       fetchCalendarStatus();
-      // Clean up URL
       window.location.hash = window.location.hash.replace(/[?&]calendar=connected/, '');
+    }
+
+    // Check URL for wearable callback status
+    if (window.location.hash.indexOf('wearable=') !== -1) {
+      var wMatch = window.location.hash.match(/wearable=(\w+)/);
+      var wConnected = window.location.hash.indexOf('connected=1') !== -1;
+      if (wMatch && wConnected) {
+        loadWearableStatus().then(function () { refreshWearableSection(); });
+      }
+      var wError = window.location.hash.match(/wearable_error=([^&]+)/);
+      if (wError) {
+        var wearableMsg = document.getElementById('wearableMessage');
+        if (wearableMsg) {
+          wearableMsg.textContent = decodeURIComponent(wError[1]);
+          wearableMsg.className = 'ph-sms-error';
+        }
+      }
+      window.location.hash = window.location.hash.replace(/[?&]wearable=[^&]+/, '').replace(/[?&]connected=1/, '').replace(/[?&]wearable_error=[^&]+/, '');
     }
   }
 
@@ -621,9 +642,12 @@ window.PeakHer.Settings = (function () {
     createPanel();
     render();
 
-    // Load SMS settings
+    // Load SMS settings + wearable status
     loadSmsSettings().then(function () {
       refreshSmsContent();
+    });
+    loadWearableStatus().then(function () {
+      refreshWearableSection();
     });
 
     // Animate in
@@ -686,6 +710,11 @@ window.PeakHer.Settings = (function () {
       if (!API.isLoggedIn()) {
         gearBtn.style.display = 'none';
       }
+    }
+
+    // Auto-open settings if redirected from OAuth callback
+    if (window.location.hash.indexOf('settings') !== -1 && API.isLoggedIn()) {
+      setTimeout(function () { open(); }, 300);
     }
   }
 
@@ -779,6 +808,160 @@ window.PeakHer.Settings = (function () {
       }
       render();
     }).catch(function () {});
+  }
+
+  // ── Wearable Integration Section ──────────────────────────────────
+
+  var wearableStatus = null;
+
+  var WEARABLE_PROVIDERS = [
+    { key: 'oura', name: 'Oura Ring', icon: '\u2B55', color: '#D4A574', desc: 'Sleep, readiness, activity, HRV' },
+    { key: 'whoop', name: 'WHOOP', icon: '\uD83D\uDCAA', color: '#44D62C', desc: 'Recovery, strain, sleep, HRV' },
+    { key: 'garmin', name: 'Garmin', icon: '\u231A', color: '#007CC3', desc: 'Steps, sleep, stress, body battery' }
+  ];
+
+  function renderWearableSection() {
+    var html = '<div class="ph-settings-section">';
+    html += '<h3>Wearables</h3>';
+    html += '<p>Connect your wearable for biometric-powered briefings. Dot uses your sleep, HRV, and recovery data to personalize every recommendation.</p>';
+
+    html += '<div id="wearableContent">';
+    html += renderWearableContent();
+    html += '</div>';
+
+    html += '<div id="wearableMessage" style="font-size:13px;min-height:20px;margin-top:8px;"></div>';
+    html += '</div>';
+    return html;
+  }
+
+  function renderWearableContent() {
+    var html = '';
+    for (var i = 0; i < WEARABLE_PROVIDERS.length; i++) {
+      var p = WEARABLE_PROVIDERS[i];
+      var status = wearableStatus && wearableStatus[p.key] ? wearableStatus[p.key] : { connected: false };
+
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;';
+      if (i > 0) html += 'border-top:1px solid var(--border-light,rgba(0,0,0,0.06));';
+      html += '">';
+
+      html += '<div style="display:flex;align-items:center;gap:10px;">';
+      html += '<span style="font-size:22px;">' + p.icon + '</span>';
+      html += '<div>';
+      html += '<div style="font-size:14px;font-weight:600;color:var(--text-dark,#1a1a2e);">' + p.name + '</div>';
+      html += '<div style="font-size:12px;color:var(--gray-text,#6b7280);">' + p.desc + '</div>';
+      if (status.connected && status.lastSynced) {
+        var syncTime = new Date(status.lastSynced);
+        html += '<div style="font-size:11px;color:var(--teal,#2d8a8a);margin-top:2px;">Synced: ' + syncTime.toLocaleDateString() + '</div>';
+      }
+      html += '</div>';
+      html += '</div>';
+
+      html += '<div style="display:flex;gap:6px;">';
+      if (status.connected) {
+        html += '<button class="ph-sms-btn ph-sms-btn-secondary wearable-sync-btn" data-provider="' + p.key + '" style="font-size:12px;padding:6px 12px;">Sync</button>';
+        html += '<button class="ph-sms-btn ph-sms-btn-danger wearable-disconnect-btn" data-provider="' + p.key + '" style="font-size:12px;padding:6px 12px;">Disconnect</button>';
+      } else {
+        html += '<button class="ph-sms-btn ph-sms-btn-primary wearable-connect-btn" data-provider="' + p.key + '" style="font-size:12px;padding:8px 16px;">Connect</button>';
+      }
+      html += '</div>';
+
+      html += '</div>';
+    }
+    return html;
+  }
+
+  function bindWearableEvents() {
+    var connectBtns = document.querySelectorAll('.wearable-connect-btn');
+    for (var i = 0; i < connectBtns.length; i++) {
+      (function (btn) {
+        btn.addEventListener('click', function () {
+          var provider = btn.getAttribute('data-provider');
+          btn.disabled = true;
+          btn.textContent = 'Connecting...';
+          API.startWearableAuth(provider).then(function (result) {
+            if (result && result.url) {
+              window.location.href = result.url;
+            } else {
+              showWearableMessage('Failed to start ' + provider + ' auth', true);
+              btn.disabled = false;
+              btn.textContent = 'Connect';
+            }
+          }).catch(function (err) {
+            showWearableMessage(err.message || 'Connection failed', true);
+            btn.disabled = false;
+            btn.textContent = 'Connect';
+          });
+        });
+      })(connectBtns[i]);
+    }
+
+    var syncBtns = document.querySelectorAll('.wearable-sync-btn');
+    for (var j = 0; j < syncBtns.length; j++) {
+      (function (btn) {
+        btn.addEventListener('click', function () {
+          var provider = btn.getAttribute('data-provider');
+          btn.disabled = true;
+          btn.textContent = 'Syncing...';
+          API.syncWearable(provider).then(function (result) {
+            var count = result && result.results && result.results[0] ? result.results[0].dayssynced : 0;
+            showWearableMessage(provider + ' synced: ' + count + ' days', false);
+            btn.textContent = 'Synced!';
+            setTimeout(function () {
+              btn.textContent = 'Sync';
+              btn.disabled = false;
+            }, 2000);
+          }).catch(function (err) {
+            showWearableMessage(err.message || 'Sync failed', true);
+            btn.textContent = 'Sync';
+            btn.disabled = false;
+          });
+        });
+      })(syncBtns[j]);
+    }
+
+    var disconnectBtns = document.querySelectorAll('.wearable-disconnect-btn');
+    for (var k = 0; k < disconnectBtns.length; k++) {
+      (function (btn) {
+        btn.addEventListener('click', function () {
+          var provider = btn.getAttribute('data-provider');
+          if (!confirm('Disconnect ' + provider + '? Your synced data will be removed.')) return;
+          btn.disabled = true;
+          API.disconnectWearable(provider).then(function () {
+            showWearableMessage(provider + ' disconnected', false);
+            loadWearableStatus().then(function () { refreshWearableSection(); });
+          }).catch(function (err) {
+            showWearableMessage(err.message || 'Failed to disconnect', true);
+            btn.disabled = false;
+          });
+        });
+      })(disconnectBtns[k]);
+    }
+  }
+
+  function loadWearableStatus() {
+    return API.getWearableStatus().then(function (data) {
+      wearableStatus = data || { whoop: { connected: false }, oura: { connected: false }, garmin: { connected: false } };
+    });
+  }
+
+  function refreshWearableSection() {
+    var container = document.getElementById('wearableContent');
+    if (container) {
+      container.innerHTML = renderWearableContent();
+      bindWearableEvents();
+    }
+  }
+
+  function showWearableMessage(msg, isError) {
+    var el = document.getElementById('wearableMessage');
+    if (!el) return;
+    el.className = isError ? 'ph-sms-error' : 'ph-sms-success';
+    el.textContent = msg;
+    if (!isError) {
+      setTimeout(function () {
+        if (el.textContent === msg) el.textContent = '';
+      }, 4000);
+    }
   }
 
   // ── Cycle Tracking Section ────────────────────────────────────────
