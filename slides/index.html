@@ -5,28 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PEAKHER - The 5 Reasons High-Performing Women Burn Out</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
   :root {
     --navy: #12121A;
-    --black: #000000;
-    --white: #ffffff;
+    --black: #0A0A10;
+    --white: #F0F0F5;
     --coral: #E87461;
     --teal: #00E5A0;
     --teal-dark: #00CC8E;
-    --gray-light: #22222F;
-    --gray-mid: #6B6B7B;
-    --gray-text: #9393A3;
+    --gray-light: #1E1E2A;
+    --gray-mid: #A0A0B0;
+    --gray-text: #C0C0D0;
+    --bg-primary: #12121A;
+    --bg-surface: #1A1A26;
+    --bg-elevated: #22222F;
+    --bg-card: #1E1E2A;
+    --text-primary: #F0F0F5;
+    --text-secondary: #A0A0B0;
+    --text-body: #C0C0D0;
+    --border-color: rgba(255,255,255,0.06);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--black);
+    background: var(--bg-primary);
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
   }
+
+  h1, h2, h3, h4 { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
 
   .deck {
     width: 100vw;
@@ -55,10 +65,10 @@
   }
 
   /* Backgrounds */
-  .bg-navy { background: var(--navy); color: var(--white); }
-  .bg-black { background: var(--black); color: var(--white); }
-  .bg-white { background: var(--white); color: #1a1a1a; }
-  .bg-dark { background: linear-gradient(135deg, #0a1628 0%, #0f2035 100%); color: var(--white); }
+  .bg-navy { background: var(--bg-primary); color: var(--text-primary); }
+  .bg-black { background: var(--black); color: var(--text-primary); }
+  .bg-white { background: var(--bg-surface); color: var(--text-primary); }
+  .bg-dark { background: linear-gradient(135deg, #12121A 0%, #1A1A26 100%); color: var(--text-primary); }
 
   /* Typography */
   .hero-number {
@@ -104,7 +114,7 @@
     text-align: center;
     line-height: 1.5;
   }
-  .bg-white .subtitle { color: var(--gray-text); }
+  .bg-white .subtitle { color: var(--text-secondary); }
 
   .body-text {
     font-size: 22px;
@@ -137,7 +147,7 @@
     border-radius: 50%;
     background: var(--coral);
   }
-  .bg-white .stat-row li::before { background: var(--teal); }
+  .bg-white .stat-row li::before { background: var(--teal); opacity: 0.8; }
 
   .source {
     font-size: 13px;
@@ -146,7 +156,7 @@
     text-align: center;
     max-width: 700px;
   }
-  .bg-white .source { color: rgba(0,0,0,0.3); }
+  .bg-white .source { color: rgba(255,255,255,0.25); }
 
   .accent-line {
     width: 80px;
@@ -223,16 +233,16 @@
     border: 1px solid rgba(232, 116, 97, 0.25);
   }
   .compare-card.success {
-    background: rgba(45, 138, 138, 0.1);
-    border: 1px solid rgba(45, 138, 138, 0.25);
+    background: rgba(0, 229, 160, 0.1);
+    border: 1px solid rgba(0, 229, 160, 0.25);
   }
   .bg-white .compare-card.danger {
-    background: rgba(232, 116, 97, 0.08);
-    border: 1px solid rgba(232, 116, 97, 0.2);
+    background: rgba(232, 116, 97, 0.1);
+    border: 1px solid rgba(232, 116, 97, 0.25);
   }
   .bg-white .compare-card.success {
-    background: rgba(45, 138, 138, 0.08);
-    border: 1px solid rgba(45, 138, 138, 0.2);
+    background: rgba(0, 229, 160, 0.1);
+    border: 1px solid rgba(0, 229, 160, 0.25);
   }
   .compare-card h4 {
     font-size: 15px;
@@ -289,11 +299,11 @@
   .bg-dark .slide-table th,
   .bg-navy .slide-table th {
     color: var(--teal);
-    border-color: rgba(45, 138, 138, 0.3);
+    border-color: rgba(0, 229, 160, 0.3);
   }
   .bg-white .slide-table th {
-    color: var(--teal-dark);
-    border-color: rgba(45, 138, 138, 0.25);
+    color: var(--teal);
+    border-color: rgba(0, 229, 160, 0.25);
   }
   .slide-table td {
     padding: 14px 18px;
@@ -301,7 +311,7 @@
     vertical-align: top;
     line-height: 1.5;
   }
-  .bg-white .slide-table td { border-color: rgba(0,0,0,0.08); }
+  .bg-white .slide-table td { border-color: rgba(255,255,255,0.06); }
   .slide-table .icon { font-size: 22px; width: 40px; }
 
   /* Mode slides */
@@ -313,7 +323,7 @@
     margin-bottom: 6px;
   }
   .mode-header.reflect { color: #7BA7C2; }
-  .mode-header.build { color: #5EC49A; }
+  .mode-header.build { color: var(--teal); }
   .mode-header.perform { color: var(--coral); }
   .mode-header.complete { color: #C49A5E; }
 
@@ -336,7 +346,7 @@
     border: 1px solid rgba(255,255,255,0.1);
   }
   .pricing-card.premium {
-    background: rgba(45, 138, 138, 0.15);
+    background: rgba(0, 229, 160, 0.12);
     border: 2px solid var(--teal);
     transform: scale(1.03);
   }
@@ -363,7 +373,7 @@
     line-height: 1.8;
   }
   .pricing-card li::before {
-    content: '✓ ';
+    content: '\2713 ';
     color: var(--teal);
   }
 
@@ -403,9 +413,9 @@
   }
   .score-block:nth-child(1) { background: rgba(232,116,97,0.08); }
   .score-block:nth-child(2) { background: rgba(232,116,97,0.06); }
-  .score-block:nth-child(3) { background: rgba(45,138,138,0.06); }
-  .score-block:nth-child(4) { background: rgba(45,138,138,0.1); }
-  .score-block:nth-child(5) { background: rgba(45,138,138,0.15); }
+  .score-block:nth-child(3) { background: rgba(0,229,160,0.06); }
+  .score-block:nth-child(4) { background: rgba(0,229,160,0.1); }
+  .score-block:nth-child(5) { background: rgba(0,229,160,0.15); }
 
   /* Cycle diagram */
   .cycle-diagram {
@@ -443,7 +453,7 @@
     margin: 0 6px;
   }
   .cycle-node.reflect { background: rgba(123,167,194,0.2); border: 2px solid #7BA7C2; color: #7BA7C2; }
-  .cycle-node.build { background: rgba(94,196,154,0.2); border: 2px solid #5EC49A; color: #5EC49A; }
+  .cycle-node.build { background: rgba(0,229,160,0.15); border: 2px solid var(--teal); color: var(--teal); }
   .cycle-node.perform { background: rgba(232,116,97,0.2); border: 2px solid var(--coral); color: var(--coral); }
   .cycle-node.complete { background: rgba(196,154,94,0.2); border: 2px solid #C49A5E; color: #C49A5E; }
 
@@ -502,7 +512,7 @@
     text-transform: uppercase;
     letter-spacing: 1.5px;
     color: var(--teal);
-    border-bottom: 2px solid rgba(45,138,138,0.3);
+    border-bottom: 2px solid rgba(0,229,160,0.3);
   }
   .day-table td {
     padding: 14px 16px;
@@ -531,9 +541,9 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: white;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-primary);
     font-size: 20px;
     cursor: pointer;
     display: flex;
@@ -646,12 +656,12 @@
     padding: 24px;
     border-radius: 12px;
     background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(45,138,138,0.2);
+    border: 1px solid rgba(0,229,160,0.2);
     text-align: left;
   }
   .bg-white .criteria-card {
-    background: #f8fafa;
-    border-color: rgba(45,138,138,0.15);
+    background: var(--bg-elevated);
+    border-color: rgba(0,229,160,0.2);
   }
   .criteria-card .num {
     font-size: 32px;
@@ -696,7 +706,7 @@
     display: flex;
     align-items: baseline;
     padding: 12px 0;
-    border-left: 2px solid rgba(45,138,138,0.3);
+    border-left: 2px solid rgba(0,229,160,0.3);
     padding-left: 24px;
     position: relative;
     font-size: 20px;
@@ -896,7 +906,7 @@
   <h1>The 5 Reasons High-Performing Women Burn Out</h1>
   <p class="subtitle" style="font-size: 24px; margin-top: 24px; max-width: 800px;">And What the Top Performers Do Differently to Sustain Peak Performance Across Every Role They Play</p>
   <div style="display:flex; gap:16px; margin-top: 50px; align-items: center;">
-    <div style="width:60px; height:60px; border-radius:50%; background: var(--teal); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px;">P</div>
+    <div style="width:60px; height:60px; border-radius:50%; background: var(--teal); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px; color: #12121A;">P</div>
     <div style="text-align:left;">
       <div style="font-weight:600; font-size:18px;">Jairek Robbins</div>
       <div style="color:rgba(255,255,255,0.4); font-size:14px;">PeakHer</div>
@@ -934,10 +944,10 @@
 <!-- ==================== SLIDE 5: The ROI Problem ==================== -->
 <div class="slide bg-white" data-slide="5">
   <div class="hero-number teal">2.5x</div>
-  <h2 style="color: #1a1a1a;">Women-founded startups generate<br>2.5x more revenue per dollar invested</h2>
-  <div style="margin-top: 30px; font-size: 22px; color: var(--gray-text); line-height: 1.8; text-align: center;">
+  <h2>Women-founded startups generate<br>2.5x more revenue per dollar invested</h2>
+  <div style="margin-top: 30px; font-size: 22px; color: var(--text-secondary); line-height: 1.8; text-align: center;">
     They perform better - <em>when they can sustain it.</em><br>
-    <strong style="color: #1a1a1a;">The system isn't built for them to sustain it.</strong>
+    <strong style="color: var(--text-primary);">The system isn't built for them to sustain it.</strong>
   </div>
   <p class="source">Source: BCG, 2018</p>
 </div>
@@ -994,7 +1004,7 @@
 <div class="slide bg-dark" data-slide="11">
   <h3 style="margin-bottom: 30px;">Hormonal Cycles: A Comparison</h3>
   <div class="compare-grid">
-    <div style="text-align: center; padding: 30px; background: rgba(45,138,138,0.1); border-radius: 12px; border: 1px solid rgba(45,138,138,0.2);">
+    <div style="text-align: center; padding: 30px; background: rgba(0,229,160,0.1); border-radius: 12px; border: 1px solid rgba(0,229,160,0.2);">
       <div style="font-size: 18px; font-weight: 700; color: var(--teal); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 2px;">Male Cycle</div>
       <p style="font-size: 20px; line-height: 1.6;">Resets every<br><strong style="font-size: 42px;">24 hours</strong></p>
     </div>
@@ -1023,8 +1033,8 @@
       <p>Same routine, different neurochemical environment. <strong>Nothing is wrong with you.</strong></p>
     </div>
   </div>
-  <div style="margin-top: 40px; padding: 24px; background: #f5f5f5; border-radius: 12px; max-width: 700px; text-align: center;">
-    <p style="font-size: 20px; color: var(--gray-text); font-style: italic;">It's like wearing summer clothes in winter - then blaming yourself for being cold.</p>
+  <div style="margin-top: 40px; padding: 24px; background: var(--bg-elevated); border-radius: 12px; max-width: 700px; text-align: center;">
+    <p style="font-size: 20px; color: var(--text-body); font-style: italic;">It's like wearing summer clothes in winter - then blaming yourself for being cold.</p>
   </div>
 </div>
 
@@ -1041,7 +1051,7 @@
     </div>
   </div>
   <div style="margin-top: 40px; text-align: center;">
-    <h3 style="color: var(--teal-dark);">Result: MORE output with LESS burnout.</h3>
+    <h3 style="color: var(--teal);">Result: MORE output with LESS burnout.</h3>
   </div>
 </div>
 
@@ -1066,15 +1076,15 @@
 
 <!-- ==================== SLIDE 16: Reason #2 What's Happening ==================== -->
 <div class="slide bg-white" data-slide="16">
-  <h2 style="color: #1a1a1a; margin-bottom: 30px;">You've had the experience:</h2>
+  <h2 style="color: var(--text-primary); margin-bottom: 30px;">You've had the experience:</h2>
   <div style="max-width: 700px; text-align: left;">
-    <div style="padding: 18px 0; border-bottom: 1px solid #eee; font-size: 22px;">
+    <div style="padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 22px;">
       <span style="color: var(--teal); font-weight: 700;">&#9650;</span>&nbsp; A <strong>fire week</strong> - where everything clicks
     </div>
-    <div style="padding: 18px 0; border-bottom: 1px solid #eee; font-size: 22px;">
+    <div style="padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 22px;">
       <span style="color: var(--coral); font-weight: 700;">&#9660;</span>&nbsp; Followed by a <strong>terrible week</strong> - with no data to explain it
     </div>
-    <div style="padding: 18px 0; border-bottom: 1px solid #eee; font-size: 22px;">
+    <div style="padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 22px;">
       You schedule pitches around <em>client</em> calendars, not your peak windows
     </div>
     <div style="padding: 18px 0; font-size: 22px; color: var(--coral); font-weight: 600;">
@@ -1113,7 +1123,7 @@
   <h2>Imagine an F1 team that optimized the car, tires, aerodynamics, and pit crew -</h2>
   <h2 style="color: var(--coral); margin-top: 20px;">But never checked the weather.</h2>
   <div style="margin-top: 30px; font-size: 20px; color: rgba(255,255,255,0.5); line-height: 1.6;">
-    Some races they dominate.<br>Others they crash.<br><strong style="color: white;">And they have no idea why.</strong>
+    Some races they dominate.<br>Others they crash.<br><strong style="color: var(--text-primary);">And they have no idea why.</strong>
   </div>
 </div>
 
@@ -1130,7 +1140,7 @@
     </div>
   </div>
   <div style="margin-top: 40px; text-align: center;">
-    <h3 style="color: var(--teal-dark);">Biology first. Everything else second.</h3>
+    <h3 style="color: var(--teal);">Biology first. Everything else second.</h3>
   </div>
 </div>
 
@@ -1161,10 +1171,10 @@
     <div style="font-size: 22px; line-height: 1.8; margin-bottom: 24px;">
       <span style="color: var(--coral); font-weight: 700;">This week:</span> Can't get through your inbox.
     </div>
-    <div style="font-size: 22px; line-height: 1.8; margin-bottom: 24px; color: var(--gray-text); font-style: italic;">
+    <div style="font-size: 22px; line-height: 1.8; margin-bottom: 24px; color: var(--text-body); font-style: italic;">
       Inner voice: &ldquo;What's wrong with me?&rdquo;
     </div>
-    <div style="background: #f5f5f5; padding: 24px; border-radius: 12px; border-left: 4px solid var(--teal);">
+    <div style="background: var(--bg-elevated); padding: 24px; border-radius: 12px; border-left: 4px solid var(--teal);">
       <p style="font-size: 20px; line-height: 1.6;"><strong>Truth:</strong> Same playbook. Different neurochemical environment.</p>
       <p style="font-size: 20px; line-height: 1.6; margin-top: 8px;">You have <strong>FOUR modes</strong>, not one. When you only reward yourself for one, you spend 50-70% of the month feeling like you're failing.</p>
     </div>
@@ -1194,20 +1204,20 @@
   </div>
   <div style="margin-top: 30px; font-size: 20px; text-align: center; color: rgba(255,255,255,0.6); line-height: 1.6;">
     Modern productivity canon: written almost entirely by men, for men.<br>
-    <strong style="color: white;">24-hour cycle = male testosterone rhythm. Does NOT account for female infradian rhythm.</strong>
+    <strong style="color: var(--text-primary);">24-hour cycle = male testosterone rhythm. Does NOT account for female infradian rhythm.</strong>
   </div>
   <p class="source">Sources: Cowley et al., 2021</p>
 </div>
 
 <!-- ==================== SLIDE 28: Reason #5 What's Happening ==================== -->
 <div class="slide bg-white" data-slide="28">
-  <h2 style="color: #1a1a1a; margin-bottom: 30px;">Every system you use was designed for a 24-hour hormonal reset:</h2>
+  <h2 style="color: var(--text-primary); margin-bottom: 30px;">Every system you use was designed for a 24-hour hormonal reset:</h2>
   <div style="max-width: 600px; text-align: left;">
-    <div style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 22px;">Your sales methodology</div>
-    <div style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 22px;">Your training program</div>
-    <div style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 22px;">Your leadership playbook</div>
-    <div style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 22px;">Your weekly schedule</div>
-    <div style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 22px;">Your performance reviews</div>
+    <div style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 22px;">Your sales methodology</div>
+    <div style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 22px;">Your training program</div>
+    <div style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 22px;">Your leadership playbook</div>
+    <div style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 22px;">Your weekly schedule</div>
+    <div style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 22px;">Your performance reviews</div>
   </div>
   <p style="margin-top: 30px; font-size: 20px; color: var(--coral); font-weight: 600; text-align: center; max-width: 700px;">
     None have a chapter for &ldquo;when neurochemistry shifts every 7 days.&rdquo;
@@ -1239,7 +1249,7 @@
       <div style="font-size: 17px; font-weight: 600; margin-top: 8px;">Peak Windows</div>
       <div style="font-size: 15px; color: rgba(255,255,255,0.5); margin-top: 4px;">When you are at your absolute best</div>
     </div>
-    <div style="flex: 1; min-width: 220px; padding: 24px; background: rgba(45,138,138,0.1); border-radius: 12px; border: 1px solid rgba(45,138,138,0.2); text-align: center;">
+    <div style="flex: 1; min-width: 220px; padding: 24px; background: rgba(0,229,160,0.1); border-radius: 12px; border: 1px solid rgba(0,229,160,0.2); text-align: center;">
       <div style="font-size: 28px; font-weight: 800; color: var(--teal);">2</div>
       <div style="font-size: 17px; font-weight: 600; margin-top: 8px;">Power-Down Windows</div>
       <div style="font-size: 15px; color: rgba(255,255,255,0.5); margin-top: 4px;">When your body needs recovery</div>
@@ -1284,7 +1294,7 @@
         <td>Rest + Evaluate</td>
       </tr>
       <tr>
-        <td style="font-weight:700; color: #5EC49A;">BUILD</td>
+        <td style="font-weight:700; color: var(--teal);">BUILD</td>
         <td>Days 6-14</td>
         <td>Creativity, learning, initiation</td>
         <td>Start + Create</td>
@@ -1324,7 +1334,7 @@
 <!-- ==================== SLIDE 36: Mode 2 - BUILD ==================== -->
 <div class="slide bg-dark" data-slide="36">
   <div class="mode-header build">MODE 2</div>
-  <h2 style="color: #5EC49A;">BUILD <span style="font-weight: 400; font-size: 24px; color: rgba(255,255,255,0.4);">(Days 6-14)</span></h2>
+  <h2 style="color: var(--teal);">BUILD <span style="font-weight: 400; font-size: 24px; color: rgba(255,255,255,0.4);">(Days 6-14)</span></h2>
   <p style="font-size: 20px; color: rgba(255,255,255,0.5); margin: 8px 0 24px;">Superpower: Creativity + learning + initiation</p>
   <table class="slide-table">
     <thead><tr><th style="width: 50px;"></th><th>Domain</th><th>What to Prioritize</th></tr></thead>
@@ -1385,7 +1395,7 @@
     <div class="cycle-arrow">&#10132;</div>
     <div style="font-size: 14px; color: rgba(255,255,255,0.3); align-self: center;">&#8634;</div>
   </div>
-  <p style="margin-top: 30px; font-size: 20px; text-align: center; color: rgba(255,255,255,0.6);">Not a flatline. <strong style="color: white;">A rhythm.</strong></p>
+  <p style="margin-top: 30px; font-size: 20px; text-align: center; color: rgba(255,255,255,0.6);">Not a flatline. <strong style="color: var(--text-primary);">A rhythm.</strong></p>
 </div>
 
 <!-- ==================== SLIDE 40: Quote ==================== -->
@@ -1402,7 +1412,7 @@
 
 <!-- ==================== SLIDE 42: 4 Buying Criteria ==================== -->
 <div class="slide bg-white" data-slide="42">
-  <h3 style="color: #1a1a1a; margin-bottom: 24px;">THE 4 CRITERIA THAT MATTER</h3>
+  <h3 style="color: var(--text-primary); margin-bottom: 24px;">THE 4 CRITERIA THAT MATTER</h3>
   <div class="criteria-grid">
     <div class="criteria-card">
       <div class="num">1</div>
@@ -1469,7 +1479,7 @@
     <li>WNBA viewership: Up <strong>155%</strong> (ESPN, 2024)</li>
     <li>Women's World Cup: <strong>2B</strong> viewers (FIFA, 2023)</li>
   </ul>
-  <div style="margin-top: 24px; padding: 16px; border: 1px solid rgba(232,116,97,0.3); border-radius: 8px; text-align: center;">
+  <div style="margin-top: 24px; padding: 16px; border: 1px solid rgba(232,116,97,0.25); border-radius: 8px; text-align: center;">
     <p style="font-size: 18px; color: var(--coral); font-weight: 600;">Yet ZERO apps at the intersection of: Cycle intelligence + Multi-domain performance + Data-driven personalization</p>
   </div>
   <p class="source">Sources: Grand View Research, Precedence Research</p>
@@ -1509,7 +1519,7 @@
     </div>
     <div class="score-block">
       <span class="range">23-31</span>
-      <span class="label" style="color: #5EC49A;">Rhythm-Aligned</span>
+      <span class="label" style="color: var(--teal);">Rhythm-Aligned</span>
       <span class="desc">You've started but lack tools to optimize across all domains</span>
     </div>
     <div class="score-block">
