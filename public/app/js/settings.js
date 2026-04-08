@@ -56,108 +56,108 @@ window.PeakHer.Settings = (function () {
 
     var css =
       '.ph-settings-overlay{' +
-        'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;opacity:0;' +
+        'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;opacity:0;' +
         'transition:opacity 0.3s ease;pointer-events:none;' +
       '}\n' +
       '.ph-settings-overlay.open{opacity:1;pointer-events:auto;}\n' +
 
       '.ph-settings-panel{' +
         'position:fixed;top:0;right:0;bottom:0;width:min(400px,90vw);' +
-        'background:var(--cream,#faf8f5);z-index:201;' +
+        'background:var(--bg-primary,#12121A);z-index:201;' +
         'transform:translateX(100%);transition:transform 0.3s ease;' +
-        'overflow-y:auto;box-shadow:-4px 0 20px rgba(0,0,0,0.1);' +
+        'overflow-y:auto;box-shadow:-4px 0 20px rgba(0,0,0,0.3);' +
       '}\n' +
       '.ph-settings-panel.open{transform:translateX(0);}\n' +
 
       '.ph-settings-header{' +
-        'position:sticky;top:0;background:var(--cream,#faf8f5);' +
+        'position:sticky;top:0;background:var(--bg-primary,#12121A);' +
         'display:flex;align-items:center;justify-content:space-between;' +
-        'padding:20px 24px;border-bottom:1px solid var(--border-light,rgba(0,0,0,0.06));z-index:1;' +
+        'padding:20px 24px;border-bottom:1px solid var(--border-light,rgba(255,255,255,0.06));z-index:1;' +
       '}\n' +
-      '.ph-settings-header h2{font-size:18px;font-weight:700;margin:0;color:var(--text-dark,#1a1a2e);}\n' +
+      '.ph-settings-header h2{font-family:"Plus Jakarta Sans","Inter",sans-serif;font-size:18px;font-weight:800;margin:0;color:var(--text-primary,#F0F0F5);}\n' +
       '.ph-settings-close{' +
-        'width:36px;height:36px;border-radius:50%;border:none;background:var(--warm-gray,#f3f0ec);' +
+        'width:36px;height:36px;border-radius:50%;border:none;background:var(--bg-elevated,#22222F);' +
         'cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;' +
-        'color:var(--text-body,#374151);transition:background 0.2s;' +
+        'color:var(--text-secondary,#A0A0B0);transition:background 0.2s;' +
       '}\n' +
-      '.ph-settings-close:hover{background:var(--border-light,rgba(0,0,0,0.1));}\n' +
+      '.ph-settings-close:hover{background:var(--bg-surface,#1A1A26);}\n' +
 
       '.ph-settings-body{padding:24px;}\n' +
 
       '.ph-settings-section{' +
-        'background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;' +
-        'border:1px solid var(--border-light,rgba(0,0,0,0.06));' +
+        'background:var(--bg-card,#1E1E2A);border-radius:16px;padding:20px;margin-bottom:16px;' +
+        'border:1px solid var(--border-light,rgba(255,255,255,0.06));' +
       '}\n' +
       '.ph-settings-section h3{' +
-        'font-size:15px;font-weight:700;margin:0 0 4px;color:var(--text-dark,#1a1a2e);' +
+        'font-family:"Plus Jakarta Sans","Inter",sans-serif;font-size:15px;font-weight:700;margin:0 0 4px;color:var(--text-primary,#F0F0F5);' +
         'display:flex;align-items:center;gap:8px;' +
       '}\n' +
-      '.ph-settings-section p{font-size:13px;color:var(--gray-text,#6b7280);margin:0 0 16px;line-height:1.5;}\n' +
+      '.ph-settings-section p{font-size:13px;color:var(--text-secondary,#A0A0B0);margin:0 0 16px;line-height:1.5;}\n' +
 
       '.ph-sms-input-row{display:flex;gap:8px;margin-bottom:12px;}\n' +
       '.ph-sms-input-row input{' +
-        'flex:1;padding:10px 14px;border:1px solid var(--border-light,rgba(0,0,0,0.1));' +
-        'border-radius:8px;font-size:15px;font-family:inherit;background:#fff;' +
-        'color:var(--text-dark,#1a1a2e);outline:none;' +
+        'flex:1;padding:10px 14px;border:1px solid var(--border-light,rgba(255,255,255,0.06));' +
+        'border-radius:12px;font-size:15px;font-family:inherit;background:var(--bg-elevated,#22222F);' +
+        'color:var(--text-primary,#F0F0F5);outline:none;' +
       '}\n' +
-      '.ph-sms-input-row input:focus{border-color:var(--teal,#2d8a8a);box-shadow:0 0 0 2px rgba(45,138,138,0.15);}\n' +
+      '.ph-sms-input-row input:focus{border-color:var(--teal,#00E5A0);box-shadow:0 0 0 2px rgba(0,229,160,0.15);}\n' +
 
       '.ph-sms-btn{' +
-        'padding:10px 20px;border-radius:8px;border:none;font-size:14px;font-weight:600;' +
+        'padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:600;' +
         'cursor:pointer;transition:background 0.2s,opacity 0.2s;font-family:inherit;' +
       '}\n' +
-      '.ph-sms-btn-primary{background:var(--teal,#2d8a8a);color:#fff;}\n' +
-      '.ph-sms-btn-primary:hover{background:var(--teal-hover,#247474);}\n' +
+      '.ph-sms-btn-primary{background:var(--teal,#00E5A0);color:var(--bg-primary,#12121A);}\n' +
+      '.ph-sms-btn-primary:hover{background:#00CC8E;}\n' +
       '.ph-sms-btn-primary:disabled{opacity:0.5;cursor:not-allowed;}\n' +
-      '.ph-sms-btn-danger{background:#fff;color:#ef4444;border:1px solid #fecaca;}\n' +
-      '.ph-sms-btn-danger:hover{background:#fef2f2;}\n' +
-      '.ph-sms-btn-secondary{background:var(--warm-gray,#f3f0ec);color:var(--text-body,#374151);}\n' +
-      '.ph-sms-btn-secondary:hover{background:#e5e1db;}\n' +
+      '.ph-sms-btn-danger{background:transparent;color:#ef4444;border:1px solid rgba(239,68,68,0.3);}\n' +
+      '.ph-sms-btn-danger:hover{background:rgba(239,68,68,0.08);}\n' +
+      '.ph-sms-btn-secondary{background:var(--bg-elevated,#22222F);color:var(--text-primary,#F0F0F5);}\n' +
+      '.ph-sms-btn-secondary:hover{background:var(--bg-surface,#1A1A26);}\n' +
 
       '.ph-sms-status{' +
         'display:inline-flex;align-items:center;gap:6px;padding:4px 10px;' +
         'border-radius:20px;font-size:12px;font-weight:600;margin-bottom:12px;' +
       '}\n' +
-      '.ph-sms-status.verified{background:#dcfce7;color:#166534;}\n' +
-      '.ph-sms-status.unverified{background:#fef9c3;color:#854d0e;}\n' +
-      '.ph-sms-status.none{background:var(--warm-gray,#f3f0ec);color:var(--gray-text,#6b7280);}\n' +
+      '.ph-sms-status.verified{background:rgba(0,229,160,0.12);color:#00E5A0;}\n' +
+      '.ph-sms-status.unverified{background:rgba(255,215,0,0.12);color:#FFD700;}\n' +
+      '.ph-sms-status.none{background:var(--bg-elevated,#22222F);color:var(--text-secondary,#A0A0B0);}\n' +
 
       '.ph-sms-toggle-row{' +
         'display:flex;align-items:center;justify-content:space-between;' +
-        'padding:12px 0;border-top:1px solid var(--border-light,rgba(0,0,0,0.06));' +
+        'padding:12px 0;border-top:1px solid var(--border-light,rgba(255,255,255,0.06));' +
       '}\n' +
       '.ph-sms-toggle-row:first-child{border-top:none;padding-top:0;}\n' +
-      '.ph-sms-toggle-label{font-size:14px;color:var(--text-dark,#1a1a2e);font-weight:500;}\n' +
-      '.ph-sms-toggle-desc{font-size:12px;color:var(--gray-text,#6b7280);margin-top:2px;}\n' +
+      '.ph-sms-toggle-label{font-size:14px;color:var(--text-primary,#F0F0F5);font-weight:500;}\n' +
+      '.ph-sms-toggle-desc{font-size:12px;color:var(--text-secondary,#A0A0B0);margin-top:2px;}\n' +
 
       '.ph-toggle{' +
         'position:relative;width:48px;height:28px;flex-shrink:0;' +
       '}\n' +
       '.ph-toggle input{opacity:0;width:0;height:0;}\n' +
       '.ph-toggle-track{' +
-        'position:absolute;inset:0;border-radius:14px;background:#d1d5db;' +
+        'position:absolute;inset:0;border-radius:14px;background:var(--bg-elevated,#22222F);' +
         'transition:background 0.2s;cursor:pointer;' +
       '}\n' +
-      '.ph-toggle input:checked + .ph-toggle-track{background:var(--teal,#2d8a8a);}\n' +
+      '.ph-toggle input:checked + .ph-toggle-track{background:var(--teal,#00E5A0);}\n' +
       '.ph-toggle-thumb{' +
         'position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;' +
-        'background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:transform 0.2s;' +
+        'background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:transform 0.2s;' +
       '}\n' +
       '.ph-toggle input:checked ~ .ph-toggle-thumb{transform:translateX(20px);}\n' +
 
       '.ph-sms-select{' +
-        'width:100%;padding:10px 14px;border:1px solid var(--border-light,rgba(0,0,0,0.1));' +
-        'border-radius:8px;font-size:14px;font-family:inherit;background:#fff;' +
-        'color:var(--text-dark,#1a1a2e);outline:none;appearance:none;' +
-        'background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'7\'%3E%3Cpath d=\'M1 1l5 5 5-5\' stroke=\'%236b7280\' stroke-width=\'1.5\' fill=\'none\'/%3E%3C/svg%3E");' +
+        'width:100%;padding:10px 14px;border:1px solid var(--border-light,rgba(255,255,255,0.06));' +
+        'border-radius:10px;font-size:14px;font-family:inherit;background:var(--bg-elevated,#22222F);' +
+        'color:var(--text-primary,#F0F0F5);outline:none;appearance:none;' +
+        'background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'7\'%3E%3Cpath d=\'M1 1l5 5 5-5\' stroke=\'%23A0A0B0\' stroke-width=\'1.5\' fill=\'none\'/%3E%3C/svg%3E");' +
         'background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;' +
       '}\n' +
-      '.ph-sms-select:focus{border-color:var(--teal,#2d8a8a);box-shadow:0 0 0 2px rgba(45,138,138,0.15);}\n' +
+      '.ph-sms-select:focus{border-color:var(--teal,#00E5A0);box-shadow:0 0 0 2px rgba(0,229,160,0.15);}\n' +
 
       '.ph-sms-error{color:#ef4444;font-size:13px;margin-top:8px;}\n' +
-      '.ph-sms-success{color:#16a34a;font-size:13px;margin-top:8px;}\n' +
+      '.ph-sms-success{color:#00E5A0;font-size:13px;margin-top:8px;}\n' +
 
-      '.ph-settings-divider{height:1px;background:var(--border-light,rgba(0,0,0,0.06));margin:8px 0 16px;}\n';
+      '.ph-settings-divider{height:1px;background:var(--border-light,rgba(255,255,255,0.06));margin:8px 0 16px;}\n';
 
     var style = document.createElement('style');
     style.id = 'peakher-settings-styles';
@@ -238,7 +238,7 @@ window.PeakHer.Settings = (function () {
 
     var user = Store.getUser();
     if (user) {
-      html += '<p style="margin-bottom:8px;">' + escapeHtml(user.name) + ' &mdash; ' + escapeHtml(user.email) + '</p>';
+      html += '<p style="margin-bottom:8px;color:var(--text-secondary,#A0A0B0);">' + escapeHtml(user.name) + ' -- ' + escapeHtml(user.email) + '</p>';
     }
 
     html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
@@ -297,18 +297,18 @@ window.PeakHer.Settings = (function () {
     html += '<h3>Your AI Companion</h3>';
     html += '<p>Meet the voice behind every briefing, insight, and recommendation</p>';
 
-    html += '<div style="border:2px solid var(--teal,#2d8a8a);background:rgba(45,138,138,0.06);border-radius:12px;padding:18px 20px;">';
+    html += '<div style="border:1px solid rgba(0,229,160,0.2);background:rgba(0,229,160,0.04);border-radius:16px;padding:18px 20px;">';
     html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">';
     html += '<span style="font-size:28px;">\uD83D\uDCAC</span>';
-    html += '<span style="font-size:17px;font-weight:700;color:var(--text-dark,#1a1a2e);">Dot &mdash; Your AI Companion</span>';
+    html += '<span style="font-family:Plus Jakarta Sans,Inter,sans-serif;font-size:17px;font-weight:800;color:var(--text-primary,#F0F0F5);">Dot -- Your AI Companion</span>';
     html += '</div>';
-    html += '<div style="font-size:14px;line-height:1.6;color:var(--gray-text,#6b7280);margin-bottom:14px;">One voice, four moods. Dot adjusts her tone to match your phase automatically.</div>';
+    html += '<div style="font-size:14px;line-height:1.6;color:var(--text-secondary,#A0A0B0);margin-bottom:14px;">One voice, four moods. Dot adjusts her tone to match your phase automatically.</div>';
 
     html += '<div style="display:flex;flex-direction:column;gap:8px;">';
-    html += '<div style="font-size:12px;color:var(--gray-text,#6b7280);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#9B30FF;"></span> <strong>Restore:</strong> Gentle, reflective, validating</div>';
-    html += '<div style="font-size:12px;color:var(--gray-text,#6b7280);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00E5A0;"></span> <strong>Rise:</strong> Encouraging, curious, energizing</div>';
-    html += '<div style="font-size:12px;color:var(--gray-text,#6b7280);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FFD700;"></span> <strong>Peak:</strong> Bold, direct, cheeky</div>';
-    html += '<div style="font-size:12px;color:var(--gray-text,#6b7280);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FF6B6B;"></span> <strong>Sustain:</strong> Warm, structured, reassuring</div>';
+    html += '<div style="font-size:12px;color:var(--text-secondary,#A0A0B0);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#9B30FF;"></span> <strong style="color:var(--text-primary,#F0F0F5);">Restore:</strong> Gentle, reflective, validating</div>';
+    html += '<div style="font-size:12px;color:var(--text-secondary,#A0A0B0);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00E5A0;"></span> <strong style="color:var(--text-primary,#F0F0F5);">Rise:</strong> Encouraging, curious, energizing</div>';
+    html += '<div style="font-size:12px;color:var(--text-secondary,#A0A0B0);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FFD700;"></span> <strong style="color:var(--text-primary,#F0F0F5);">Peak:</strong> Bold, direct, cheeky</div>';
+    html += '<div style="font-size:12px;color:var(--text-secondary,#A0A0B0);display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FF6B6B;"></span> <strong style="color:var(--text-primary,#F0F0F5);">Sustain:</strong> Warm, structured, reassuring</div>';
     html += '</div>';
 
     html += '</div>';
@@ -408,7 +408,7 @@ window.PeakHer.Settings = (function () {
       html += '</div>';
 
       // Remove phone
-      html += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border-light,rgba(0,0,0,0.06));">';
+      html += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border-light,rgba(255,255,255,0.06));">';
       html += '<button class="ph-sms-btn ph-sms-btn-danger" id="btnRemovePhone" style="font-size:13px;padding:8px 16px;">Remove Phone Number</button>';
       html += '</div>';
 
@@ -1021,8 +1021,8 @@ window.PeakHer.Settings = (function () {
       var label = d === 0 ? 'Today' : d === 1 ? 'Yesterday' : d + 'd ago';
       var isActive = d === selectedDay;
       var chipStyle = isActive
-        ? 'background:rgba(45,138,138,0.15);border-color:var(--teal,#2d8a8a);color:var(--teal,#2d8a8a);font-weight:600;'
-        : 'background:#fff;border-color:var(--border-light,rgba(0,0,0,0.1));color:var(--text-body,#374151);';
+        ? 'background:rgba(0,229,160,0.12);border-color:var(--teal,#00E5A0);color:var(--teal,#00E5A0);font-weight:600;'
+        : 'background:var(--bg-elevated,#22222F);border-color:var(--border-light,rgba(255,255,255,0.06));color:var(--text-secondary,#A0A0B0);';
       html += '<button class="ph-cycle-day-chip" data-day="' + d + '" style="' +
         'padding:6px 12px;border-radius:20px;border:1px solid;font-size:13px;cursor:pointer;transition:all 0.2s;font-family:inherit;' +
         chipStyle + '">' + label + '</button>';
@@ -1063,14 +1063,14 @@ window.PeakHer.Settings = (function () {
           // Update visual state
           var allChips = document.querySelectorAll('.ph-cycle-day-chip');
           for (var j = 0; j < allChips.length; j++) {
-            allChips[j].style.background = '#fff';
-            allChips[j].style.borderColor = 'var(--border-light,rgba(0,0,0,0.1))';
-            allChips[j].style.color = 'var(--text-body,#374151)';
+            allChips[j].style.background = 'var(--bg-elevated,#22222F)';
+            allChips[j].style.borderColor = 'var(--border-light,rgba(255,255,255,0.06))';
+            allChips[j].style.color = 'var(--text-secondary,#A0A0B0)';
             allChips[j].style.fontWeight = 'normal';
           }
-          chip.style.background = 'rgba(45,138,138,0.15)';
-          chip.style.borderColor = 'var(--teal,#2d8a8a)';
-          chip.style.color = 'var(--teal,#2d8a8a)';
+          chip.style.background = 'rgba(0,229,160,0.12)';
+          chip.style.borderColor = 'var(--teal,#00E5A0)';
+          chip.style.color = 'var(--teal,#00E5A0)';
           chip.style.fontWeight = '600';
 
           saveCycleSettings();
@@ -1092,7 +1092,7 @@ window.PeakHer.Settings = (function () {
       cycleProfile.averageCycleLength = lengthSelect ? parseInt(lengthSelect.value) : 28;
 
       // Find selected day chip
-      var activeChip = document.querySelector('.ph-cycle-day-chip[style*="rgba(45,138,138"]');
+      var activeChip = document.querySelector('.ph-cycle-day-chip[style*="rgba(0,229,160"]');
       if (activeChip) {
         var daysAgo = parseInt(activeChip.getAttribute('data-day'));
         var d = new Date();
