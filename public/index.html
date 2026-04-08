@@ -19,35 +19,41 @@
 <meta name="twitter:image" content="https://peakher.ai/og-image.png">
 <link rel="canonical" href="https://peakher.ai">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
   :root {
     --navy: #0a1628;
     --navy-light: #0f2035;
     --black: #000000;
-    --white: #ffffff;
-    --cream: #faf8f5;
-    --warm-gray: #f3f0ec;
+    --white: #1A1A26;
+    --cream: #12121A;
+    --warm-gray: #22222F;
+    --bg-primary: #12121A;
+    --bg-surface: #1A1A26;
+    --bg-elevated: #22222F;
+    --bg-card: #1E1E2A;
     --coral: #E87461;
     --coral-hover: #d4634f;
-    --coral-soft: #fdf0ee;
-    --teal: #2d8a8a;
-    --teal-hover: #247474;
-    --teal-soft: #eef7f7;
-    --gray-mid: #999;
-    --gray-text: #6b7280;
-    --gray-text-light: #9ca3af;
-    --text-dark: #1a1a2e;
-    --text-body: #374151;
-    --border-light: rgba(0,0,0,0.06);
+    --coral-soft: rgba(232,116,97,0.08);
+    --teal: #00E5A0;
+    --teal-hover: #00c98c;
+    --teal-soft: rgba(0,229,160,0.06);
+    --gray-mid: #666;
+    --gray-text: #A0A0B0;
+    --gray-text-light: #A0A0B0;
+    --text-dark: #F0F0F5;
+    --text-primary: #F0F0F5;
+    --text-secondary: #A0A0B0;
+    --text-body: #A0A0B0;
+    --border-light: rgba(255,255,255,0.06);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--cream);
-    color: var(--text-dark);
+    background: var(--bg-primary);
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     line-height: 1.6;
   }
@@ -64,17 +70,18 @@
     justify-content: space-between;
     padding: 0 32px;
     height: 64px;
-    background: rgba(250, 248, 245, 0);
+    background: rgba(18, 18, 26, 0);
     backdrop-filter: blur(0px);
     border-bottom: 1px solid transparent;
     transition: background 0.3s, backdrop-filter 0.3s, border-color 0.3s;
   }
   .top-nav.scrolled {
-    background: rgba(250, 248, 245, 0.9);
+    background: rgba(18, 18, 26, 0.9);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-light);
   }
   .nav-logo {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-size: 15px;
     font-weight: 800;
     letter-spacing: 4px;
@@ -92,7 +99,7 @@
   .nav-links a {
     font-size: 14px;
     font-weight: 600;
-    color: var(--gray-text);
+    color: var(--text-secondary);
     text-decoration: none;
     letter-spacing: 0.5px;
     transition: color 0.2s;
@@ -114,7 +121,7 @@
     display: block;
     width: 22px;
     height: 2px;
-    background: var(--text-dark);
+    background: var(--text-primary);
     border-radius: 2px;
     transition: transform 0.3s, opacity 0.3s;
   }
@@ -127,7 +134,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(250, 248, 245, 0.97);
+    background: rgba(18, 18, 26, 0.97);
     backdrop-filter: blur(16px);
     z-index: 999;
     flex-direction: column;
@@ -139,7 +146,7 @@
   .nav-overlay a {
     font-size: 22px;
     font-weight: 700;
-    color: var(--text-dark);
+    color: var(--text-primary);
     text-decoration: none;
     letter-spacing: 1px;
     transition: color 0.2s;
@@ -160,7 +167,7 @@
     justify-content: center;
     text-align: center;
     padding: 80px 24px 60px;
-    background: linear-gradient(170deg, var(--cream) 0%, var(--white) 40%, var(--teal-soft) 100%);
+    background: linear-gradient(170deg, #1a0a2e 0%, #12121A 40%, #0d1a1a 100%);
     position: relative;
     overflow: hidden;
   }
@@ -171,7 +178,7 @@
     right: -200px;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(232,116,97,0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(232,116,97,0.1) 0%, transparent 70%);
     pointer-events: none;
   }
   .hero::after {
@@ -181,11 +188,12 @@
     left: -200px;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(45,138,138,0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(0,229,160,0.08) 0%, transparent 70%);
     pointer-events: none;
   }
 
   .logo {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 800;
     letter-spacing: 4px;
@@ -195,19 +203,20 @@
   }
 
   .hero h1 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-size: 52px;
     font-weight: 800;
     line-height: 1.12;
     letter-spacing: -1.5px;
     max-width: 700px;
     margin-bottom: 20px;
-    color: var(--text-dark);
+    color: var(--text-primary);
   }
   .hero h1 span { color: var(--coral); }
 
   .hero .subtitle {
     font-size: 20px;
-    color: var(--gray-text);
+    color: var(--text-secondary);
     max-width: 620px;
     margin-bottom: 40px;
     line-height: 1.6;
@@ -231,25 +240,23 @@
   .btn-coral {
     background: var(--coral);
     color: white;
-    box-shadow: 0 2px 8px rgba(232,116,97,0.3);
   }
   .btn-coral:hover { background: var(--coral-hover); transform: translateY(-1px); }
   .btn-teal {
     background: var(--teal);
-    color: white;
-    box-shadow: 0 2px 8px rgba(45,138,138,0.3);
+    color: #12121A;
   }
   .btn-teal:hover { background: var(--teal-hover); transform: translateY(-1px); }
   .btn-outline {
     background: transparent;
     border: 2px solid var(--border-light);
-    color: var(--text-dark);
+    color: var(--text-primary);
   }
   .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
 
   .form-note {
     font-size: 13px;
-    color: var(--gray-text-light);
+    color: var(--text-secondary);
     margin-bottom: 40px;
   }
 
@@ -263,7 +270,7 @@
 
   /* ---- MEET DOT ---- */
   .meet-dot-section {
-    background: var(--white);
+    background: var(--bg-surface);
     border-top: 1px solid var(--border-light);
     border-bottom: 1px solid var(--border-light);
   }
@@ -274,14 +281,15 @@
     padding: 64px 24px;
   }
   .meet-dot-inner h2 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-size: 32px;
     font-weight: 800;
     margin-bottom: 12px;
-    color: var(--text-dark);
+    color: var(--text-primary);
   }
   .meet-dot-inner p {
     font-size: 18px;
-    color: var(--gray-text);
+    color: var(--text-secondary);
     line-height: 1.7;
     max-width: 600px;
     margin: 0 auto;
@@ -294,7 +302,7 @@
     gap: 48px;
     flex-wrap: wrap;
     padding: 40px 24px;
-    background: var(--cream);
+    background: var(--bg-primary);
     border-top: 1px solid var(--border-light);
     border-bottom: 1px solid var(--border-light);
   }
@@ -302,13 +310,14 @@
     text-align: center;
   }
   .stat-item .num {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-size: 36px;
     font-weight: 800;
     color: var(--coral);
   }
   .stat-item .label {
     font-size: 13px;
-    color: var(--gray-text);
+    color: var(--text-secondary);
     margin-top: 4px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -332,18 +341,19 @@
   }
 
   section h2 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-size: 38px;
     font-weight: 800;
     text-align: center;
     letter-spacing: -0.5px;
     margin-bottom: 16px;
     line-height: 1.2;
-    color: var(--text-dark);
+    color: var(--text-primary);
   }
 
   section .section-sub {
     font-size: 18px;
-    color: var(--gray-text);
+    color: var(--text-secondary);
     text-align: center;
     max-width: 600px;
     margin: 0 auto 48px;
@@ -352,34 +362,34 @@
 
   /* ---- QUIZ SECTION ---- */
   .quiz-section {
-    background: var(--teal-soft);
+    background: var(--bg-surface);
     padding-top: 80px;
     padding-bottom: 80px;
   }
 
   .quiz-card {
-    background: var(--white);
+    background: var(--bg-card);
     border: 1px solid var(--border-light);
     border-radius: 16px;
     padding: 48px;
     text-align: center;
     max-width: 650px;
     margin: 0 auto;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
   }
   .quiz-card .quiz-icon {
     font-size: 48px;
     margin-bottom: 20px;
   }
   .quiz-card h3 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-size: 26px;
     font-weight: 700;
     margin-bottom: 12px;
-    color: var(--text-dark);
+    color: var(--text-primary);
   }
   .quiz-card p {
     font-size: 17px;
-    color: var(--gray-text);
+    color: var(--text-secondary);
     margin-bottom: 32px;
     line-height: 1.6;
   }
@@ -396,11 +406,11 @@
     font-size: 13px;
     font-weight: 600;
   }
-  .quiz-level.l1 { background: rgba(232,116,97,0.1); color: #d4634f; }
-  .quiz-level.l2 { background: rgba(196,154,94,0.1); color: #a17d3e; }
-  .quiz-level.l3 { background: rgba(94,196,154,0.1); color: #3a9a6e; }
-  .quiz-level.l4 { background: rgba(45,138,138,0.1); color: #247474; }
-  .quiz-level.l5 { background: rgba(123,167,194,0.1); color: #5a8aa8; }
+  .quiz-level.l1 { background: rgba(232,116,97,0.15); color: #E87461; }
+  .quiz-level.l2 { background: rgba(196,154,94,0.15); color: #c49a5e; }
+  .quiz-level.l3 { background: rgba(0,229,160,0.15); color: #00E5A0; }
+  .quiz-level.l4 { background: rgba(0,229,160,0.2); color: #00E5A0; }
+  .quiz-level.l5 { background: rgba(123,167,194,0.15); color: #7ba7c2; }
 
   /* ---- 4 MODES ---- */
   .modes-grid {
@@ -410,10 +420,9 @@
   }
   .mode-card {
     padding: 28px;
-    border-radius: 12px;
+    border-radius: 16px;
     border: 1px solid var(--border-light);
-    background: var(--white);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    background: var(--bg-card);
   }
   .mode-card .mode-name {
     font-size: 13px;
@@ -424,26 +433,26 @@
   }
   .mode-card .mode-days {
     font-size: 13px;
-    color: var(--gray-text-light);
+    color: var(--text-secondary);
     margin-bottom: 10px;
   }
   .mode-card .mode-power {
     font-size: 17px;
     font-weight: 600;
     margin-bottom: 8px;
-    color: var(--text-dark);
+    color: var(--text-primary);
   }
   .mode-card .mode-desc {
     font-size: 15px;
-    color: var(--gray-text);
+    color: var(--text-secondary);
     line-height: 1.5;
   }
   .mode-card.restore { border-left: 3px solid #9B30FF; }
   .mode-card.restore .mode-name { color: #9B30FF; }
   .mode-card.rise { border-left: 3px solid #00E5A0; }
-  .mode-card.rise .mode-name { color: #00a874; }
+  .mode-card.rise .mode-name { color: #00E5A0; }
   .mode-card.peak { border-left: 3px solid #FFD700; }
-  .mode-card.peak .mode-name { color: #c4a600; }
+  .mode-card.peak .mode-name { color: #FFD700; }
   .mode-card.sustain { border-left: 3px solid #FF6B6B; }
   .mode-card.sustain .mode-name { color: #FF6B6B; }
 
@@ -455,25 +464,25 @@
   }
   .feature-card {
     padding: 28px;
-    border-radius: 12px;
-    background: var(--white);
+    border-radius: 16px;
+    background: var(--bg-card);
     border: 1px solid var(--border-light);
     text-align: center;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
   }
   .feature-card .feat-icon {
     font-size: 32px;
     margin-bottom: 14px;
   }
   .feature-card h4 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-size: 17px;
     font-weight: 700;
     margin-bottom: 8px;
-    color: var(--text-dark);
+    color: var(--text-primary);
   }
   .feature-card p {
     font-size: 14px;
-    color: var(--gray-text);
+    color: var(--text-secondary);
     line-height: 1.5;
   }
 
@@ -481,9 +490,10 @@
   .quote-section {
     text-align: center;
     padding: 80px 24px;
-    background: var(--coral-soft);
+    background: var(--bg-surface);
   }
   .quote-section blockquote {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-size: 32px;
     font-weight: 600;
     font-style: italic;
@@ -491,7 +501,7 @@
     margin: 0 auto;
     line-height: 1.4;
     letter-spacing: -0.5px;
-    color: var(--text-dark);
+    color: var(--text-primary);
   }
   .quote-section blockquote::before { content: '\201C'; }
   .quote-section blockquote::after { content: '\201D'; }
@@ -500,18 +510,19 @@
   .final-cta {
     text-align: center;
     padding: 80px 24px 100px;
-    background: linear-gradient(180deg, var(--cream) 0%, var(--warm-gray) 100%);
+    background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-elevated) 100%);
   }
   .final-cta h2 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-size: 40px;
     font-weight: 800;
     margin-bottom: 12px;
     letter-spacing: -0.5px;
-    color: var(--text-dark);
+    color: var(--text-primary);
   }
   .final-cta .section-sub {
     margin-bottom: 40px;
-    color: var(--gray-text);
+    color: var(--text-secondary);
   }
   .final-cta .cta-buttons {
     display: flex;
@@ -528,8 +539,8 @@
     padding: 32px 24px;
     border-top: 1px solid var(--border-light);
     font-size: 13px;
-    color: var(--gray-text-light);
-    background: var(--warm-gray);
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
   }
 
   /* ---- RESPONSIVE ---- */
@@ -630,7 +641,7 @@
 </div>
 
 <!-- ==================== THE PROBLEM ==================== -->
-<section style="background: var(--cream); max-width: none; padding-left: 0; padding-right: 0;">
+<section style="background: var(--bg-primary); max-width: none; padding-left: 0; padding-right: 0;">
 <div style="max-width: 900px; margin: 0 auto; padding: 0 24px;">
   <div class="section-label">The Problem</div>
   <h2>You've been running a 28-day engine on a 24-hour schedule</h2>
@@ -690,12 +701,12 @@
     </div>
 
     <a href="/quiz/" class="btn btn-teal" id="quizBtn" style="padding: 18px 48px; font-size: 17px;">Take the Quiz Now</a>
-    <p style="font-size: 13px; color: var(--gray-text-light); margin-top: 16px;">Free. No account required. Get your score instantly.</p>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-top: 16px;">Free. No account required. Get your score instantly.</p>
   </div>
 </section>
 
 <!-- ==================== WHAT YOU GET ==================== -->
-<section id="modes-guide" style="background: var(--warm-gray); max-width: none; padding-left: 0; padding-right: 0;">
+<section id="modes-guide" style="background: var(--bg-elevated); max-width: none; padding-left: 0; padding-right: 0;">
 <div style="max-width: 900px; margin: 0 auto; padding: 0 24px;">
   <div class="section-label">What Dot Delivers</div>
   <h2>Your Daily Intelligence Engine</h2>
@@ -768,7 +779,7 @@
 <!-- ==================== FOOTER ==================== -->
 <footer>
   <p>PeakHer &copy; 2026 High Performance Ventures LLC. All rights reserved.</p>
-  <p style="margin-top: 8px;"><a href="/privacy/" style="color: #9ca3af; text-decoration: none;">Privacy Policy</a> &nbsp;|&nbsp; <a href="/terms/" style="color: #9ca3af; text-decoration: none;">Terms &amp; Conditions</a></p>
+  <p style="margin-top: 8px;"><a href="/privacy/" style="color: var(--text-secondary); text-decoration: none;">Privacy Policy</a> &nbsp;|&nbsp; <a href="/terms/" style="color: var(--text-secondary); text-decoration: none;">Terms &amp; Conditions</a></p>
 </footer>
 
 <script>
