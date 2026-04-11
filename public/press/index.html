@@ -41,10 +41,13 @@
   .section h2{font-size:clamp(1.4rem,2.5vw,1.8rem);letter-spacing:-0.02em;margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid var(--border);}
   .section p{font-size:0.95rem;color:var(--text-2);line-height:1.8;margin-bottom:12px;}
 
-  .bio-block{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:32px;margin-bottom:24px;}
+  .bio-block{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:32px;margin-bottom:24px;display:flex;gap:28px;align-items:flex-start;}
+  .bio-photo{width:120px;height:120px;border-radius:16px;object-fit:cover;flex-shrink:0;}
+  .bio-info{flex:1;}
   .bio-block h3{font-size:1.15rem;margin-bottom:2px;}
   .bio-block .role{font-size:0.82rem;color:var(--pink);font-weight:700;margin-bottom:12px;}
   .bio-block p{font-size:0.92rem;color:var(--text-2);line-height:1.7;margin-bottom:0;}
+  @media(max-width:600px){.bio-block{flex-direction:column;align-items:center;text-align:center;}.bio-photo{width:100px;height:100px;}}
 
   .angles{padding:60px 48px;background:var(--cream);}
   .angles h2{font-size:clamp(1.4rem,2.5vw,1.8rem);letter-spacing:-0.02em;margin-bottom:32px;text-align:center;}
@@ -136,16 +139,32 @@
 <section class="section">
   <h2>Founders</h2>
   <div class="bio-block">
-    <h3>Amanda Robbins</h3>
-    <div class="role">Chief Creative Officer, Co-Founder</div>
-    <p>Amanda is the vision behind PeakHer and the reason the Hormonal Intelligence category exists. She created the brand strategy, defined the product positioning, wrote the AI companion's personality guidelines, and serves as the primary test user. Every feature is designed to pass one test: would Amanda screenshot it and send it to her group chat?</p>
-    <p style="margin-top:8px;">Amanda also founded The Farm School, a nature-based education alternative, and runs brand and marketing for Performance Coach University. She and Jairek were the first family featured on the cover of SUCCESS Magazine in its 120+ year history (May/June 2023). She builds businesses around life, not the other way around.</p>
+    <img src="/images/amanda-headshot.jpg" alt="Amanda Robbins" class="bio-photo">
+    <div class="bio-info">
+      <h3>Amanda Robbins</h3>
+      <div class="role">Chief Creative Officer, Co-Founder</div>
+      <p>Amanda is the vision behind PeakHer and the reason the Hormonal Intelligence category exists. She created the brand strategy, defined the product positioning, wrote the AI companion's personality guidelines, and serves as the primary test user. Every feature is designed to pass one test: would Amanda screenshot it and send it to her group chat?</p>
+      <p style="margin-top:8px;">Amanda also founded The Farm School, a nature-based education alternative, and runs brand and marketing for Performance Coach University. She and Jairek were the first family featured on the cover of SUCCESS Magazine in its 120+ year history (May/June 2023). She builds businesses around life, not the other way around.</p>
+    </div>
   </div>
   <div class="bio-block">
-    <h3>Jairek Robbins</h3>
-    <div class="role">CPO / CTO, Co-Founder</div>
-    <p>Jairek is the technical architect behind PeakHer's AI system. A 20+ year executive performance coach with clients across 137+ countries, he received the Congressional Award Gold Medal at age 23 and has trained teams at Harvard, the U.S. Marines, Air Force Special Forces, BMW, UBS, and for U.S. Olympic team members.</p>
-    <p style="margin-top:8px;">He previously built Executive Office AI, a platform of 265+ specialized AI agents that replaced $500/hour consulting with $500/month AI workforces for small businesses. When Amanda described the Hormonal Intelligence platform she wanted, Jairek engineered the AI briefing system, calendar intelligence, fasting engine, wearable integrations, and the entire technical infrastructure.</p>
+    <img src="/images/jairek-headshot.jpg" alt="Jairek Robbins" class="bio-photo">
+    <div class="bio-info">
+      <h3>Jairek Robbins</h3>
+      <div class="role">CPO / CTO, Co-Founder</div>
+      <p>Jairek is the technical architect behind PeakHer's AI system. A 20+ year executive performance coach with clients across 137+ countries, he received the Congressional Award Gold Medal at age 23 and has trained teams at Harvard, the U.S. Marines, Air Force Special Forces, BMW, UBS, and for U.S. Olympic team members.</p>
+      <p style="margin-top:8px;">He previously built Executive Office AI, a platform of 265+ specialized AI agents that replaced $500/hour consulting with $500/month AI workforces for small businesses. When Amanda described the Hormonal Intelligence platform she wanted, Jairek engineered the AI briefing system, calendar intelligence, fasting engine, wearable integrations, and the entire technical infrastructure.</p>
+    </div>
+  </div>
+  <div style="margin-top:24px;">
+    <h3 style="font-size:1rem;margin-bottom:16px;">Press Photos</h3>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      <a href="/images/amanda-headshot.jpg" target="_blank" style="text-decoration:none;"><img src="/images/amanda-headshot.jpg" alt="Amanda Robbins headshot" style="width:140px;height:140px;object-fit:cover;border-radius:12px;border:1px solid var(--border);"></a>
+      <a href="/images/jairek-headshot.jpg" target="_blank" style="text-decoration:none;"><img src="/images/jairek-headshot.jpg" alt="Jairek Robbins headshot" style="width:140px;height:140px;object-fit:cover;border-radius:12px;border:1px solid var(--border);"></a>
+      <a href="/images/couple-1.jpg" target="_blank" style="text-decoration:none;"><img src="/images/couple-1.jpg" alt="Amanda and Jairek Robbins" style="width:200px;height:140px;object-fit:cover;border-radius:12px;border:1px solid var(--border);"></a>
+      <a href="/images/couple-2.jpg" target="_blank" style="text-decoration:none;"><img src="/images/couple-2.jpg" alt="Amanda and Jairek Robbins" style="width:200px;height:140px;object-fit:cover;border-radius:12px;border:1px solid var(--border);"></a>
+    </div>
+    <p style="font-size:0.75rem;color:var(--text-3);margin-top:8px;">Click to download full resolution. Right-click to save.</p>
   </div>
 </section>
 
