@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About PeakHer - The Team Behind Hormonal Intelligence</title>
+<meta name="description" content="Meet the team behind PeakHer. Amanda Robbins, Chief Creative Officer and the vision behind Hormonal Intelligence. Jairek Robbins, the builder who turned it into an AI-powered reality.">
+<link rel="canonical" href="https://peakher.ai/about/">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --plum:#2D0A31;--plum-mid:#4A1259;--pink:#FF2D7B;--purple:#9B30FF;--mint:#00E5A0;--coral:#FF6B6B;--gold:#FFD700;
+    --cream:#FAF9F6;--warm:#FEFDFB;--sand:#F0EDE8;
+    --text:#1A1A2E;--text-2:#4A4A5A;--text-3:#8A8A9A;--border:#E8E6E1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',-apple-system,sans-serif;background:var(--warm);color:var(--text);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4,h5{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;}
+
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 48px;position:sticky;top:0;z-index:100;background:rgba(45,10,49,0.97);backdrop-filter:blur(12px);}
+  .nav-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#fff;letter-spacing:-0.02em;text-decoration:none;}
+  .nav-links{display:flex;align-items:center;gap:28px;list-style:none;}
+  .nav-links a{text-decoration:none;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.55);transition:color 0.2s;}
+  .nav-links a:hover{color:#fff;}
+  .nav-cta{background:var(--pink);color:#fff !important;padding:10px 24px;border-radius:10px;font-weight:700 !important;transition:background 0.2s;}
+  .nav-cta:hover{background:#E0246C !important;}
+
+  .hero-mini{background:var(--plum);padding:80px 48px 60px;text-align:center;position:relative;overflow:hidden;}
+  .hero-mini::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(255,45,123,0.08) 0%,transparent 60%);border-radius:50%;}
+  .hero-mini>*{position:relative;z-index:1;}
+  .hero-mini .eyebrow{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--mint);margin-bottom:12px;}
+  .hero-mini h1{font-size:clamp(2rem,4vw,3.2rem);line-height:1.1;letter-spacing:-0.03em;color:#fff;margin-bottom:16px;}
+  .hero-mini h1 em{font-style:normal;color:var(--pink);}
+  .hero-mini p{font-size:1.1rem;color:rgba(255,255,255,0.5);max-width:560px;margin:0 auto;line-height:1.7;}
+
+  .story{padding:80px 48px;max-width:800px;margin:0 auto;}
+  .story h2{font-size:clamp(1.6rem,3vw,2.2rem);letter-spacing:-0.02em;margin-bottom:20px;line-height:1.15;}
+  .story p{font-size:1rem;color:var(--text-2);line-height:1.8;margin-bottom:16px;}
+  .story .highlight{color:var(--pink);font-weight:600;}
+
+  .team{padding:60px 48px 80px;background:var(--cream);}
+  .team h2{font-size:clamp(1.6rem,3vw,2.2rem);letter-spacing:-0.02em;text-align:center;margin-bottom:48px;}
+  .team-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;margin:0 auto;}
+  .team-card{background:var(--warm);border:1px solid var(--border);border-radius:24px;padding:40px 32px;text-align:center;}
+  .team-avatar{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:800;color:#fff;margin:0 auto 20px;}
+  .team-card h3{font-size:1.3rem;margin-bottom:4px;}
+  .team-card .role{font-size:0.82rem;color:var(--pink);font-weight:700;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px;}
+  .team-card p{font-size:0.92rem;color:var(--text-2);line-height:1.7;text-align:left;}
+  .team-card .cred{font-size:0.82rem;color:var(--text-3);margin-top:16px;text-align:left;line-height:1.6;}
+
+  .values{padding:80px 48px;max-width:900px;margin:0 auto;text-align:center;}
+  .values h2{font-size:clamp(1.6rem,3vw,2.2rem);letter-spacing:-0.02em;margin-bottom:48px;}
+  .values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .v-card{text-align:left;padding:28px;background:var(--cream);border:1px solid var(--border);border-radius:20px;}
+  .v-card h3{font-size:1rem;margin-bottom:8px;}
+  .v-card p{font-size:0.88rem;color:var(--text-2);line-height:1.6;}
+
+  .footer{padding:48px 48px 32px;background:#0A0610;color:rgba(255,255,255,0.4);}
+  .footer-bottom{display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;max-width:960px;margin:0 auto;}
+  .footer-bottom a{color:rgba(255,255,255,0.25);text-decoration:none;font-size:0.72rem;}
+
+  @media(max-width:768px){
+    .hero-mini{padding:60px 24px 48px;}
+    .story{padding:48px 24px;}
+    .team{padding:48px 24px;}
+    .team-grid{grid-template-columns:1fr;}
+    .values{padding:48px 24px;}
+    .values-grid{grid-template-columns:1fr;}
+    .nav{padding:14px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">PeakHer</a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/about/">About</a></li>
+    <li><a href="/press/">Press</a></li>
+    <li><a href="/app/" style="color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);padding:8px 20px;border-radius:10px;">Log In</a></li>
+    <li><a href="/#waitlist" class="nav-cta">Join Waitlist</a></li>
+  </ul>
+</nav>
+
+<section class="hero-mini">
+  <div class="eyebrow">About PeakHer</div>
+  <h1>Built by a woman who <em>lives it</em>.<br>Engineered by someone who <em>automates everything.</em></h1>
+  <p>PeakHer exists because Amanda got tired of every health tool being designed for a body that doesn't run on a 28-day cycle. Jairek built the AI to fix it.</p>
+</section>
+
+<section class="story">
+  <h2>The origin story is simple.</h2>
+  <p>Amanda Robbins is a brand strategist, a mother, an entrepreneur, and someone who spent years frustrated that every productivity system, workout plan, and nutrition guide she used was designed for someone who doesn't experience hormonal fluctuations.</p>
+  <p>She knew the science existed. She knew that estrogen, progesterone, testosterone, and cortisol create predictable patterns that affect energy, cognition, mood, and performance every single day. <span class="highlight">What didn't exist was a system that translated that science into daily action.</span></p>
+  <p>Her husband Jairek had spent 20+ years as an executive performance coach working with clients across 137 countries, from startups to institutions managing $850B+ in assets. When the AI revolution hit, he did something unusual: he built AI agents to replace his own expertise. 265+ of them. Serving six departments across an entire business.</p>
+  <p>When Amanda described what she wanted, Jairek knew exactly how to build it. Not a period tracker. Not a wellness app. <span class="highlight">A Hormonal Intelligence engine</span> powered by AI that reads your biology, your calendar, your biometrics, and your check-in data, then tells you exactly what to do today.</p>
+  <p>They named the AI companion Dot. She's direct, informed, cheeky, and slightly unhinged. She's never wrong about your 3pm energy crash. And she's the reason women are screenshotting their morning briefs and sending them to group chats.</p>
+</section>
+
+<section class="team">
+  <h2>The team.</h2>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-avatar" style="background:linear-gradient(135deg,#FF5A9E,#D91A65);">A</div>
+      <h3>Amanda Robbins</h3>
+      <div class="role">Chief Creative Officer / The Vision</div>
+      <p>Amanda is the reason PeakHer exists, the reason Dot sounds the way she does, and the reason every screen is designed to be screenshot-worthy. She created the brand strategy, defined the Hormonal Intelligence category, built the content pillars, wrote Dot's personality guidelines, and serves as the target user. When Amanda says "this doesn't feel right," the product changes. Her instincts are ground truth.</p>
+      <p style="margin-top:12px;">She also founded The Farm School, a nature-based education alternative, and runs brand and marketing for Performance Coach University. She builds businesses around life, not the other way around.</p>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar" style="background:linear-gradient(135deg,var(--mint),#00CC8E);">J</div>
+      <h3>Jairek Robbins</h3>
+      <div class="role">Builder / CPO / CTO</div>
+      <p>Jairek is the architect behind the system. 20+ years as an executive performance coach, clients across 137+ countries, Congressional Award Gold Medal recipient at 23. He trained teams at Harvard, the U.S. Marines, Air Force Special Forces, BMW, UBS, and U.S. Olympic team members.</p>
+      <p style="margin-top:12px;">Then he built AI to replace his own expertise. 265+ specialized agents. When Amanda described the Hormonal Intelligence platform she wanted, Jairek engineered the AI briefing system, the calendar intelligence, the fasting adjustment engine, the wearable integrations, and every API endpoint that makes Dot as smart as she is.</p>
+      <div class="cred">First family featured on SUCCESS Magazine cover (May/June 2023). 50+ media appearances including The School of Greatness, Entrepreneurs on Fire, and Success Story.</div>
+    </div>
+  </div>
+</section>
+
+<section class="values">
+  <h2>What we believe.</h2>
+  <div class="values-grid">
+    <div class="v-card">
+      <h3>Female physiology is an advantage.</h3>
+      <p>Not a problem to manage. Not something to push through. A 28-day system with built-in windows for creativity, persuasion, completion, and rest. Most women were never taught to use it.</p>
+    </div>
+    <div class="v-card">
+      <h3>Intelligence, not information.</h3>
+      <p>The internet has enough articles about the luteal phase. What women need is someone who says "skip the HIIT, eat the sweet potatoes, and move your pitch to Thursday." That's Dot.</p>
+    </div>
+    <div class="v-card">
+      <h3>Designed for women, by a woman.</h3>
+      <p>Amanda is the target user. Every feature, every word, every screen is designed to pass one test: would Amanda screenshot this and send it to her group chat?</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-bottom">
+    <span>&copy; 2026 PeakHer. All rights reserved.</span>
+    <div style="display:flex;gap:16px;">
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="mailto:Results@highperformanceventures.com">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
