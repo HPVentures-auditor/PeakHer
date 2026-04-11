@@ -17,8 +17,10 @@ self.addEventListener('push', function (event) {
     body: data.body || '',
     icon: data.icon || '/app/icon-192.png',
     badge: data.icon || '/app/icon-192.png',
+    tag: data.tag || 'peakher-notification',
+    renotify: true,
     data: {
-      url: data.url || '/app/'
+      url: data.url || '/app/#checkin'
     }
   };
 
@@ -30,7 +32,7 @@ self.addEventListener('push', function (event) {
 self.addEventListener('notificationclick', function (event) {
   event.notification.close();
 
-  var url = (event.notification.data && event.notification.data.url) || '/app/';
+  var url = (event.notification.data && event.notification.data.url) || '/app/#checkin';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {

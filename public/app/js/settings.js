@@ -232,6 +232,17 @@ window.PeakHer.Settings = (function () {
     // ── Wearable Integration Section ────────────────────────────
     html += renderWearableSection();
 
+    // ── Appearance Section ───────────────────────────────────────
+    html += '<div class="ph-settings-section">';
+    html += '<h3>Appearance</h3>';
+    html += '<p>Choose your preferred theme</p>';
+    var currentTheme = (window.PeakHer.getTheme && window.PeakHer.getTheme()) || 'dark';
+    html += '<div style="display:flex;gap:8px;">';
+    html += '<button class="ph-sms-btn ' + (currentTheme === 'dark' ? 'ph-sms-btn-primary' : 'ph-sms-btn-secondary') + '" id="btnThemeDark" style="flex:1;">Dark</button>';
+    html += '<button class="ph-sms-btn ' + (currentTheme === 'light' ? 'ph-sms-btn-primary' : 'ph-sms-btn-secondary') + '" id="btnThemeLight" style="flex:1;">Light</button>';
+    html += '</div>';
+    html += '</div>';
+
     // ── Account Section ─────────────────────────────────────────
     html += '<div class="ph-settings-section">';
     html += '<h3>Account</h3>';
@@ -261,6 +272,7 @@ window.PeakHer.Settings = (function () {
     bindCycleEvents();
     bindCalendarEvents();
     bindWearableEvents();
+    bindThemeEvents();
 
     // Check URL for calendar callback status
     if (window.location.hash.indexOf('calendar=connected') !== -1) {
@@ -547,6 +559,25 @@ window.PeakHer.Settings = (function () {
           .catch(function (err) {
             showSmsMessage(err.message || 'Failed to update', true);
           });
+      });
+    }
+  }
+
+  function bindThemeEvents() {
+    var darkBtn = document.getElementById('btnThemeDark');
+    var lightBtn = document.getElementById('btnThemeLight');
+    if (darkBtn) {
+      darkBtn.addEventListener('click', function () {
+        if (window.PeakHer.setTheme) window.PeakHer.setTheme('dark');
+        darkBtn.className = 'ph-sms-btn ph-sms-btn-primary';
+        if (lightBtn) lightBtn.className = 'ph-sms-btn ph-sms-btn-secondary';
+      });
+    }
+    if (lightBtn) {
+      lightBtn.addEventListener('click', function () {
+        if (window.PeakHer.setTheme) window.PeakHer.setTheme('light');
+        lightBtn.className = 'ph-sms-btn ph-sms-btn-primary';
+        if (darkBtn) darkBtn.className = 'ph-sms-btn ph-sms-btn-secondary';
       });
     }
   }

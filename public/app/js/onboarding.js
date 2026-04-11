@@ -26,7 +26,14 @@ window.PeakHer.Onboarding = (function () {
     lastPeriodDate: '',
     cycleDateConfidence: 'exact',
     coachVoice: 'dot',
-    onboardingComplete: false
+    onboardingComplete: false,
+    lifestyle: {
+      dietType: '',
+      dietaryRestrictions: [],
+      trainingPlan: '',
+      fastingEnabled: false,
+      fastingProtocol: ''
+    }
   };
 
   // ── Styles (injected once) ──────────────────────────────────────────
@@ -135,7 +142,7 @@ window.PeakHer.Onboarding = (function () {
     /* ── Input Mode Toggle ─────────────────────────────────────── */
     '.ob-mode-toggle { display: flex; background: var(--warm-gray); border-radius: 8px; padding: 3px; width: 100%; margin-bottom: 20px; }',
     '.ob-mode-btn { flex: 1; padding: 10px 8px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.25s; background: transparent; color: var(--gray-text); text-align: center; }',
-    '.ob-mode-btn.active { background: var(--white); color: var(--text-dark); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }',
+    '.ob-mode-btn.active { background: var(--teal); color: var(--bg-primary, #12121A); font-weight: 700; box-shadow: 0 1px 4px rgba(0,229,160,0.3); }',
 
     /* ── Estimation Questions ──────────────────────────────────── */
     '.ob-estimate-group { width: 100%; margin-bottom: 16px; }',
@@ -257,8 +264,8 @@ window.PeakHer.Onboarding = (function () {
     var step = el('div', 'onboarding-step active');
     step.setAttribute('data-step', '1');
 
-    step.appendChild(el('h2', 'ob-heading', 'Welcome to PeakHer'));
-    step.appendChild(el('p', 'ob-subtext', "Let's personalize your experience"));
+    step.appendChild(el('h2', 'ob-heading', "Hey, I'm Dot."));
+    step.appendChild(el('p', 'ob-subtext', "I'm about to become your new favorite notification. I just need a few things to build your first daily brief."));
 
     var nameInput = createInput('text', 'Your first name');
     nameInput.id = 'ob-name';
@@ -346,8 +353,8 @@ window.PeakHer.Onboarding = (function () {
     var step = el('div', 'onboarding-step');
     step.setAttribute('data-step', '2');
 
-    step.appendChild(el('h2', 'ob-heading', 'Which hats do you wear?'));
-    step.appendChild(el('p', 'ob-subtext', 'Select all that apply. This helps us personalize your insights'));
+    step.appendChild(el('h2', 'ob-heading', 'What does your day look like?'));
+    step.appendChild(el('p', 'ob-subtext', 'Pick all that fit. This shapes how I prioritize your insights.'));
 
     var grid = el('div', 'ob-hats-grid');
     var selectedHats = {};
@@ -400,8 +407,8 @@ window.PeakHer.Onboarding = (function () {
     var step = el('div', 'onboarding-step');
     step.setAttribute('data-step', '3');
 
-    step.appendChild(el('h2', 'ob-heading', 'Cycle Tracking'));
-    step.appendChild(el('p', 'ob-subtext', 'Optional, but enables powerful phase-based insights'));
+    step.appendChild(el('h2', 'ob-heading', "Let's get your cycle dialed in."));
+    step.appendChild(el('p', 'ob-subtext', 'This is how I know what your hormones are doing today. Optional, but it changes everything.'));
 
     // Toggle row
     var toggleRow = el('div', 'ob-toggle-row');
@@ -672,51 +679,169 @@ window.PeakHer.Onboarding = (function () {
     return step;
   }
 
-  // ── Step 4: Meet Dot ────────────────────────────────────────────────
+  // ── Step 4: Lifestyle Sync ───────────────────────────────────────────
 
   function buildStep4() {
     var step = el('div', 'onboarding-step');
     step.setAttribute('data-step', '4');
 
-    step.appendChild(el('h2', 'ob-heading', 'Meet Dot'));
-    step.appendChild(el('p', 'ob-subtext', 'Your AI companion. One voice, four moods \u2014 she adjusts her tone to match your phase automatically.'));
+    step.appendChild(el('h2', 'ob-heading', 'Now let\'s make this actually useful.'));
+    step.appendChild(el('p', 'ob-subtext', 'The more I know, the sharper your daily brief gets.'));
 
-    var infoCard = el('div', '', '');
-    infoCard.style.cssText = 'background:rgba(45,138,138,0.06);border:2px solid var(--teal,#2d8a8a);border-radius:12px;padding:20px;width:100%;margin-bottom:24px;';
+    var scrollWrap = el('div', '');
+    scrollWrap.style.cssText = 'width:100%;overflow-y:auto;';
 
-    infoCard.innerHTML =
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">' +
-        '<span style="font-size:28px;">\uD83D\uDCAC</span>' +
-        '<span style="font-size:17px;font-weight:700;color:var(--text-dark,#1a1a2e);">Dot \u2014 Your AI Companion</span>' +
-      '</div>' +
-      '<div style="font-size:14px;color:var(--gray-text,#6b7280);line-height:1.6;margin-bottom:16px;">' +
-        'Dot is the voice behind every briefing, insight, and recommendation. She\'s direct, informed, cheeky, and warm \u2014 like the slightly unhinged friend who built an algorithm around your cycle.' +
-      '</div>' +
-      '<div style="display:flex;flex-direction:column;gap:10px;">' +
-        '<div style="font-size:13px;color:var(--text-body,#374151);display:flex;align-items:flex-start;gap:10px;">' +
-          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#9B30FF;flex-shrink:0;margin-top:4px;"></span>' +
-          '<span><strong>Restore phase:</strong> &ldquo;Your body is doing important work. Let\'s keep today strategic and slow.&rdquo;</span>' +
-        '</div>' +
-        '<div style="font-size:13px;color:var(--text-body,#374151);display:flex;align-items:flex-start;gap:10px;">' +
-          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#00E5A0;flex-shrink:0;margin-top:4px;"></span>' +
-          '<span><strong>Rise phase:</strong> &ldquo;Ideas are firing. Start that thing you\'ve been thinking about.&rdquo;</span>' +
-        '</div>' +
-        '<div style="font-size:13px;color:var(--text-body,#374151);display:flex;align-items:flex-start;gap:10px;">' +
-          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FFD700;flex-shrink:0;margin-top:4px;"></span>' +
-          '<span><strong>Peak phase:</strong> &ldquo;This is YOUR window. Go get that raise and own the room.&rdquo;</span>' +
-        '</div>' +
-        '<div style="font-size:13px;color:var(--text-body,#374151);display:flex;align-items:flex-start;gap:10px;">' +
-          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FF6B6B;flex-shrink:0;margin-top:4px;"></span>' +
-          '<span><strong>Sustain phase:</strong> &ldquo;Finish line energy. Let\'s close some loops and wrap up strong.&rdquo;</span>' +
-        '</div>' +
-      '</div>';
+    // ── Diet Type (single select) ──
+    var dietLabel = el('div', 'ob-field-label', 'How do you eat?');
+    dietLabel.style.marginBottom = '10px';
+    dietLabel.style.fontWeight = '600';
+    dietLabel.style.color = 'var(--text-primary)';
+    scrollWrap.appendChild(dietLabel);
 
-    step.appendChild(infoCard);
+    var DIETS = ['No specific diet', 'Keto / Low Carb', 'Vegan / Plant-Based', 'Paleo', 'Mediterranean', 'Whole30', 'Vegetarian', 'Gluten-Free'];
+    var dietGrid = el('div', 'ob-estimate-options');
+    dietGrid.style.marginBottom = '24px';
+    var selectedDiet = '';
+
+    DIETS.forEach(function (diet) {
+      var chip = el('button', 'ob-estimate-chip', diet);
+      chip.type = 'button';
+      chip.addEventListener('click', function () {
+        dietGrid.querySelectorAll('.ob-estimate-chip').forEach(function (c) { c.classList.remove('selected'); });
+        chip.classList.add('selected');
+        selectedDiet = diet;
+      });
+      dietGrid.appendChild(chip);
+    });
+    scrollWrap.appendChild(dietGrid);
+
+    // ── Dietary Restrictions (multi select) ──
+    var restrictLabel = el('div', 'ob-field-label', 'Any restrictions or allergies?');
+    restrictLabel.style.marginBottom = '10px';
+    restrictLabel.style.fontWeight = '600';
+    restrictLabel.style.color = 'var(--text-primary)';
+    scrollWrap.appendChild(restrictLabel);
+
+    var RESTRICTIONS = ['None', 'Dairy-free', 'Nut allergy', 'Gluten-free', 'Soy-free', 'Shellfish allergy', 'Egg-free'];
+    var restrictGrid = el('div', 'ob-estimate-options');
+    restrictGrid.style.marginBottom = '24px';
+    var selectedRestrictions = {};
+
+    RESTRICTIONS.forEach(function (r) {
+      var chip = el('button', 'ob-estimate-chip', r);
+      chip.type = 'button';
+      chip.addEventListener('click', function () {
+        if (r === 'None') {
+          restrictGrid.querySelectorAll('.ob-estimate-chip').forEach(function (c) { c.classList.remove('selected'); });
+          selectedRestrictions = {};
+          chip.classList.add('selected');
+          selectedRestrictions['None'] = true;
+        } else {
+          var noneChip = restrictGrid.querySelector('.ob-estimate-chip.selected');
+          if (noneChip && noneChip.textContent === 'None') {
+            noneChip.classList.remove('selected');
+            delete selectedRestrictions['None'];
+          }
+          chip.classList.toggle('selected');
+          if (selectedRestrictions[r]) {
+            delete selectedRestrictions[r];
+          } else {
+            selectedRestrictions[r] = true;
+          }
+        }
+      });
+      restrictGrid.appendChild(chip);
+    });
+    scrollWrap.appendChild(restrictGrid);
+
+    // ── Training Plan (single select) ──
+    var trainLabel = el('div', 'ob-field-label', 'What\'s your movement style?');
+    trainLabel.style.marginBottom = '10px';
+    trainLabel.style.fontWeight = '600';
+    trainLabel.style.color = 'var(--text-primary)';
+    scrollWrap.appendChild(trainLabel);
+
+    var TRAINING = ['No specific plan', 'Strength training', 'Running / Cardio', 'Yoga / Pilates', 'CrossFit / HIIT', 'Team sports', 'Training for an event', 'Just staying active'];
+    var trainGrid = el('div', 'ob-estimate-options');
+    trainGrid.style.marginBottom = '24px';
+    var selectedTraining = '';
+
+    TRAINING.forEach(function (t) {
+      var chip = el('button', 'ob-estimate-chip', t);
+      chip.type = 'button';
+      chip.addEventListener('click', function () {
+        trainGrid.querySelectorAll('.ob-estimate-chip').forEach(function (c) { c.classList.remove('selected'); });
+        chip.classList.add('selected');
+        selectedTraining = t;
+      });
+      trainGrid.appendChild(chip);
+    });
+    scrollWrap.appendChild(trainGrid);
+
+    // ── Intermittent Fasting ──
+    var ifLabel = el('div', 'ob-field-label', 'Do you practice intermittent fasting?');
+    ifLabel.style.marginBottom = '10px';
+    ifLabel.style.fontWeight = '600';
+    ifLabel.style.color = 'var(--text-primary)';
+    scrollWrap.appendChild(ifLabel);
+
+    var ifToggleRow = el('div', 'ob-toggle-row');
+    var ifToggleLabel = el('span', 'ob-toggle-label', 'I do IF');
+    var ifToggleWrap = el('label', 'ob-toggle');
+    var ifToggleInput = document.createElement('input');
+    ifToggleInput.type = 'checkbox';
+    var ifToggleTrack = el('span', 'ob-toggle-track');
+    ifToggleWrap.appendChild(ifToggleInput);
+    ifToggleWrap.appendChild(ifToggleTrack);
+    ifToggleRow.appendChild(ifToggleLabel);
+    ifToggleRow.appendChild(ifToggleWrap);
+    scrollWrap.appendChild(ifToggleRow);
+
+    var PROTOCOLS = ['16:8', '14:10', '12:12', '18:6', 'OMAD', '5:2', 'Flexible / Varies'];
+    var protocolSection = el('div', 'ob-cycle-fields');
+    var protocolGrid = el('div', 'ob-estimate-options');
+    protocolGrid.style.marginBottom = '12px';
+    var selectedProtocol = '';
+
+    PROTOCOLS.forEach(function (p) {
+      var chip = el('button', 'ob-estimate-chip', p);
+      chip.type = 'button';
+      chip.addEventListener('click', function () {
+        protocolGrid.querySelectorAll('.ob-estimate-chip').forEach(function (c) { c.classList.remove('selected'); });
+        chip.classList.add('selected');
+        selectedProtocol = p;
+      });
+      protocolGrid.appendChild(chip);
+    });
+    protocolSection.appendChild(protocolGrid);
+
+    // Dot note about IF adjustment
+    var ifNote = el('div', '');
+    ifNote.style.cssText = 'background:rgba(0,229,160,0.08);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--teal);line-height:1.5;margin-bottom:12px;';
+    ifNote.textContent = "I'll adjust your fasting windows based on where you are in your cycle. Your protocol is a baseline, not a rule.";
+    protocolSection.appendChild(ifNote);
+
+    scrollWrap.appendChild(protocolSection);
+
+    ifToggleInput.addEventListener('change', function () {
+      if (ifToggleInput.checked) {
+        protocolSection.classList.add('open');
+      } else {
+        protocolSection.classList.remove('open');
+      }
+    });
+
+    step.appendChild(scrollWrap);
 
     var btn = el('button', 'ob-btn', 'Continue');
     btn.type = 'button';
     btn.addEventListener('click', function () {
       userData.coachVoice = 'dot';
+      userData.lifestyle.dietType = selectedDiet;
+      userData.lifestyle.dietaryRestrictions = Object.keys(selectedRestrictions).filter(function(k) { return k !== 'None'; });
+      userData.lifestyle.trainingPlan = selectedTraining;
+      userData.lifestyle.fastingEnabled = ifToggleInput.checked;
+      userData.lifestyle.fastingProtocol = ifToggleInput.checked ? selectedProtocol : '';
       showStep(5);
     });
 
@@ -726,101 +851,118 @@ window.PeakHer.Onboarding = (function () {
     return step;
   }
 
-  // ── Step 5: Integrations ────────────────────────────────────────────
-
-  var FUTURE_INTEGRATIONS = [
-    { name: 'Apple Health',  icon: '\u2764\uFE0F' },
-    { name: 'Google Fit',    icon: '\uD83C\uDFC3' },
-    { name: 'Oura',          icon: '\uD83D\uDCAD' }
-  ];
+  // ── Step 5: Connect (Calendar + Wearables) ──────────────────────────
 
   function buildStep5() {
     var step = el('div', 'onboarding-step');
     step.setAttribute('data-step', '5');
 
-    step.appendChild(el('h2', 'ob-heading', 'Connect Your Calendar'));
-    step.appendChild(el('p', 'ob-subtext', 'See how your schedule aligns with your cycle -get smarter predictions and briefings'));
-
-    // Google Calendar -active
-    var calCard = el('div', 'ob-int-card');
-    calCard.style.opacity = '1';
-    calCard.style.cursor = 'pointer';
-    calCard.style.border = '2px solid transparent';
-    calCard.style.transition = 'border-color 0.2s';
-    calCard.innerHTML =
-      '<span class="ob-int-icon">\uD83D\uDCC5</span>' +
-      '<div class="ob-int-info">' +
-        '<div class="ob-int-name">Google Calendar</div>' +
-        '<span class="ob-int-badge" style="background:rgba(45,138,138,0.15);color:var(--teal);">Connect</span>' +
-      '</div>' +
-      '<span style="font-size:16px;color:var(--teal);">\u2192</span>';
-
-    calCard.addEventListener('click', function () {
-      var API = window.PeakHer.API;
-      if (!API || !API.startCalendarAuth) return;
-      calCard.querySelector('.ob-int-badge').textContent = 'Connecting...';
-      API.startCalendarAuth().then(function (result) {
-        if (result && result.url) {
-          window.location.href = result.url;
-        } else {
-          calCard.querySelector('.ob-int-badge').textContent = 'Setup Required';
-          calCard.querySelector('.ob-int-badge').style.color = 'var(--coral)';
-        }
-      }).catch(function () {
-        calCard.querySelector('.ob-int-badge').textContent = 'Error';
-        calCard.querySelector('.ob-int-badge').style.color = 'var(--coral)';
-      });
-    });
+    step.appendChild(el('h2', 'ob-heading', 'Last thing. Want to connect your life?'));
+    step.appendChild(el('p', 'ob-subtext', 'Calendar and wearable data make your daily brief dramatically better.'));
 
     var list = el('div', 'ob-integrations');
-    list.appendChild(calCard);
+
+    // Helper to build a connect card
+    function makeConnectCard(icon, name, desc, onClick) {
+      var card = el('div', 'ob-int-card');
+      card.style.opacity = '1';
+      card.style.cursor = 'pointer';
+      card.style.border = '2px solid transparent';
+      card.style.transition = 'border-color 0.2s, background 0.2s';
+      card.innerHTML =
+        '<span class="ob-int-icon">' + icon + '</span>' +
+        '<div class="ob-int-info">' +
+          '<div class="ob-int-name">' + name + '</div>' +
+          '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">' + desc + '</div>' +
+          '<span class="ob-int-badge" style="background:rgba(0,229,160,0.12);color:var(--teal);margin-top:6px;">Connect</span>' +
+        '</div>' +
+        '<span style="font-size:16px;color:var(--teal);">\u2192</span>';
+      if (onClick) card.addEventListener('click', onClick);
+      return card;
+    }
+
+    // Google Calendar
+    list.appendChild(makeConnectCard('\uD83D\uDCC5', 'Google Calendar', 'Sync your schedule so Dot can prep you for meetings', function () {
+      var API = window.PeakHer.API;
+      if (!API || !API.startCalendarAuth) return;
+      var badge = this.querySelector('.ob-int-badge');
+      badge.textContent = 'Connecting...';
+      API.startCalendarAuth().then(function (result) {
+        if (result && result.url) window.location.href = result.url;
+        else { badge.textContent = 'Setup Required'; badge.style.color = 'var(--coral)'; }
+      }).catch(function () { badge.textContent = 'Error'; badge.style.color = 'var(--coral)'; });
+    }));
+
+    // Oura Ring
+    list.appendChild(makeConnectCard('\uD83D\uDCAD', 'Oura Ring', 'Sleep, readiness, and recovery data', function () {
+      var API = window.PeakHer.API;
+      if (API && API.startWearableAuth) {
+        var badge = this.querySelector('.ob-int-badge');
+        badge.textContent = 'Connecting...';
+        API.startWearableAuth('oura').then(function (r) {
+          if (r && r.url) window.location.href = r.url;
+          else { badge.textContent = 'Error'; badge.style.color = 'var(--coral)'; }
+        }).catch(function () { badge.textContent = 'Error'; badge.style.color = 'var(--coral)'; });
+      }
+    }));
+
+    // Whoop
+    list.appendChild(makeConnectCard('\uD83D\uDCAA', 'Whoop', 'Strain, recovery, and HRV', function () {
+      var API = window.PeakHer.API;
+      if (API && API.startWearableAuth) {
+        var badge = this.querySelector('.ob-int-badge');
+        badge.textContent = 'Connecting...';
+        API.startWearableAuth('whoop').then(function (r) {
+          if (r && r.url) window.location.href = r.url;
+          else { badge.textContent = 'Error'; badge.style.color = 'var(--coral)'; }
+        }).catch(function () { badge.textContent = 'Error'; badge.style.color = 'var(--coral)'; });
+      }
+    }));
+
+    // Garmin
+    list.appendChild(makeConnectCard('\u231A', 'Garmin', 'Activity and health metrics', function () {
+      var API = window.PeakHer.API;
+      if (API && API.startWearableAuth) {
+        var badge = this.querySelector('.ob-int-badge');
+        badge.textContent = 'Connecting...';
+        API.startWearableAuth('garmin').then(function (r) {
+          if (r && r.url) window.location.href = r.url;
+          else { badge.textContent = 'Error'; badge.style.color = 'var(--coral)'; }
+        }).catch(function () { badge.textContent = 'Error'; badge.style.color = 'var(--coral)'; });
+      }
+    }));
+
+    // Apple Health (coming soon)
+    var appleCard = el('div', 'ob-int-card');
+    appleCard.innerHTML =
+      '<span class="ob-int-icon">\u2764\uFE0F</span>' +
+      '<div class="ob-int-info">' +
+        '<div class="ob-int-name">Apple Health</div>' +
+        '<span class="ob-int-badge">Coming Soon</span>' +
+      '</div>' +
+      '<span class="ob-int-lock">\uD83D\uDD12</span>';
+    list.appendChild(appleCard);
+
+    step.appendChild(list);
 
     // Skip link
     var skipText = el('p', 'ob-subtext', '');
     skipText.style.fontSize = '13px';
     skipText.style.marginTop = '12px';
-    skipText.innerHTML = 'You can also <span style="color:var(--teal);cursor:pointer;text-decoration:underline;" id="ob-cal-skip">skip this for now</span> and connect later in Settings.';
-
-    // Future integrations
-    var futureLabel = el('p', 'ob-subtext', '');
-    futureLabel.style.marginTop = '24px';
-    futureLabel.style.marginBottom = '8px';
-    futureLabel.style.fontSize = '13px';
-    futureLabel.style.fontWeight = '600';
-    futureLabel.textContent = 'Coming soon:';
-
-    FUTURE_INTEGRATIONS.forEach(function (int) {
-      var card = el('div', 'ob-int-card');
-      card.innerHTML =
-        '<span class="ob-int-icon">' + int.icon + '</span>' +
-        '<div class="ob-int-info">' +
-          '<div class="ob-int-name">' + int.name + '</div>' +
-          '<span class="ob-int-badge">Coming Soon</span>' +
-        '</div>' +
-        '<span class="ob-int-lock">\uD83D\uDD12</span>';
-      list.appendChild(card);
-    });
+    skipText.innerHTML = '<span style="color:var(--teal);cursor:pointer;text-decoration:underline;" id="ob-connect-skip">Skip for now</span> ... you can connect later in Settings.';
+    step.appendChild(skipText);
 
     var btn = el('button', 'ob-btn', 'Continue');
     btn.type = 'button';
-    btn.addEventListener('click', function () {
-      showStep(6);
-    });
+    btn.addEventListener('click', function () { showStep(6); });
 
-    step.appendChild(list);
-    step.appendChild(skipText);
-    step.appendChild(futureLabel);
     step.appendChild(el('div', 'ob-spacer'));
     step.appendChild(btn);
 
-    // Wire up skip link after DOM append
+    // Wire up skip link
     requestAnimationFrame(function () {
-      var skipLink = document.getElementById('ob-cal-skip');
-      if (skipLink) {
-        skipLink.addEventListener('click', function () {
-          showStep(6);
-        });
-      }
+      var skipLink = document.getElementById('ob-connect-skip');
+      if (skipLink) skipLink.addEventListener('click', function () { showStep(6); });
     });
 
     return step;
@@ -837,14 +979,14 @@ window.PeakHer.Onboarding = (function () {
     circle.appendChild(el('div', 'ob-checkmark'));
     step.appendChild(circle);
 
-    step.appendChild(el('h2', 'ob-heading', "You're all set! \uD83C\uDF89"));
-    step.appendChild(el('p', 'ob-subtext', 'Your first check-in takes less than 30 seconds'));
-    step.appendChild(el('p', 'ob-streak-msg', 'Start your streak today'));
+    step.appendChild(el('h2', 'ob-heading', "Done. Your first brief is being built."));
+    step.appendChild(el('p', 'ob-subtext', 'Your first daily brief arrives tomorrow at 7 AM. In the meantime, let\'s do your first check-in.'));
+    step.appendChild(el('p', 'ob-streak-msg', 'It takes 30 seconds.'));
 
     var errorMsg = el('div', 'ob-error');
     errorMsg.id = 'ob-register-error';
 
-    var btn = el('button', 'ob-btn large', 'Start My First Check-in');
+    var btn = el('button', 'ob-btn large', "Let's Go");
     btn.type = 'button';
     btn.addEventListener('click', function () {
       // Save to Store locally first
@@ -877,7 +1019,8 @@ window.PeakHer.Onboarding = (function () {
           averageCycleLength: userData.cycleLength,
           lastPeriodStart: userData.lastPeriodDate,
           cycleDateConfidence: userData.cycleDateConfidence
-        } : null
+        } : null,
+        lifestyle: userData.lifestyle
       };
 
       // Attempt API registration

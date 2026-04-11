@@ -38,9 +38,9 @@ module.exports = async function handler(req, res) {
 
     // 1. Fetch user profile
     var users = await sql`
-      SELECT name, personas FROM users WHERE id = ${userId} LIMIT 1
+      SELECT name, personas, lifestyle FROM users WHERE id = ${userId} LIMIT 1
     `;
-    var user = users.length > 0 ? users[0] : { name: '', personas: [] };
+    var user = users.length > 0 ? users[0] : { name: '', personas: [], lifestyle: {} };
 
     // 2. Fetch cycle profile
     var profiles = await sql`
@@ -861,6 +861,32 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
     parts.push('- In Focus: use readiness/body battery to guide scheduling.');
     parts.push('- Compare today to their 7-day trend when relevant.');
     parts.push('- Skin temp deviation is cycle-relevant: rises after ovulation (progesterone effect).');
+    parts.push('');
+  }
+
+  // ── Lifestyle preferences ──
+  var lifestyle = user.lifestyle || {};
+  var hasLifestyle = lifestyle.dietType || (lifestyle.dietaryRestrictions && lifestyle.dietaryRestrictions.length > 0) || lifestyle.trainingPlan || lifestyle.fastingEnabled;
+  if (hasLifestyle) {
+    parts.push('=== USER LIFESTYLE PREFERENCES ===');
+    if (lifestyle.dietType && lifestyle.dietType !== 'No specific diet') {
+      parts.push('- Diet: ' + lifestyle.dietType + '. Tailor ALL nutrition recommendations to this diet.');
+    }
+    if (lifestyle.dietaryRestrictions && lifestyle.dietaryRestrictions.length > 0) {
+      parts.push('- Restrictions/allergies: ' + lifestyle.dietaryRestrictions.join(', ') + '. NEVER recommend foods that conflict with these.');
+    }
+    if (lifestyle.trainingPlan && lifestyle.trainingPlan !== 'No specific plan') {
+      parts.push('- Training style: ' + lifestyle.trainingPlan + '. Tailor movement recommendations to complement this.');
+    }
+    if (lifestyle.fastingEnabled) {
+      parts.push('- Intermittent fasting: YES, baseline protocol is ' + (lifestyle.fastingProtocol || 'flexible') + '.');
+      parts.push('  IMPORTANT: Adjust the fasting window based on cycle phase:');
+      parts.push('  - Restore: shorten to 12:12 (body needs fuel, not fasting stress)');
+      parts.push('  - Rise: can extend to 16:8 (metabolism is primed)');
+      parts.push('  - Peak: moderate at 14:10');
+      parts.push('  - Sustain: moderate at 14:10 (progesterone is up, don\'t push it)');
+      parts.push('  Tell the user WHY you\'re adjusting: "You normally do X but you\'re in [phase]. I\'m pulling you to Y today because..."');
+    }
     parts.push('');
   }
 

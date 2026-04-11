@@ -237,6 +237,128 @@ window.PeakHer.Checkin = (function () {
     return { el: wrap, input: input };
   }
 
+  // ── Phase Circle SVG Builder ─────────────────────────────────────
+
+  var RING_COLORS = {
+    restore: '#C77DBA',
+    rise:    '#00E5A0',
+    peak:    '#FFD700',
+    sustain: '#8B7BDB'
+  };
+
+  function buildPhaseRingSVG(cycleDay, cycleLength, currentPhase) {
+    var size = 200;
+    var cx = size / 2;
+    var cy = size / 2;
+    var radius = 82;
+    var strokeWidth = 12;
+    var activeStrokeWidth = 16;
+    var gap = 0.02; // small gap between segments in radians
+
+    var phases = [
+      { key: 'restore',  ratio: Cycle.PHASE_RATIOS.menstrual },
+      { key: 'rise',     ratio: Cycle.PHASE_RATIOS.follicular },
+      { key: 'peak',     ratio: Cycle.PHASE_RATIOS.ovulatory },
+      { key: 'sustain',  ratio: Cycle.PHASE_RATIOS.luteal }
+    ];
+
+    var currentMode = Cycle.getPerformanceMode(currentPhase).toLowerCase();
+    var svgParts = [];
+    svgParts.push('<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" fill="none" xmlns="http://www.w3.org/2000/svg">');
+
+    // Background track
+    svgParts.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + radius + '" stroke="var(--bg-elevated)" stroke-width="' + strokeWidth + '" fill="none" class="ph-phase-circle-bg"/>');
+
+    phases.forEach(function(p) {
+      var startAngle = (p.ratio.start * 2 * Math.PI) - (Math.PI / 2) + gap;
+      var endAngle = (p.ratio.end * 2 * Math.PI) - (Math.PI / 2) - gap;
+      var isActive = (p.key === currentMode);
+      var sw = isActive ? activeStrokeWidth : strokeWidth;
+      var opacity = isActive ? '1' : '0.4';
+
+      var x1 = cx + radius * Math.cos(startAngle);
+      var y1 = cy + radius * Math.sin(startAngle);
+      var x2 = cx + radius * Math.cos(endAngle);
+      var y2 = cy + radius * Math.sin(endAngle);
+      var largeArc = (endAngle - startAngle > Math.PI) ? 1 : 0;
+
+      svgParts.push(
+        '<path d="M ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
+        ' A ' + radius + ' ' + radius + ' 0 ' + largeArc + ' 1 ' +
+        x2.toFixed(2) + ' ' + y2.toFixed(2) + '"' +
+        ' stroke="' + RING_COLORS[p.key] + '"' +
+        ' stroke-width="' + sw + '"' +
+        ' stroke-linecap="round"' +
+        ' opacity="' + opacity + '"' +
+        ' fill="none"/>'
+      );
+    });
+
+    // Current position indicator dot
+    var dayRatio = (cycleDay - 1) / cycleLength;
+    var posAngle = (dayRatio * 2 * Math.PI) - (Math.PI / 2);
+    var dotX = cx + radius * Math.cos(posAngle);
+    var dotY = cy + radius * Math.sin(posAngle);
+    svgParts.push('<circle cx="' + dotX.toFixed(2) + '" cy="' + dotY.toFixed(2) + '" r="6" fill="white" stroke="var(--bg-primary)" stroke-width="2"/>');
+
+    svgParts.push('</svg>');
+    return svgParts.join('');
+  }
+
+  function getDaysRemaining(cycleDay, cycleLength, phase) {
+    var ratios = Cycle.PHASE_RATIOS;
+    var phaseEnd;
+    if (phase === 'menstrual')  phaseEnd = ratios.menstrual.end;
+    else if (phase === 'follicular') phaseEnd = ratios.follicular.end;
+    else if (phase === 'ovulatory')  phaseEnd = ratios.ovulatory.end;
+    else phaseEnd = ratios.luteal.end;
+
+    var endDay = Math.round(phaseEnd * cycleLength);
+    var remaining = endDay - cycleDay;
+    if (remaining < 0) remaining = 0;
+    return remaining;
+  }
+
+  // ── Bento Score Ring SVG ───────────────────────────────────────────
+
+  function buildScoreRingSVG(score, color, size) {
+    size = size || 48;
+    var cx = size / 2;
+    var cy = size / 2;
+    var r = (size / 2) - 4;
+    var circumference = 2 * Math.PI * r;
+    var pct = Math.min(score, 100) / 100;
+    var dashOffset = circumference * (1 - pct);
+
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="var(--bg-elevated)" stroke-width="4"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="4"' +
+      ' stroke-linecap="round" stroke-dasharray="' + circumference.toFixed(1) + '" stroke-dashoffset="' + dashOffset.toFixed(1) + '"' +
+      ' transform="rotate(-90 ' + cx + ' ' + cy + ')"/>' +
+      '</svg>';
+  }
+
+  // ── Phase Insight Content ──────────────────────────────────────────
+
+  var PHASE_INSIGHTS = {
+    menstrual: [
+      'Your cortisol is naturally lower right now. Gentle movement and warm foods support your body best during Restore.',
+      'Both brain hemispheres communicate more during Restore, making this a powerful window for reflection and creative problem-solving.'
+    ],
+    follicular: [
+      'Estrogen is climbing, bringing sharper cognition and faster recovery. Your brain is hungry for novelty right now.',
+      'Your hippocampus increases in volume during Rise. You literally have more brain capacity for learning right now.'
+    ],
+    ovulatory: [
+      'Verbal fluency and confidence peak with estrogen. This is your window for presentations, pitches, and bold conversations.',
+      'Testosterone and estrogen peak together during Peak, creating your highest energy and social magnetism of the entire cycle.'
+    ],
+    luteal: [
+      'Your serotonin dips this week. Cravings for carbs and chocolate are your body asking for serotonin support. Lean into sweet potatoes and dark chocolate.',
+      'Progesterone peaks mid-luteal, shifting your brain toward detail-oriented work and completion. Great time for editing, auditing, and finishing projects.'
+    ]
+  };
+
   // ── Render ──────────────────────────────────────────────────────────
 
   function render() {
@@ -252,28 +374,22 @@ window.PeakHer.Checkin = (function () {
     var cycleProfile = Store.getCycleProfile();
     var trackingOn = Cycle.isTrackingEnabled();
 
+    // Apply phase accent to body
+    if (window.PeakHer.applyPhaseAccent) window.PeakHer.applyPhaseAccent();
+
     var wrapper = document.createElement('div');
     wrapper.className = 'ph-checkin';
 
-    // ── Daily Briefing container (populated by Briefing module) ──
-    var briefingContainer = document.createElement('div');
-    briefingContainer.id = 'briefing-container';
-    wrapper.appendChild(briefingContainer);
-
-    // ── Header ──────────────────────────────────────────────
+    // ── Greeting ──────────────────────────────────────────────
 
     var greeting = document.createElement('div');
     greeting.className = 'ph-greeting';
     var name = (user && user.name) ? user.name.split(' ')[0] : '';
-    greeting.textContent = 'Good ' + getGreeting() + (name ? ', ' + name : '') + '!';
+    greeting.textContent = 'Good ' + getGreeting() + (name ? ', ' + name : '');
     wrapper.appendChild(greeting);
 
-    var dateEl = document.createElement('div');
-    dateEl.className = 'ph-date';
-    dateEl.textContent = formatFullDate(new Date());
-    wrapper.appendChild(dateEl);
+    // ── Phase Circle Hero ────────────────────────────────────
 
-    // Mode badge (if tracking)
     if (trackingOn && cycleProfile) {
       var cycleDay = Cycle.getCycleDay(
         cycleProfile.lastPeriodStart,
@@ -283,15 +399,144 @@ window.PeakHer.Checkin = (function () {
       var phase = Cycle.getPhase(cycleDay, cycleProfile.averageCycleLength);
       var mode = Cycle.getPerformanceMode(phase);
       var modeColor = Cycle.getModeColor(mode);
-      var emoji = Cycle.getPhaseEmoji(phase);
+      var remaining = getDaysRemaining(cycleDay, cycleProfile.averageCycleLength, phase);
 
-      var badge = document.createElement('span');
-      badge.className = 'ph-mode-badge';
-      badge.style.background = modeColor + '1A'; // 10% opacity hex
-      badge.style.color = modeColor;
-      badge.textContent = emoji + ' ' + mode + ' Mode';
-      wrapper.appendChild(badge);
+      var hero = document.createElement('div');
+      hero.className = 'ph-phase-hero';
+
+      // Ring
+      var ringWrap = document.createElement('div');
+      ringWrap.className = 'ph-phase-ring-wrap';
+      ringWrap.innerHTML = buildPhaseRingSVG(cycleDay, cycleProfile.averageCycleLength, phase);
+
+      // Center content
+      var center = document.createElement('div');
+      center.className = 'ph-phase-center';
+
+      var dayNum = document.createElement('div');
+      dayNum.className = 'ph-phase-day-num';
+      dayNum.textContent = cycleDay;
+      center.appendChild(dayNum);
+
+      var dayLabel = document.createElement('div');
+      dayLabel.className = 'ph-phase-day-label';
+      dayLabel.textContent = 'DAY OF CYCLE';
+      center.appendChild(dayLabel);
+
+      ringWrap.appendChild(center);
+      hero.appendChild(ringWrap);
+
+      // Phase name below ring
+      var phaseName = document.createElement('div');
+      phaseName.className = 'ph-phase-name';
+      phaseName.textContent = mode + ' Phase';
+      hero.appendChild(phaseName);
+
+      // Days remaining
+      var remainEl = document.createElement('div');
+      remainEl.className = 'ph-phase-remaining';
+      remainEl.textContent = '~' + remaining + ' day' + (remaining !== 1 ? 's' : '') + ' remaining';
+      hero.appendChild(remainEl);
+
+      wrapper.appendChild(hero);
+
+      // ── Bento Grid ──────────────────────────────────────────
+
+      var bento = document.createElement('div');
+      bento.className = 'ph-bento-grid';
+
+      // Card 1: Energy Score
+      var energyScore = existing ? (existing.energy * 10) : 0;
+      var energyCard = document.createElement('div');
+      energyCard.className = 'ph-bento-card';
+      var energyLabel = document.createElement('div');
+      energyLabel.className = 'ph-bento-label';
+      energyLabel.textContent = 'Energy Score';
+      energyCard.appendChild(energyLabel);
+
+      var scoreRow = document.createElement('div');
+      scoreRow.className = 'ph-bento-score-ring';
+      scoreRow.innerHTML = buildScoreRingSVG(energyScore, modeColor, 48);
+      var scoreNum = document.createElement('div');
+      scoreNum.className = 'ph-bento-value';
+      scoreNum.textContent = energyScore || '--';
+      scoreRow.appendChild(scoreNum);
+      energyCard.appendChild(scoreRow);
+      bento.appendChild(energyCard);
+
+      // Card 2: Today's Move
+      var moveDefaults = {
+        menstrual: { move: 'Gentle Yoga', detail: '25 min, Restorative' },
+        follicular: { move: 'Strength Training', detail: '40 min, Moderate' },
+        ovulatory: { move: 'HIIT or Running', detail: '35 min, High Intensity' },
+        luteal: { move: 'Pilates', detail: '35 min, Low Impact' }
+      };
+      var moveData = moveDefaults[phase] || moveDefaults.follicular;
+      var moveCard = document.createElement('div');
+      moveCard.className = 'ph-bento-card';
+      moveCard.innerHTML =
+        '<div class="ph-bento-label">Today\'s Move</div>' +
+        '<div class="ph-bento-value" style="font-size:18px;">' + moveData.move + '</div>' +
+        '<div class="ph-bento-detail">' + moveData.detail + '</div>';
+      bento.appendChild(moveCard);
+
+      // Card 3: Nutrition
+      var nutritionDefaults = {
+        menstrual: 'Iron-rich foods, warm soups, dark chocolate',
+        follicular: 'Fresh salads, lean proteins, fermented foods',
+        ovulatory: 'Fiber-rich veggies, light grains, antioxidants',
+        luteal: 'Complex carbs + magnesium'
+      };
+      var nutritionCard = document.createElement('div');
+      nutritionCard.className = 'ph-bento-card';
+      nutritionCard.innerHTML =
+        '<div class="ph-bento-label">Nutrition</div>' +
+        '<div class="ph-bento-detail" style="font-size:14px;color:var(--text-primary);margin-top:8px;">' +
+        (nutritionDefaults[phase] || 'Balanced, whole foods') + '</div>';
+      bento.appendChild(nutritionCard);
+
+      // Card 4: Rest
+      var restDefaults = {
+        menstrual: 'Prioritize 8+ hours tonight',
+        follicular: 'Energy is rising, stay consistent',
+        ovulatory: 'Wind down early, you may feel wired',
+        luteal: 'Prioritize sleep tonight'
+      };
+      var restCard = document.createElement('div');
+      restCard.className = 'ph-bento-card';
+      restCard.innerHTML =
+        '<div class="ph-bento-label">Rest</div>' +
+        '<div class="ph-bento-detail" style="font-size:14px;color:var(--text-primary);margin-top:8px;">' +
+        (restDefaults[phase] || 'Listen to your body') + '</div>';
+      bento.appendChild(restCard);
+
+      wrapper.appendChild(bento);
+
+      // ── Phase Insight Card ──────────────────────────────────
+
+      var insights = PHASE_INSIGHTS[phase] || PHASE_INSIGHTS.follicular;
+      var insightText = insights[Math.floor(Math.random() * insights.length)];
+
+      var insightCard = document.createElement('div');
+      insightCard.className = 'ph-phase-insight';
+
+      var insightLabel = document.createElement('div');
+      insightLabel.className = 'ph-phase-insight-label';
+      insightLabel.textContent = mode.toUpperCase() + ' INSIGHT';
+      insightCard.appendChild(insightLabel);
+
+      var insightBody = document.createElement('div');
+      insightBody.className = 'ph-phase-insight-text';
+      insightBody.textContent = insightText;
+      insightCard.appendChild(insightBody);
+
+      wrapper.appendChild(insightCard);
     }
+
+    // ── Daily Briefing container (populated by Briefing module) ──
+    var briefingContainer = document.createElement('div');
+    briefingContainer.id = 'briefing-container';
+    wrapper.appendChild(briefingContainer);
 
     // ── Form ────────────────────────────────────────────────
 

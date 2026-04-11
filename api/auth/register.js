@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
     return sendError(res, 429, 'Too many registration attempts. Please try again later.');
   }
 
-  const { name, email, password, personas, cycleProfile, coachVoice } = req.body;
+  const { name, email, password, personas, cycleProfile, coachVoice, lifestyle } = req.body;
 
   if (!name || !email || !password) {
     return sendError(res, 400, 'Name, email, and password are required');
@@ -53,13 +53,21 @@ module.exports = async function handler(req, res) {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Validate coach_voice if provided
-    const validVoices = ['sassy', 'scientific', 'spiritual', 'hype'];
-    const voice = coachVoice && validVoices.indexOf(coachVoice) !== -1 ? coachVoice : 'sassy';
+    // Voice is always 'dot' now
+    const voice = 'dot';
+
+    // Sanitize lifestyle data
+    const safeLifestyle = lifestyle && typeof lifestyle === 'object' ? {
+      dietType: String(lifestyle.dietType || '').slice(0, 100),
+      dietaryRestrictions: Array.isArray(lifestyle.dietaryRestrictions) ? lifestyle.dietaryRestrictions.slice(0, 10).map(r => String(r).slice(0, 50)) : [],
+      trainingPlan: String(lifestyle.trainingPlan || '').slice(0, 100),
+      fastingEnabled: !!lifestyle.fastingEnabled,
+      fastingProtocol: String(lifestyle.fastingProtocol || '').slice(0, 50)
+    } : {};
 
     const [user] = await sql`
-      INSERT INTO users (name, email, password_hash, personas, onboarding_complete, coach_voice)
-      VALUES (${name.trim()}, ${email.toLowerCase().trim()}, ${passwordHash}, ${personas || []}, true, ${voice})
+      INSERT INTO users (name, email, password_hash, personas, onboarding_complete, coach_voice, lifestyle)
+      VALUES (${name.trim()}, ${email.toLowerCase().trim()}, ${passwordHash}, ${personas || []}, true, ${voice}, ${JSON.stringify(safeLifestyle)})
       RETURNING id, name, email, personas, onboarding_complete, coach_voice, created_at
     `;
 
