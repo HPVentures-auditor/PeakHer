@@ -1,7 +1,8 @@
 {
   "cli": {
     "version": ">= 16.0.0",
-    "appVersionSource": "remote"
+    "appVersionSource": "remote",
+    "promptToConfigurePushNotifications": false
   },
   "build": {
     "development": {
@@ -13,10 +14,11 @@
     },
     "preview": {
       "distribution": "internal",
-      "credentialsSource": "local"
+      "credentialsSource": "remote"
     },
     "production": {
       "autoIncrement": true,
+      "distribution": "store",
       "credentialsSource": "local"
     }
   },
