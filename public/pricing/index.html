@@ -18,28 +18,31 @@
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
   :root {
-    --navy: #12121A;
-    --navy-light: #1A1A26;
+    --plum: #2D0A31;
+    --pink: #FF2D7B;
+    --navy: #2D0A31;
+    --navy-light: #4A1259;
     --black: #000000;
     --white: #ffffff;
-    --cream: #12121A;
-    --warm-gray: #22222F;
-    --coral: #E87461;
-    --coral-hover: #d4634f;
-    --coral-soft: rgba(232,116,97,0.12);
+    --cream: #FAF9F6;
+    --warm: #FEFDFB;
+    --warm-gray: #F0EDE8;
+    --coral: #FF2D7B;
+    --coral-hover: #E0246C;
+    --coral-soft: rgba(255,45,123,0.08);
     --teal: #00E5A0;
     --teal-hover: #00CC8E;
-    --teal-soft: rgba(0,229,160,0.12);
-    --gray-mid: #6B6B7B;
-    --gray-text: #9393A3;
-    --gray-text-light: #6B6B7B;
-    --text-dark: #F0F0F5;
-    --text-body: #C0C0D0;
-    --border-light: rgba(255,255,255,0.06);
-    --bg-primary: #12121A;
-    --bg-surface: #1A1A26;
-    --bg-elevated: #22222F;
-    --bg-card: #1E1E2A;
+    --teal-soft: rgba(0,229,160,0.08);
+    --gray-mid: #8A8A9A;
+    --gray-text: #4A4A5A;
+    --gray-text-light: #8A8A9A;
+    --text-dark: #1A1A2E;
+    --text-body: #4A4A5A;
+    --border-light: #E8E6E1;
+    --bg-primary: #FAF9F6;
+    --bg-surface: #FAF9F6;
+    --bg-elevated: #ffffff;
+    --bg-card: #ffffff;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -62,24 +65,21 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 32px;
-    height: 64px;
-    background: rgba(18, 18, 26, 0);
-    backdrop-filter: blur(0px);
-    border-bottom: 1px solid transparent;
-    transition: background 0.3s, backdrop-filter 0.3s, border-color 0.3s;
+    padding: 0 48px;
+    height: 56px;
+    background: rgba(45,10,49,0.97);
+    backdrop-filter: blur(12px);
   }
   .top-nav.scrolled {
-    background: rgba(18, 18, 26, 0.9);
+    background: rgba(45,10,49,0.97);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-light);
   }
   .nav-logo {
-    font-size: 15px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.25rem;
     font-weight: 800;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--teal);
+    letter-spacing: -0.02em;
+    color: #fff;
     text-decoration: none;
     flex-shrink: 0;
   }
@@ -90,15 +90,14 @@
     list-style: none;
   }
   .nav-links a {
-    font-size: 14px;
+    font-size: 0.82rem;
     font-weight: 600;
-    color: var(--gray-text);
+    color: rgba(255,255,255,0.55);
     text-decoration: none;
-    letter-spacing: 0.5px;
     transition: color 0.2s;
   }
-  .nav-links a:hover { color: var(--teal); }
-  .nav-links a.active { color: var(--teal); }
+  .nav-links a:hover { color: #fff; }
+  .nav-links a.active { color: #fff; }
 
   /* Hamburger */
   .nav-hamburger {
@@ -148,15 +147,16 @@
   .nav-overlay a:hover { color: var(--teal); }
 
   @media (max-width: 768px) {
-    .nav-links { display: none; }
+    .nav-links a:not(.active) { display: none; }
+    .nav-links { gap: 12px; }
     .nav-hamburger { display: flex; }
   }
 
   /* ---- HERO ---- */
   .pricing-hero {
-    padding: 140px 24px 60px;
+    padding: 120px 24px 60px;
     text-align: center;
-    background: linear-gradient(170deg, #1a0a2e 0%, #12121A 40%, #0d1a1a 100%);
+    background: var(--plum);
     position: relative;
     overflow: hidden;
   }
@@ -167,7 +167,7 @@
     right: -200px;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(232,116,97,0.06) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255,45,123,0.08) 0%, transparent 70%);
     pointer-events: none;
   }
   .pricing-hero::after {
@@ -177,20 +177,20 @@
     left: -200px;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(155,48,255,0.06) 0%, transparent 70%);
     pointer-events: none;
   }
   .pricing-hero h1 {
     font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-    font-size: 52px;
+    font-size: clamp(2.2rem,5vw,3.2rem);
     font-weight: 800;
     line-height: 1.12;
     letter-spacing: -1.5px;
     max-width: 700px;
     margin: 0 auto 20px;
-    color: var(--text-dark);
+    color: #fff;
   }
-  .pricing-hero h1 span { color: var(--coral); }
+  .pricing-hero h1 span { color: var(--pink); }
   .pricing-hero .subtitle {
     font-size: 20px;
     color: var(--gray-text);
@@ -272,28 +272,28 @@
 
   .pricing-card {
     background: var(--bg-card);
-    border-radius: 16px;
+    border-radius: 20px;
     border: 1px solid var(--border-light);
     padding: 36px 32px;
-    box-shadow: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     position: relative;
     transition: transform 0.2s, box-shadow 0.2s;
   }
   .pricing-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
   }
 
   .pricing-card.featured {
-    border: 2px solid var(--teal);
+    border: 2px solid var(--pink);
     padding: 44px 32px 36px;
-    box-shadow: 0 8px 40px rgba(0,229,160,0.1);
+    box-shadow: 0 8px 40px rgba(255,45,123,0.1);
     transform: scale(1.03);
     z-index: 1;
   }
   .pricing-card.featured:hover {
-    transform: scale(1.03) translateY(-2px);
-    box-shadow: 0 12px 48px rgba(0,229,160,0.12);
+    transform: scale(1.03) translateY(-4px);
+    box-shadow: 0 12px 48px rgba(255,45,123,0.12);
   }
 
   .card-badge {
