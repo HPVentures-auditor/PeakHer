@@ -25,8 +25,8 @@
 
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--navy);
-    color: var(--white);
+    background: var(--warm);
+    color: #1A1A2E;
     -webkit-font-smoothing: antialiased;
     line-height: 1.6;
   }
@@ -41,18 +41,17 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 32px;
-    height: 64px;
-    background: rgba(10, 22, 40, 0.85);
+    padding: 0 48px;
+    height: 56px;
+    background: rgba(45,10,49,0.97);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
   }
   .nav-logo {
-    font-size: 15px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.25rem;
     font-weight: 800;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--teal);
+    letter-spacing: -0.02em;
+    color: #fff;
     text-decoration: none;
     flex-shrink: 0;
   }
@@ -125,19 +124,21 @@
 
   /* ---- LEGAL CONTENT ---- */
   .legal-header {
-    padding: 120px 24px 40px;
+    padding: 100px 24px 48px;
     text-align: center;
-    background: linear-gradient(170deg, #0a1628 0%, #0f2035 40%, #0a1628 100%);
+    background: var(--plum);
   }
   .legal-header h1 {
-    font-size: 42px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(2rem,4vw,2.8rem);
     font-weight: 800;
-    letter-spacing: -1px;
+    letter-spacing: -0.03em;
     margin-bottom: 12px;
+    color: #fff;
   }
   .legal-header .effective-date {
     font-size: 15px;
-    color: var(--gray-text);
+    color: rgba(255,255,255,0.4);
   }
 
   .legal-body {
