@@ -9,32 +9,30 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
   :root {
-    --navy: #12121A;
-    --navy-light: #1A1A26;
-    --black: #000000;
-    --white: #ffffff;
-    --cream: #12121A;
-    --warm-gray: #22222F;
+    --plum: #2D0A31;
+    --pink: #FF2D7B;
+    --mint: #00E5A0;
+    --cream: #FAF9F6;
+    --warm: #FEFDFB;
+    --text: #1A1A2E;
+    --text-2: #4A4A5A;
+    --text-3: #8A8A9A;
+    --border: #E8E6E1;
     --coral: #E87461;
-    --coral-hover: #d4634f;
-    --coral-soft: rgba(232,116,97,0.12);
     --teal: #00E5A0;
-    --teal-hover: #00CC8E;
-    --teal-soft: rgba(0,229,160,0.12);
-    --gray-mid: #6B6B7B;
-    --gray-text: #9393A3;
-    --gray-text-light: #6B6B7B;
-    --text-dark: #F0F0F5;
-    --text-body: #C0C0D0;
-    --border-light: rgba(255,255,255,0.06);
+    --gray-text: #4A4A5A;
+    --gray-text-light: #8A8A9A;
+    --text-dark: #1A1A2E;
+    --text-body: #4A4A5A;
+    --border-light: #E8E6E1;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--cream);
-    color: var(--text-dark);
+    background: var(--warm);
+    color: var(--text);
     -webkit-font-smoothing: antialiased;
     line-height: 1.6;
   }
@@ -49,18 +47,17 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 32px;
-    height: 64px;
-    background: rgba(250, 248, 245, 0.9);
+    padding: 0 48px;
+    height: 56px;
+    background: rgba(45,10,49,0.97);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-light);
   }
   .nav-logo {
-    font-size: 15px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.25rem;
     font-weight: 800;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--teal);
+    letter-spacing: -0.02em;
+    color: #fff;
     text-decoration: none;
     flex-shrink: 0;
   }
@@ -71,14 +68,13 @@
     list-style: none;
   }
   .nav-links a {
-    font-size: 14px;
+    font-size: 0.82rem;
     font-weight: 600;
-    color: var(--gray-text);
+    color: rgba(255,255,255,0.55);
     text-decoration: none;
-    letter-spacing: 0.5px;
     transition: color 0.2s;
   }
-  .nav-links a:hover { color: var(--teal); }
+  .nav-links a:hover { color: #fff; }
 
   /* Hamburger */
   .nav-hamburger {
@@ -133,20 +129,21 @@
 
   /* ---- LEGAL CONTENT ---- */
   .legal-header {
-    padding: 120px 24px 40px;
+    padding: 100px 24px 48px;
     text-align: center;
-    background: linear-gradient(170deg, var(--cream) 0%, var(--white) 40%, var(--teal-soft) 100%);
+    background: var(--plum);
   }
   .legal-header h1 {
-    font-size: 42px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(2rem,4vw,2.8rem);
     font-weight: 800;
-    letter-spacing: -1px;
+    letter-spacing: -0.03em;
     margin-bottom: 12px;
-    color: var(--text-dark);
+    color: #fff;
   }
   .legal-header .effective-date {
     font-size: 15px;
-    color: var(--gray-text);
+    color: rgba(255,255,255,0.4);
   }
 
   .legal-body {
@@ -156,20 +153,22 @@
   }
 
   .legal-body h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 24px;
     font-weight: 700;
     margin-top: 48px;
     margin-bottom: 16px;
-    color: var(--coral);
+    color: var(--pink);
     letter-spacing: -0.3px;
   }
 
   .legal-body h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 18px;
     font-weight: 600;
     margin-top: 28px;
     margin-bottom: 10px;
-    color: var(--teal);
+    color: var(--plum);
   }
 
   .legal-body p {
