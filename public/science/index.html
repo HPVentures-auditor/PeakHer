@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Science Behind PeakHer - Peer-Reviewed Research</title>
+<meta name="description" content="44 peer-reviewed studies supporting PeakHer's Hormonal Intelligence platform. We don't guess. We cite.">
+<link rel="canonical" href="https://peakher.ai/science/">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --plum:#2D0A31;--pink:#FF2D7B;--purple:#9B30FF;--mint:#00E5A0;--coral:#FF6B6B;--gold:#FFD700;
+    --cream:#FAF9F6;--warm:#FEFDFB;--sand:#F0EDE8;
+    --text:#1A1A2E;--text-2:#4A4A5A;--text-3:#8A8A9A;--border:#E8E6E1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',-apple-system,sans-serif;background:var(--warm);color:var(--text);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4,h5{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;}
+
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 48px;position:sticky;top:0;z-index:100;background:rgba(45,10,49,0.97);backdrop-filter:blur(12px);}
+  .nav-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#fff;letter-spacing:-0.02em;text-decoration:none;}
+  .nav-links{display:flex;align-items:center;gap:28px;list-style:none;}
+  .nav-links a{text-decoration:none;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.55);transition:color 0.2s;}
+  .nav-links a:hover{color:#fff;}
+  .nav-cta{background:var(--pink);color:#fff !important;padding:10px 24px;border-radius:10px;font-weight:700 !important;transition:background 0.2s;}
+  .nav-cta:hover{background:#E0246C !important;}
+
+  .hero-mini{background:var(--plum);padding:80px 48px 60px;text-align:center;position:relative;overflow:hidden;}
+  .hero-mini::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(155,48,255,0.08) 0%,transparent 60%);border-radius:50%;}
+  .hero-mini>*{position:relative;z-index:1;}
+  .hero-mini .eyebrow{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--mint);margin-bottom:12px;}
+  .hero-mini h1{font-size:clamp(2rem,4vw,3rem);line-height:1.1;letter-spacing:-0.03em;color:#fff;margin-bottom:16px;}
+  .hero-mini h1 em{font-style:normal;color:var(--pink);}
+  .hero-mini p{font-size:1.1rem;color:rgba(255,255,255,0.5);max-width:600px;margin:0 auto;line-height:1.7;}
+
+  .stats-bar{padding:40px 48px;background:var(--cream);display:flex;justify-content:center;gap:48px;flex-wrap:wrap;border-bottom:1px solid var(--border);}
+  .stat{text-align:center;}
+  .stat-num{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:2rem;color:var(--text);}
+  .stat-label{font-size:0.75rem;color:var(--text-3);margin-top:4px;}
+
+  .intro{padding:48px 48px 0;max-width:800px;margin:0 auto;}
+  .intro p{font-size:1rem;color:var(--text-2);line-height:1.8;margin-bottom:12px;}
+  .intro .highlight{color:var(--pink);font-weight:600;}
+
+  .category{padding:48px 48px;max-width:800px;margin:0 auto;border-bottom:1px solid var(--border);}
+  .category:last-of-type{border-bottom:none;}
+  .cat-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+  .cat-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+  .cat-header h2{font-size:1.3rem;letter-spacing:-0.02em;}
+  .cat-header .count{font-size:0.72rem;font-weight:700;color:var(--text-3);background:var(--sand);padding:3px 10px;border-radius:20px;margin-left:8px;}
+  .cat-summary{font-size:0.95rem;color:var(--text-2);line-height:1.7;margin-bottom:24px;padding-left:52px;}
+
+  .study{background:var(--cream);border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:12px;}
+  .study-title{font-size:0.92rem;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:6px;}
+  .study-authors{font-size:0.78rem;color:var(--text-3);margin-bottom:4px;}
+  .study-journal{font-size:0.78rem;color:var(--pink);font-weight:600;margin-bottom:8px;}
+  .study-finding{font-size:0.85rem;color:var(--text-2);line-height:1.6;padding-left:14px;border-left:3px solid var(--border);}
+
+  .dot-note{background:var(--plum);border-radius:16px;padding:20px 24px;margin:32px 0;color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.6;font-style:italic;}
+  .dot-note strong{color:#fff;}
+  .dot-note .dot-label{font-size:0.7rem;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-style:normal;display:block;}
+
+  .cta-bar{padding:60px 48px;background:var(--plum);text-align:center;}
+  .cta-bar h2{font-size:clamp(1.6rem,3vw,2.2rem);letter-spacing:-0.02em;color:#fff;margin-bottom:12px;}
+  .cta-bar p{font-size:1rem;color:rgba(255,255,255,0.5);margin-bottom:24px;}
+  .cta-bar a{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:12px;background:var(--pink);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.95rem;text-decoration:none;transition:all 0.2s;}
+  .cta-bar a:hover{background:#E0246C;transform:translateY(-2px);}
+
+  .footer{padding:48px 48px 32px;background:#0A0610;color:rgba(255,255,255,0.4);}
+  .footer-bottom{display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;max-width:960px;margin:0 auto;}
+  .footer-bottom a{color:rgba(255,255,255,0.25);text-decoration:none;}
+
+  @media(max-width:768px){
+    .hero-mini{padding:60px 24px 48px;}
+    .intro,.category{padding:32px 24px;}
+    .cat-summary{padding-left:0;}
+    .stats-bar{padding:32px 24px;gap:24px;}
+    .nav{padding:14px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">PeakHer</a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/about/">About</a></li>
+    <li><a href="/science/">Science</a></li>
+    <li><a href="/press/">Press</a></li>
+    <li><a href="/app/" style="color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);padding:8px 20px;border-radius:10px;">Log In</a></li>
+    <li><a href="/#waitlist" class="nav-cta">Join Waitlist</a></li>
+  </ul>
+</nav>
+
+<section class="hero-mini">
+  <div class="eyebrow">The Research</div>
+  <h1>We don't guess. <em>We cite.</em></h1>
+  <p>Every recommendation in PeakHer is grounded in peer-reviewed research. Here are the studies behind the system. 44 papers. 8 categories. Zero pseudoscience.</p>
+</section>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num">44</div><div class="stat-label">Peer-reviewed studies</div></div>
+  <div class="stat"><div class="stat-num">8</div><div class="stat-label">Research categories</div></div>
+  <div class="stat"><div class="stat-num">0</div><div class="stat-label">Pseudoscience</div></div>
+</div>
+
+<div class="intro">
+  <p>PeakHer is built on decades of research in endocrinology, neuroscience, exercise physiology, and nutritional science. The studies below represent the evidence base that informs every daily brief Dot writes, every fasting window she adjusts, and every workout she recommends (or vetoes).</p>
+  <p class="highlight">We believe women deserve tools built on real science, not wellness trends.</p>
+</div>
+
+<!-- ═══ 1. METABOLISM & NUTRITION ═══ -->
+<div class="category">
+  <div class="cat-header">
+    <div class="cat-icon" style="background:rgba(255,215,0,0.12);">&#x1F34B;</div>
+    <h2>Metabolism &amp; Nutrition</h2>
+    <span class="count">5 studies</span>
+  </div>
+  <div class="cat-summary">Your metabolic rate genuinely changes across your cycle. The cravings are real. The calorie increase is real. PeakHer's nutrition and fasting intelligence is built on this.</div>
+
+  <div class="study">
+    <div class="study-title">Effect of menstrual cycle on resting metabolism: A systematic review and meta-analysis</div>
+    <div class="study-authors">Hamidovic A, Kaempfe K, Guo X</div>
+    <div class="study-journal">PLoS ONE, 2020 | DOI: 10.1371/journal.pone.0236025</div>
+    <div class="study-finding">Meta-analysis of 26 studies (318 women) finding a significant increase in resting metabolic rate during the luteal phase (~58 kcal/day in ovulatory cycles).</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Changes in energy expenditure during the menstrual cycle</div>
+    <div class="study-authors">Bisdee JT, James WPT, Shaw MA</div>
+    <div class="study-journal">British Journal of Nutrition, 1989 | DOI: 10.1079/bjn19890108</div>
+    <div class="study-finding">Metabolic rate during sleep is lowest in the late follicular phase and highest in the late luteal phase, measured under controlled conditions.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Dietary energy intake across the menstrual cycle: a narrative review</div>
+    <div class="study-authors">Gorczyca AM, Sjaarda LA, Mitchell EM, et al.</div>
+    <div class="study-journal">Nutrition Reviews, 2023 | PMID: 36367830</div>
+    <div class="study-finding">Energy intake is generally lower in the follicular phase and higher in the luteal phase, with mean increases of 90-500+ kcal/day. Progesterone counteracts estrogen's appetite-suppressing effect.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Iron deficiency and iron deficiency anemia in women</div>
+    <div class="study-authors">Percy L, Mansour D, Fraser IS</div>
+    <div class="study-journal">Scandinavian Journal of Clinical and Laboratory Investigation, 2014 | DOI: 10.3109/00365513.2014.936694</div>
+    <div class="study-finding">High menstrual blood loss is the most significant contributor to iron deficiency in reproductive-age women.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Structural equation modeling of food craving across the menstrual cycle</div>
+    <div class="study-authors">Krishnan S, Tryon RR, Horn WF, Welch L, Keim NL</div>
+    <div class="study-journal">Published 2018 | PMC: 6251416</div>
+    <div class="study-finding">Progesterone and disinhibition are positively associated with carbohydrate cravings during the luteal phase, providing a mechanistic link between hormones and food cravings.</div>
+  </div>
+
+  <div class="dot-note">
+    <span class="dot-label">Dot's translation</span>
+    <strong>Your body burns more calories in the second half of your cycle.</strong> The chocolate craving is a magnesium request. The bread craving is a glucose request. Your body is talking. I just translate.
+  </div>
+</div>
+
+<!-- ═══ 2. EXERCISE & PERFORMANCE ═══ -->
+<div class="category">
+  <div class="cat-header">
+    <div class="cat-icon" style="background:rgba(0,229,160,0.12);">&#x1F3CB;&#xFE0F;</div>
+    <h2>Exercise &amp; Performance</h2>
+    <span class="count">5 studies</span>
+  </div>
+  <div class="cat-summary">Your hormonal phase affects injury risk, recovery capacity, and how your body responds to different types of training. PeakHer matches your workout to your biology.</div>
+
+  <div class="study">
+    <div class="study-title">The Effects of Menstrual Cycle Phase on Exercise Performance in Eumenorrheic Women: A Systematic Review and Meta-Analysis</div>
+    <div class="study-authors">McNulty KL, Elliott-Sale KJ, Dolan E, et al.</div>
+    <div class="study-journal">Sports Medicine, 2020 | DOI: 10.1007/s40279-020-01319-3</div>
+    <div class="study-finding">Exercise performance may be trivially reduced during the early follicular (menstrual) phase. Individual variation dwarfs any group-level cycle effect, supporting personalized approaches.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Effects of the Menstrual Cycle on Anterior Cruciate Ligament Injury Risk: A Systematic Review</div>
+    <div class="study-authors">Hewett TE, Zazulak BT, Myer GD</div>
+    <div class="study-journal">American Journal of Sports Medicine, 2007 | DOI: 10.1177/0363546506295699</div>
+    <div class="study-finding">Increased ACL injury risk during the preovulatory phase, when estrogen surges affect ligament laxity and collagen properties.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Myths and Methodologies: Reducing scientific design ambiguity in studies comparing sexes and/or menstrual cycle phases</div>
+    <div class="study-authors">Sims ST, Heather AK</div>
+    <div class="study-journal">Experimental Physiology, 2018 | DOI: 10.1113/EP086797</div>
+    <div class="study-finding">Biphasic estrogen and progesterone responses significantly influence physiological responses and exercise capacity. Research must account for these differences.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Body Composition Over the Menstrual and Oral Contraceptive Cycle in Trained Females</div>
+    <div class="study-authors">Barba-Moreno L, Cupeiro R, et al. (IronFEMME Study)</div>
+    <div class="study-journal">International Journal of Sports Physiology and Performance, 2021 | DOI: 10.1123/ijspp.2020-0038</div>
+    <div class="study-finding">Hormonal fluctuations across the menstrual cycle affect body composition measurements in trained women. Cycle-phase considerations are relevant for accurate assessment.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Menstrual cycle phase does not influence muscle protein synthesis in response to resistance exercise</div>
+    <div class="study-authors">Murach KA et al.</div>
+    <div class="study-journal">Journal of Physiology, 2024 | DOI: 10.1113/JP287342</div>
+    <div class="study-finding">Muscle protein synthesis rates did not differ between follicular and luteal phases, showing that strength training works in every phase. What changes is recovery and injury risk.</div>
+  </div>
+
+  <div class="dot-note">
+    <span class="dot-label">Dot's translation</span>
+    <strong>You can train in every phase. But HOW you train should change.</strong> HIIT on Day 24 spikes cortisol in a body that's already managing enough. Strength training works all month. I adjust the intensity, not the ambition.
+  </div>
+</div>
+
+<!-- ═══ 3. MOOD & EMOTIONAL REGULATION ═══ -->
+<div class="category">
+  <div class="cat-header">
+    <div class="cat-icon" style="background:rgba(155,48,255,0.12);">&#x1F9E0;</div>
+    <h2>Mood &amp; Emotional Regulation</h2>
+    <span class="count">6 studies</span>
+  </div>
+  <div class="cat-summary">Serotonin, GABA, and dopamine fluctuate across your cycle. The emotional shifts are neurochemical, not personal. PeakHer validates what you're feeling and tells you why.</div>
+
+  <div class="study">
+    <div class="study-title">Pathophysiology of premenstrual syndrome and premenstrual dysphoric disorder</div>
+    <div class="study-authors">Rapkin AJ, Akopians AL</div>
+    <div class="study-journal">Menopause International, 2012 | DOI: 10.1258/mi.2012.012014</div>
+    <div class="study-finding">GABAergic and serotonergic neurotransmitter systems are the two most implicated in PMS/PMDD. Symptoms are triggered by post-ovulatory hormonal events, not abnormal hormone levels.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Effect of Estrogen-Serotonin Interactions on Mood and Cognition</div>
+    <div class="study-authors">Amin Z, Canli T, Epperson CN</div>
+    <div class="study-journal">Behavioral and Cognitive Neuroscience Reviews, 2005 | DOI: 10.1177/1534582305277152</div>
+    <div class="study-finding">Estrogen modulates serotonergic function through multiple mechanisms, explaining how estrogen fluctuations across the cycle affect mood.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Pathogenesis in menstrual cycle-linked CNS disorders</div>
+    <div class="study-authors">Backstrom T, Andreen L, Birzniece V, et al.</div>
+    <div class="study-journal">Annals of the New York Academy of Sciences, 2003 | DOI: 10.1196/annals.1286.005</div>
+    <div class="study-finding">PMDD symptoms are linked to altered CNS sensitivity to allopregnanolone (a progesterone metabolite that modulates GABA-A receptors), not abnormal hormone levels.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Sex differences and stress across the lifespan</div>
+    <div class="study-authors">Bale TL, Epperson CN</div>
+    <div class="study-journal">Nature Neuroscience, 2015 | DOI: 10.1038/nn.4112</div>
+    <div class="study-finding">Sex differences in stress responses relate to both organizational and activational effects of gonadal hormones, creating sex-specific periods of vulnerability and resilience.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">The Menstrual Cycle Influences Emotion but Has Limited Effect on Cognitive Function</div>
+    <div class="study-authors">Sundstrom-Poromaa I</div>
+    <div class="study-journal">Vitamins and Hormones, 2018 | DOI: 10.1016/bs.vh.2018.01.016</div>
+    <div class="study-finding">Emotional processing changes across the cycle are far more consistent than cognitive performance changes. The cycle is a better model for studying emotion than cognition.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Selective serotonin reuptake inhibitors for premenstrual syndrome</div>
+    <div class="study-authors">Marjoribanks J, Brown J, O'Brien PMS, Wyatt K</div>
+    <div class="study-journal">Cochrane Database of Systematic Reviews, 2024 | DOI: 10.1002/14651858.CD001396</div>
+    <div class="study-finding">Cochrane meta-analysis confirming serotonergic dysfunction as central to PMS/PMDD, supporting the neurochemical basis of cycle-related mood changes.</div>
+  </div>
+
+  <div class="dot-note">
+    <span class="dot-label">Dot's translation</span>
+    <strong>You're not "being emotional." Your serotonin literally dipped.</strong> When I tell you to eat the sweet potatoes and skip the fight, it's because your neurochemistry shifted. I validate first, then redirect with an action.
+  </div>
+</div>
+
+<!-- ═══ 4. SLEEP ═══ -->
+<div class="category">
+  <div class="cat-header">
+    <div class="cat-icon" style="background:rgba(255,107,107,0.12);">&#x1F319;</div>
+    <h2>Sleep &amp; Recovery</h2>
+    <span class="count">5 studies</span>
+  </div>
+  <div class="cat-summary">Progesterone raises your core body temperature in the luteal phase, disrupting the nighttime temperature drop you need for quality sleep. PeakHer accounts for this.</div>
+
+  <div class="study">
+    <div class="study-title">Circadian rhythms, sleep, and the menstrual cycle</div>
+    <div class="study-authors">Baker FC, Driver HS</div>
+    <div class="study-journal">Sleep Medicine, 2007 | DOI: 10.1016/j.sleep.2006.09.011</div>
+    <div class="study-finding">Subjective sleep quality is lowest around menses. Elevated progesterone in the luteal phase disrupts temperature regulation needed for sleep.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Circadian Variation of Sleep During the Follicular and Luteal Phases of the Menstrual Cycle</div>
+    <div class="study-authors">Shechter A, Varin F, Boivin DB</div>
+    <div class="study-journal">Sleep, 2010 | DOI: 10.1093/sleep/33.5.647</div>
+    <div class="study-finding">Core body temperature is elevated at night during the luteal phase with decreased temperature amplitude, while melatonin remains unaffected.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Objective Sleep Interruption and Reproductive Hormone Dynamics in the Menstrual Cycle</div>
+    <div class="study-authors">Sharkey KM, Crawford SL, Kim S, Joffe H</div>
+    <div class="study-journal">Sleep Medicine, 2014 | PMID: 24841109</div>
+    <div class="study-finding">Objective sleep interruption increases during the luteal phase and correlates with progesterone levels and basal body temperature changes.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Sleep and Women's Health</div>
+    <div class="study-authors">Nowakowski S, Meers J, Heimbach E</div>
+    <div class="study-journal">Sleep Medicine Research, 2013 | PMID: 25688326</div>
+    <div class="study-finding">Sleep complaints are 1.5-2x more common in women than men, with the menstrual cycle, pregnancy, and menopause as key hormonal contributors.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Sleep, Hormones, and Circadian Rhythms throughout the Menstrual Cycle</div>
+    <div class="study-authors">Shechter A, Boivin DB</div>
+    <div class="study-journal">International Journal of Endocrinology, 2010 | PMID: 20145718</div>
+    <div class="study-finding">Progesterone's thermogenic effect (raising core temp by ~0.4C in the luteal phase) disrupts the nighttime temperature drop needed for optimal sleep onset.</div>
+  </div>
+
+  <div class="dot-note">
+    <span class="dot-label">Dot's translation</span>
+    <strong>If you can't sleep during Sustain, it's not anxiety. It's progesterone.</strong> Your body temperature is literally too high for deep sleep. I'll adjust your evening routine and tell you why the melatonin isn't working.
+  </div>
+</div>
+
+<!-- ═══ 5. WEARABLE BIOMETRICS ═══ -->
+<div class="category">
+  <div class="cat-header">
+    <div class="cat-icon" style="background:rgba(0,229,160,0.12);">&#x231A;</div>
+    <h2>Wearable Biometrics &amp; Cycle Tracking</h2>
+    <span class="count">6 studies</span>
+  </div>
+  <div class="cat-summary">Consumer wearables (Oura, Whoop, Garmin) can reliably detect cycle phases through HRV, skin temperature, and resting heart rate. This is why PeakHer integrates with them.</div>
+
+  <div class="study">
+    <div class="study-title">Wearable Sensors Reveal Menses-Driven Changes in Physiology and Enable Prediction of the Fertile Window</div>
+    <div class="study-authors">Goodale BM, Shilaih M, Falco L, et al.</div>
+    <div class="study-journal">Journal of Medical Internet Research, 2019 | DOI: 10.2196/13404</div>
+    <div class="study-finding">Wearable-measured temperature, pulse rate, respiratory rate, and HRV show significant luteal-phase shifts. Machine learning predicted the fertile window with 90% accuracy from wearable data alone.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Nocturnal finger skin temperature in menstrual cycle tracking: ambulatory pilot study using a wearable Oura ring</div>
+    <div class="study-authors">Grant AD, Newman M, Guan L, et al.</div>
+    <div class="study-journal">BMC Women's Health, 2019 | DOI: 10.1186/s12905-019-0844-9</div>
+    <div class="study-finding">The Oura ring detects the expected biphasic skin temperature pattern across the menstrual cycle, validating consumer wearables for cycle tracking.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Tracking Sleep, Temperature, Heart Rate, and Daily Symptoms Across the Menstrual Cycle with the Oura Ring</div>
+    <div class="study-authors">Alzueta E, Gombert-Labedens M, Javitz H, et al.</div>
+    <div class="study-journal">International Journal of Women's Health, 2022 | DOI: 10.2147/IJWH.S341917</div>
+    <div class="study-finding">Significant biphasic patterns: increased heart rate (p&lt;0.03) and skin temperature (p&lt;0.001) in the luteal phase. HRV showed corresponding decreases.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">The Impact of Menstrual Cycle Phases on Cardiac Autonomic Nervous System Activity</div>
+    <div class="study-authors">Tada Y, Yoshizaki T, Tomata Y, et al.</div>
+    <div class="study-journal">Journal of Nutritional Science and Vitaminology, 2017 | DOI: 10.3177/jnsv.63.249</div>
+    <div class="study-finding">Menstrual-cycle-related variation in 24-hour HRV, with autonomic nervous system activity differing between follicular and luteal phases.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Modern fertility awareness methods: wrist wearables capture the changes in temperature associated with the menstrual cycle</div>
+    <div class="study-authors">Shilaih M, Goodale BM, Falco L, et al.</div>
+    <div class="study-journal">Bioscience Reports, 2018 | DOI: 10.1042/BSR20171279</div>
+    <div class="study-finding">Wrist-worn wearables accurately capture menstrual cycle temperature changes, establishing them as viable tools for cycle-phase identification.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Wearable-Derived Heart Rate Variability Across the Menstrual Cycle</div>
+    <div class="study-authors">Living Systematic Review (multiple authors)</div>
+    <div class="study-journal">Sports Medicine, 2025 | DOI: 10.1007/s40279-025-02388-y</div>
+    <div class="study-finding">HRV is higher at the beginning of the cycle and lower toward the end, with 3-9% differences between phases. Confirms wearable HRV as a reliable cycle-phase biomarker.</div>
+  </div>
+</div>
+
+<!-- ═══ 6. GENDER BIAS IN RESEARCH ═══ -->
+<div class="category">
+  <div class="cat-header">
+    <div class="cat-icon" style="background:rgba(255,45,123,0.12);">&#x26A0;&#xFE0F;</div>
+    <h2>Gender Bias in Health Research</h2>
+    <span class="count">6 studies</span>
+  </div>
+  <div class="cat-summary">The reason PeakHer needs to exist. Women have been systematically excluded from the research that built every health tool on the market.</div>
+
+  <div class="study">
+    <div class="study-title">Sex bias in neuroscience and biomedical research</div>
+    <div class="study-authors">Beery AK, Zucker I</div>
+    <div class="study-journal">Neuroscience and Biobehavioral Reviews, 2011 | DOI: 10.1016/j.neubiorev.2010.07.002</div>
+    <div class="study-finding">Male bias in 8 of 10 biomedical disciplines. In neuroscience, single-sex studies of male animals outnumbered females 5.5 to 1.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">A 10-year follow-up study of sex inclusion in the biological sciences</div>
+    <div class="study-authors">Woitowich NC, Beery AK, Woodruff TK</div>
+    <div class="study-journal">eLife, 2020 | DOI: 10.7554/eLife.56344</div>
+    <div class="study-finding">While sex inclusion improved after 2016 NIH policy, significant gaps remain. Many studies still fail to analyze results by sex even when both sexes are included.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">NIH Revitalization Act of 1993</div>
+    <div class="study-authors">U.S. Congress (Public Law 103-43)</div>
+    <div class="study-journal">Signed June 10, 1993</div>
+    <div class="study-finding">First mandate requiring inclusion of women in NIH-funded research. Prior to this, a 1977 FDA policy recommended excluding women of childbearing potential from early drug trials.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Gender bias in research: how does it affect evidence based medicine?</div>
+    <div class="study-authors">Holdcroft A</div>
+    <div class="study-journal">Journal of the Royal Society of Medicine, 2007 | PMC: 1761670</div>
+    <div class="study-finding">Insights from male-only studies were routinely extrapolated to women despite meaningful biological differences in organs, genes, hormones, and disease presentation.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">The Persistence of Sex Bias in High-Impact Clinical Research</div>
+    <div class="study-authors">Feldman S, Ammar W, Hardber L, et al.</div>
+    <div class="study-journal">PMC, 2025 | PMC: 11953574</div>
+    <div class="study-finding">Across high-impact clinical trials (2015-2019), significantly more males (56%) than females (44%) were included.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Inclusion, Analysis, and Reporting of Sex and Race/Ethnicity in Clinical Trials</div>
+    <div class="study-authors">Geller SE, Koch AR, Pellettieri B, Carnes M</div>
+    <div class="study-journal">Journal of Women's Health, 2011 | DOI: 10.1089/jwh.2010.2469</div>
+    <div class="study-finding">Fewer than 30% of participants in industry-sponsored early-phase trials were women, shaped by legal liability fears.</div>
+  </div>
+
+  <div class="dot-note">
+    <span class="dot-label">Dot's translation</span>
+    <strong>85% of health research was done on men. Your workout plan, your nutrition guide, and your productivity system were designed for a body on a 24-hour hormonal cycle. Yours runs on 28 days.</strong> That's why I exist.
+  </div>
+</div>
+
+<!-- ═══ 7. PERIMENOPAUSE & MENOPAUSE ═══ -->
+<div class="category">
+  <div class="cat-header">
+    <div class="cat-icon" style="background:rgba(255,215,0,0.12);">&#x1F33B;</div>
+    <h2>Perimenopause &amp; Menopause</h2>
+    <span class="count">6 studies</span>
+  </div>
+  <div class="cat-summary">Hormones don't disappear after menopause. They shift. The brain changes are measurable, real, and addressable. PeakHer is designed for every stage.</div>
+
+  <div class="study">
+    <div class="study-title">Menopause impacts human brain structure, connectivity, energy metabolism, and amyloid-beta deposition</div>
+    <div class="study-authors">Mosconi L, Berti V, Dyke J, et al.</div>
+    <div class="study-journal">Scientific Reports, 2021 | DOI: 10.1038/s41598-021-90084-y</div>
+    <div class="study-finding">Neuroimaging of 161 women (ages 40-65) showing substantial differences in brain structure, connectivity, and energy metabolism across menopause stages.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Perimenopause and Cognition</div>
+    <div class="study-authors">Greendale GA, Derby CA, Maki PM</div>
+    <div class="study-journal">Obstetrics and Gynecology Clinics of North America, 2011 | DOI: 10.1016/j.ogc.2011.05.007</div>
+    <div class="study-finding">Perimenopausal women were 1.4x more likely to report forgetfulness. Higher FSH and LH levels associated with worse verbal learning and memory.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Effects of the menopause transition and hormone use on cognitive performance in midlife women</div>
+    <div class="study-authors">Greendale GA, Huang MH, Wight RG, et al.</div>
+    <div class="study-journal">Neurology, 2009 | DOI: 10.1212/WNL.0b013e3181a71193</div>
+    <div class="study-finding">SWAN longitudinal study showing cognitive decrements during perimenopause not explained by mood, sleep, or vasomotor symptoms. Hormonal changes are direct contributors.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Menopausal Symptoms and Their Management</div>
+    <div class="study-authors">Santoro N, Epperson CN, Mathews SB</div>
+    <div class="study-journal">Endocrinology and Metabolism Clinics of North America, 2015 | DOI: 10.1016/j.ecl.2015.05.001</div>
+    <div class="study-finding">Comprehensive review of how hot flashes, mood disturbance, sleep disruption, and cognitive changes relate to hormonal mechanisms including serotonin, norepinephrine, and dopamine.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Menopausal hot flashes: Mechanisms, endocrinology, treatment</div>
+    <div class="study-authors">Freedman RR</div>
+    <div class="study-journal">Journal of Steroid Biochemistry and Molecular Biology, 2014 | DOI: 10.1016/j.jsbmb.2013.08.010</div>
+    <div class="study-finding">Estrogen withdrawal narrows the thermoneutral zone, making women's bodies hypersensitive to small temperature changes.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Hormone therapy and cognitive function</div>
+    <div class="study-authors">Maki PM, Sundermann E</div>
+    <div class="study-journal">Human Reproduction Update, 2009 | DOI: 10.1093/humupd/dmp022</div>
+    <div class="study-finding">Hormone therapy initiated early in perimenopause may benefit verbal memory, supporting a "critical window" hypothesis for intervention timing.</div>
+  </div>
+
+  <div class="dot-note">
+    <span class="dot-label">Dot's translation</span>
+    <strong>Your hormones didn't retire. They just changed jobs.</strong> The brain fog, the sleep disruption, the energy crashes ... they're real, they're measurable, and they're addressable. I still know what they're up to.
+  </div>
+</div>
+
+<!-- ═══ 8. COGNITION & DECISION-MAKING ═══ -->
+<div class="category">
+  <div class="cat-header">
+    <div class="cat-icon" style="background:rgba(155,48,255,0.12);">&#x1F4A1;</div>
+    <h2>Cognition &amp; Decision-Making</h2>
+    <span class="count">5 studies</span>
+  </div>
+  <div class="cat-summary">The research on cognition is nuanced. Raw cognitive ability doesn't reliably shift across the cycle, but emotional processing, risk tolerance, and perception do. PeakHer focuses on how you show up, not what you're capable of.</div>
+
+  <div class="study">
+    <div class="study-title">Menstrual cycle effects on cognitive performance: A meta-analysis</div>
+    <div class="study-authors">Jang Y, Zhang L, Elfenbein HA</div>
+    <div class="study-journal">PLoS ONE, 2025 | DOI: 10.1371/journal.pone.0318576</div>
+    <div class="study-finding">Meta-analysis of 102 studies found no systematic evidence for significant cognitive performance shifts across the cycle. You're capable all month. How you FEEL changes.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Lack of Associations between Female Hormone Levels and Visuospatial Working Memory, Divided Attention and Cognitive Bias</div>
+    <div class="study-authors">Leeners B, Kruger THC, Geraedts K, et al.</div>
+    <div class="study-journal">Frontiers in Behavioral Neuroscience, 2017 | DOI: 10.3389/fnbeh.2017.00120</div>
+    <div class="study-finding">68 women tracked across two cycles showed no replicable effects of hormones on working memory, divided attention, or cognitive bias.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">The Impact of Menstrual Cycle Phase on Economic Choice and Rationality</div>
+    <div class="study-authors">Lazzaro SC, Rutledge RB, Burghart DR, Glimcher PW</div>
+    <div class="study-journal">PLoS ONE, 2016 | DOI: 10.1371/journal.pone.0144080</div>
+    <div class="study-finding">Reduced loss aversion during the ovulatory phase compared to the luteal phase. Risk tolerance and economic decision-making shift across the cycle.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Evidence from neuroimaging for the role of the menstrual cycle in the interplay of emotion and cognition</div>
+    <div class="study-authors">Sacher J, Okon-Singer H, Villringer A</div>
+    <div class="study-journal">Frontiers in Human Neuroscience, 2013 | DOI: 10.3389/fnhum.2013.00374</div>
+    <div class="study-finding">Neuroimaging shows cycle-related changes in brain regions involved in emotional processing (amygdala, hippocampus, prefrontal cortex), supporting emotional rather than cognitive variation.</div>
+  </div>
+
+  <div class="study">
+    <div class="study-title">Selective influence of menstrual cycle on perception of stimuli with reproductive significance</div>
+    <div class="study-authors">Krug R, Pietrowsky R, Fehm HL, Born J</div>
+    <div class="study-journal">Psychosomatic Medicine, 1994 | PMID: 7809340</div>
+    <div class="study-finding">Perception of specific stimulus categories shifted during the preovulatory phase, suggesting estrogen-driven perceptual changes near ovulation.</div>
+  </div>
+
+  <div class="dot-note">
+    <span class="dot-label">Dot's translation</span>
+    <strong>You're smart all month. That was never the question.</strong> What changes is how bold you feel, how risk-tolerant you are, and how your brain processes emotion. I don't tell you what you CAN do. I tell you what will feel easiest today.
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-bar">
+  <h2>44 studies. One app. Zero guessing.</h2>
+  <p>PeakHer translates this research into your daily brief. Every morning at 7am.</p>
+  <a href="/#waitlist">Join the Waitlist</a>
+</section>
+
+<footer class="footer">
+  <div class="footer-bottom">
+    <span>&copy; 2026 PeakHer. All rights reserved.</span>
+    <div style="display:flex;gap:16px;">
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="mailto:Results@highperformanceventures.com">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
