@@ -843,11 +843,22 @@ window.PeakHer.Checkin = (function () {
 
   function init() {
     render();
+    // Briefing.init() will fire separately and populate #briefing-container,
+    // but if Check-in renders after Briefing, Briefing's data would be wiped.
+    // Ask Briefing to (re)render on any init.
+    if (window.PeakHer && window.PeakHer.Briefing && window.PeakHer.Briefing.refresh) {
+      setTimeout(function(){ window.PeakHer.Briefing.refresh(); }, 0);
+    }
   }
 
   function refresh() {
     moreExpanded = false;
     render();
+    // Re-populate the briefing section after re-render (critical: render() wipes
+    // the #briefing-container so we need to ask Briefing to redraw)
+    if (window.PeakHer && window.PeakHer.Briefing && window.PeakHer.Briefing.refresh) {
+      window.PeakHer.Briefing.refresh();
+    }
   }
 
   return {

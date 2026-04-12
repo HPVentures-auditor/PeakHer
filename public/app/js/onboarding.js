@@ -919,18 +919,16 @@ window.PeakHer.Onboarding = (function () {
       }
     }));
 
-    // Garmin
-    list.appendChild(makeConnectCard('\u231A', 'Garmin', 'Activity and health metrics', function () {
-      var API = window.PeakHer.API;
-      if (API && API.startWearableAuth) {
-        var badge = this.querySelector('.ob-int-badge');
-        badge.textContent = 'Connecting...';
-        API.startWearableAuth('garmin').then(function (r) {
-          if (r && r.url) window.location.href = r.url;
-          else { badge.textContent = 'Error'; badge.style.color = 'var(--coral)'; }
-        }).catch(function () { badge.textContent = 'Error'; badge.style.color = 'var(--coral)'; });
-      }
-    }));
+    // Garmin (coming soon)
+    var garminCard = el('div', 'ob-int-card');
+    garminCard.innerHTML =
+      '<span class="ob-int-icon">\u231A</span>' +
+      '<div class="ob-int-info">' +
+        '<div class="ob-int-name">Garmin</div>' +
+        '<span class="ob-int-badge">Coming Soon</span>' +
+      '</div>' +
+      '<span class="ob-int-lock">\uD83D\uDD12</span>';
+    list.appendChild(garminCard);
 
     // Apple Health (coming soon)
     var appleCard = el('div', 'ob-int-card');

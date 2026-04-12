@@ -848,7 +848,7 @@ window.PeakHer.Settings = (function () {
   var WEARABLE_PROVIDERS = [
     { key: 'oura', name: 'Oura Ring', icon: '\u2B55', color: '#D4A574', desc: 'Sleep, readiness, activity, HRV' },
     { key: 'whoop', name: 'WHOOP', icon: '\uD83D\uDCAA', color: '#44D62C', desc: 'Recovery, strain, sleep, HRV' },
-    { key: 'garmin', name: 'Garmin', icon: '\u231A', color: '#007CC3', desc: 'Steps, sleep, stress, body battery' }
+    { key: 'garmin', name: 'Garmin', icon: '\u231A', color: '#007CC3', desc: 'Steps, sleep, stress, body battery', comingSoon: true }
   ];
 
   function renderWearableSection() {
@@ -888,7 +888,9 @@ window.PeakHer.Settings = (function () {
       html += '</div>';
 
       html += '<div style="display:flex;gap:6px;">';
-      if (status.connected) {
+      if (p.comingSoon) {
+        html += '<span style="font-size:11px;font-weight:700;color:var(--gray-text,#6b7280);background:rgba(0,0,0,0.06);padding:6px 12px;border-radius:100px;letter-spacing:0.5px;text-transform:uppercase;">Coming Soon</span>';
+      } else if (status.connected) {
         html += '<button class="ph-sms-btn ph-sms-btn-secondary wearable-sync-btn" data-provider="' + p.key + '" style="font-size:12px;padding:6px 12px;">Sync</button>';
         html += '<button class="ph-sms-btn ph-sms-btn-danger wearable-disconnect-btn" data-provider="' + p.key + '" style="font-size:12px;padding:6px 12px;">Disconnect</button>';
       } else {
