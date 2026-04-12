@@ -9,7 +9,7 @@
   'use strict';
 
   // === Google Analytics 4 ===
-  var GA_ID = 'G-REPLACE_ME'; // <-- Replace with your GA4 Measurement ID
+  var GA_ID = 'G-F1MPQFYYDB';
 
   if (GA_ID && GA_ID !== 'G-REPLACE_ME') {
     var ga = document.createElement('script');
