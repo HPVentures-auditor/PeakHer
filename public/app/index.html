@@ -1275,7 +1275,10 @@
   <div class="nav-right">
     <a href="/">Home</a>
     <a href="#" id="loginBtn" style="color:var(--teal);font-weight:600;" onclick="PeakHer.Router.navigate('onboarding'); return false;">Log In</a>
-    <a href="#" id="logoutBtn" style="display:none;" onclick="PeakHer.API.logout(); return false;">Log Out</a>
+    <a href="#" id="accountBtn" style="display:none;align-items:center;gap:6px;" onclick="PeakHer.Settings.open(); return false;" title="Account &amp; Settings">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+      Account
+    </a>
   </div>
 </nav>
 
@@ -1415,12 +1418,12 @@ window.PeakHer.applyPhaseAccent = function() {
       PeakHer.API.initPushNotifications();
     }
 
-    // Show login/logout button based on auth state
+    // Show login/account button based on auth state
     if (PeakHer.API.isLoggedIn()) {
-      var logoutBtn = document.getElementById('logoutBtn');
       var loginBtn = document.getElementById('loginBtn');
-      if (logoutBtn) logoutBtn.style.display = '';
+      var accountBtn = document.getElementById('accountBtn');
       if (loginBtn) loginBtn.style.display = 'none';
+      if (accountBtn) accountBtn.style.display = 'inline-flex';
     }
 
     // Apply saved theme
