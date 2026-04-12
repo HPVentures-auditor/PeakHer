@@ -3,6 +3,21 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],
+  "functions": {
+    "api/briefing.js": { "maxDuration": 60 },
+    "api/email-brief.js": { "maxDuration": 60 },
+    "api/readiness.js": { "maxDuration": 30 },
+    "api/task-sort.js": { "maxDuration": 30 },
+    "api/fasting.js": { "maxDuration": 30 },
+    "api/insights.js": { "maxDuration": 60 },
+    "api/patterns.js": { "maxDuration": 30 },
+    "api/partner/briefing.js": { "maxDuration": 60 },
+    "api/cron/email-briefings.js": { "maxDuration": 300 },
+    "api/cron/morning-notifications.js": { "maxDuration": 300 },
+    "api/cron/sms-briefings.js": { "maxDuration": 300 },
+    "api/cron/wearable-sync.js": { "maxDuration": 300 },
+    "api/cron/calendar-sync.js": { "maxDuration": 300 }
+  },
   "headers": [
     {
       "source": "/api/(.*)",
