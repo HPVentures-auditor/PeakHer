@@ -183,7 +183,16 @@ function buildEmailAIPrompt(phase, cycleDay, cycleLength, userName, todayEvents,
   parts.push('Cycle day: ' + cycleDay + ' of ' + cycleLength);
   parts.push('Day ' + dayWithinPhase + ' of ' + totalPhaseDays + ' in this phase');
   parts.push('');
-  parts.push('Generate a JSON object with these fields. Be specific, name foods, workouts, times. Dot\'s voice: direct, cheeky, warm, science-backed. Short punchy sentences. No em dashes. Use Restore/Rise/Peak/Sustain names (not clinical terms).');
+  parts.push('Generate a JSON object with these fields. Be specific, name foods, workouts, times. Dot\'s voice: direct, cheeky, warm, science-backed. Short punchy sentences. No em dashes.');
+  parts.push('');
+  parts.push('CRITICAL LANGUAGE RULE: NEVER use clinical terms in ANY field. Always use PeakHer phase names.');
+  parts.push('- "menstrual" or "menstruation" becomes "Restore" or "Restore phase"');
+  parts.push('- "follicular" becomes "Rise" or "Rise phase"');
+  parts.push('- "ovulatory" or "ovulation" becomes "Peak" or "Peak phase"');
+  parts.push('- "luteal" becomes "Sustain" or "Sustain phase"');
+  parts.push('- Do not use clinical terms even in explanations, meeting advice, task descriptions, or science facts.');
+  parts.push('- Example: say "Your Sustain brain loves a checklist" NOT "Your luteal brain loves a checklist".');
+  parts.push('- Example: say "Save this for ~6 days from now in Rise" NOT "in follicular".');
   parts.push('');
 
   if (todayEvents && todayEvents.length > 0) {
@@ -255,7 +264,7 @@ async function generateAIContent(phase, cycleDay, cycleLength, userName, todayEv
 function getFallbackContent(phase) {
   var fallbacks = {
     reflect: {
-      hormoneDownload: 'Estrogen and progesterone are both at their lowest right now. Your body is shedding and resetting. Prostaglandins are causing those cramps, and FSH is starting to rise toward the end of this phase to build the next follicle.',
+      hormoneDownload: 'Estrogen and progesterone are both at their lowest right now. Your body is shedding and resetting. Prostaglandins are causing those cramps, and FSH is starting to rise toward the end of Restore to build the next egg.',
       todosGreat: ['Strategic review of current projects', 'Journaling and reflective writing', 'Financial reviews or budget analysis'],
       todosMove: ['Big presentations or pitches', 'Networking events', 'Starting brand-new projects'],
       movementDo: ['Gentle yoga or stretching', '20-30 min outdoor walk', 'Breathwork and meditation'],
@@ -269,8 +278,8 @@ function getFallbackContent(phase) {
       bodyMode: 'Gentle Only',
       energyLevel: 'Rebuilding',
       dotQuote: 'Your BS detector is at maximum strength right now. Use it for insight, not action.',
-      scienceFact: 'During menstruation, the two brain hemispheres communicate more than at any other cycle point. Your integrative thinking is actually enhanced.',
-      shareText: 'Your brain hemispheres sync up most during your period. Creative problem-solving peaks when energy dips.'
+      scienceFact: 'During Restore, the two brain hemispheres communicate more than at any other cycle point. Your integrative thinking is actually enhanced.',
+      shareText: 'Your brain hemispheres sync up most during Restore. Creative problem-solving peaks when energy dips.'
     },
     build: {
       hormoneDownload: 'Estrogen is climbing steadily, bringing a serotonin and dopamine boost with it. Your verbal fluency, spatial reasoning, and learning capacity are all increasing. Testosterone is starting its slow ascent too.',
@@ -287,7 +296,7 @@ function getFallbackContent(phase) {
       bodyMode: 'Power Mode',
       energyLevel: 'High',
       dotQuote: 'Your hippocampus literally grows during this phase. Feed it something worth learning.',
-      scienceFact: 'Your hippocampus (memory center) actually increases in volume during the follicular phase. You literally have more brain for learning right now.',
+      scienceFact: 'Your hippocampus (memory center) actually increases in volume during Rise. You literally have more brain for learning right now.',
       shareText: 'Your memory center physically grows mid-cycle. Your brain is designed to learn faster this week.'
     },
     perform: {
@@ -323,7 +332,7 @@ function getFallbackContent(phase) {
       bodyMode: 'Steady State',
       energyLevel: 'Moderate',
       dotQuote: 'Your cravings are your metabolism asking for fuel it genuinely needs. Eat.',
-      scienceFact: 'You burn 100-300 more calories per day in the luteal phase. Those cravings are your metabolism literally asking for more fuel.',
+      scienceFact: 'You burn 100-300 more calories per day in Sustain. Those cravings are your metabolism literally asking for more fuel.',
       shareText: 'Your body burns up to 300 extra calories/day before your period. Cravings are biology, not weakness.'
     }
   };

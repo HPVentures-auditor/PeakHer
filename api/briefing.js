@@ -694,8 +694,12 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
   parts.push('- Reference hormones specifically (progesterone, estrogen, cortisol) but explain what they DO.');
   parts.push('- Never use em dashes. Use commas, colons, semicolons, periods, or connecting words.');
   parts.push('');
-  parts.push('PHASE NAME RULE: Use Restore/Rise/Peak/Sustain in consumer copy. Clinical terms (luteal, follicular) as secondary context only.');
-  parts.push('  Example: "You\'re in Sustain, what science calls the luteal phase."');
+  parts.push('CRITICAL PHASE NAME RULE: NEVER use clinical terms (menstrual, follicular, ovulatory, luteal) as the primary reference. ALWAYS use PeakHer names (Restore, Rise, Peak, Sustain).');
+  parts.push('  - "Your luteal brain loves a checklist" is WRONG. Use "Your Sustain brain loves a checklist".');
+  parts.push('  - "Save this for follicular" is WRONG. Use "Save this for Rise".');
+  parts.push('  - "In the luteal phase" is WRONG. Use "In Sustain".');
+  parts.push('  - Clinical terms are ONLY allowed as parenthetical context, like "Sustain (what science calls luteal)". And sparingly.');
+  parts.push('  - This applies to EVERY field: hormone downloads, meeting advice, task descriptions, nutrition, movement, science facts. All of it.');
   parts.push('');
   parts.push('CYCLE DATE CONFIDENCE:');
   parts.push(confidenceLanguage);
