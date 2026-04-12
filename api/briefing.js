@@ -130,10 +130,9 @@ module.exports = async function handler(req, res) {
     // On failure, fall back to static briefing
     try {
       var fallback = buildStaticFallback(new Date().toISOString().split('T')[0]);
-      // Surface the error reason in dev/staging for easier debugging
-      if (process.env.VERCEL_ENV !== 'production') {
-        fallback._debugError = (err && err.message) || String(err);
-      }
+      // Temporarily surface error in production too to debug the loading issue
+      fallback._debugError = (err && err.message) || String(err);
+      fallback._debugStack = err && err.stack ? String(err.stack).slice(0, 500) : null;
       return res.status(200).json(fallback);
     } catch (fallbackErr) {
       console.error('Briefing fallback error:', fallbackErr && fallbackErr.message);
