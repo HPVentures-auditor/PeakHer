@@ -130,9 +130,6 @@ module.exports = async function handler(req, res) {
     // On failure, fall back to static briefing
     try {
       var fallback = buildStaticFallback(new Date().toISOString().split('T')[0]);
-      // Temporarily surface error in production too to debug the loading issue
-      fallback._debugError = (err && err.message) || String(err);
-      fallback._debugStack = err && err.stack ? String(err.stack).slice(0, 500) : null;
       return res.status(200).json(fallback);
     } catch (fallbackErr) {
       console.error('Briefing fallback error:', fallbackErr && fallbackErr.message);
@@ -650,7 +647,7 @@ var DOT_SIGNOFFS = {
 //  AI SYSTEM PROMPT BUILDER
 // ══════════════════════════════════════════════════════════════════════════
 
-function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData) {
+function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData, user) {
   var phaseBioName = getPhaseMapName(phase);
   var knowledge = PHASE_KNOWLEDGE[phaseBioName];
 
@@ -873,7 +870,7 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
   }
 
   // ── Lifestyle preferences ──
-  var lifestyle = user.lifestyle || {};
+  var lifestyle = (user && user.lifestyle) || {};
   var hasLifestyle = lifestyle.dietType || (lifestyle.dietaryRestrictions && lifestyle.dietaryRestrictions.length > 0) || lifestyle.trainingPlan || lifestyle.fastingEnabled;
   if (hasLifestyle) {
     parts.push('=== USER LIFESTYLE PREFERENCES ===');
@@ -1138,7 +1135,7 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   }
 
   // Build the AI-generated briefing sections
-  var systemPrompt = buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData);
+  var systemPrompt = buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData, user);
   var userMessage = buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak, todayEvents, weekEvents);
 
   var aiBriefing = null;
