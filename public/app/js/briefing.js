@@ -770,10 +770,36 @@ window.PeakHer.Briefing = (function () {
     return h + m / 60;
   }
 
+  // ── Loading skeleton ──────────────────────────────────────────────
+
+  function renderLoading() {
+    var target = document.getElementById('briefing-container');
+    if (!target) return;
+    var html = '';
+    html += '<div class="briefing-card">';
+    html += '<div class="briefing-loading-bar"></div>';
+    html += '<div class="briefing-loading-header">';
+    html += '<div class="briefing-loading-avatar">' + dotAvatarSVG(36) + '</div>';
+    html += '<div>';
+    html += '<div class="briefing-loading-message">Dot is writing your brief<span class="dots"></span></div>';
+    html += '<div class="briefing-loading-subtitle">Reading your cycle, calendar, and check-ins</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="briefing-shimmer-body">';
+    html += '<div class="briefing-shimmer-line w-90"></div>';
+    html += '<div class="briefing-shimmer-line w-75"></div>';
+    html += '<div class="briefing-shimmer-line w-60"></div>';
+    html += '<div class="briefing-shimmer-line w-40"></div>';
+    html += '</div>';
+    html += '</div>';
+    target.innerHTML = html;
+  }
+
   // ── Init ──────────────────────────────────────────────────────────
 
   function init() {
     if (API.isLoggedIn() && typeof API.getBriefing === 'function') {
+      renderLoading();
       API.getBriefing()
         .then(function (serverData) {
           if (serverData && (serverData.phase || serverData.phaseName)) {

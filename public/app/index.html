@@ -905,6 +905,82 @@
   .briefing-phase-bar {
     height: 4px;
   }
+  /* ---- BRIEFING LOADING STATE ---- */
+  .briefing-loading-bar {
+    height: 3px;
+    background: linear-gradient(90deg, #9B30FF 0%, #FF5A9E 50%, #D91A65 100%);
+    background-size: 200% 100%;
+    animation: briefingLoadingSlide 1.4s linear infinite;
+  }
+  @keyframes briefingLoadingSlide {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .briefing-loading-header {
+    padding: 20px 20px 4px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .briefing-loading-avatar {
+    flex-shrink: 0;
+    animation: briefingDotPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes briefingDotPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.55; transform: scale(0.92); }
+  }
+  .briefing-loading-message {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary, #1a1a1a);
+    line-height: 1.4;
+  }
+  .briefing-loading-message .dots::after {
+    content: '';
+    animation: briefingDots 1.4s steps(4, end) infinite;
+  }
+  @keyframes briefingDots {
+    0%   { content: ''; }
+    25%  { content: '.'; }
+    50%  { content: '..'; }
+    75%  { content: '...'; }
+    100% { content: ''; }
+  }
+  .briefing-loading-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary, #6b7280);
+    margin-top: 2px;
+  }
+  .briefing-shimmer-body {
+    padding: 16px 20px 24px;
+  }
+  .briefing-shimmer-line {
+    height: 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg,
+      rgba(155,48,255,0.06) 0%,
+      rgba(155,48,255,0.14) 50%,
+      rgba(155,48,255,0.06) 100%);
+    background-size: 200% 100%;
+    animation: briefingShimmer 1.6s ease-in-out infinite;
+  }
+  .briefing-shimmer-line.w-90 { width: 90%; }
+  .briefing-shimmer-line.w-75 { width: 75%; }
+  .briefing-shimmer-line.w-60 { width: 60%; }
+  .briefing-shimmer-line.w-40 { width: 40%; }
+  @keyframes briefingShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  body.light-mode .briefing-shimmer-line {
+    background: linear-gradient(90deg,
+      rgba(0,0,0,0.04) 0%,
+      rgba(0,0,0,0.09) 50%,
+      rgba(0,0,0,0.04) 100%);
+    background-size: 200% 100%;
+  }
   .briefing-header {
     padding: 20px 20px 0;
     display: flex;
