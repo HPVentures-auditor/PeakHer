@@ -1188,7 +1188,7 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     phaseDayRange: phaseRange,
     cycleDateConfidence: cycleDateConfidence,
 
-    // v3 Dot-powered structured sections
+    // v3 Dot-powered structured sections (snake_case from AI)
     greeting: dotGreeting,
     hormone_download: aiBriefing ? aiBriefing.hormone_download : null,
     calendar_intelligence: aiBriefing ? (aiBriefing.calendar_intelligence || null) : null,
@@ -1200,6 +1200,17 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     key_insight: aiBriefing ? aiBriefing.key_insight : null,
     sign_off: dotSignoff,
     phase_overview: aiBriefing ? aiBriefing.phase_overview : null,
+
+    // v3 camelCase aliases (frontend v3 renderer expects these)
+    dotGreeting: dotGreeting,
+    hormoneDownload: aiBriefing ? aiBriefing.hormone_download : null,
+    calendarIntelligence: aiBriefing ? (aiBriefing.calendar_intelligence || null) : null,
+    movementDoSkip: aiBriefing ? aiBriefing.movement : null,
+    nutritionEatEase: aiBriefing ? aiBriefing.nutrition : null,
+    fastingIntelligence: aiBriefing ? aiBriefing.fasting : null,
+    focusSection: aiBriefing ? aiBriefing.focus : null,
+    emotionalWeather: aiBriefing ? aiBriefing.emotional_weather : null,
+    keyInsight: aiBriefing ? aiBriefing.key_insight : null,
 
     // v2 AI-enriched sections (backward compat for frontend)
     aiBriefing: aiBriefing,
