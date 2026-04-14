@@ -78,7 +78,7 @@ window.PeakHer.Cycle = (function () {
    * @returns {string} "menstrual" | "follicular" | "ovulatory" | "luteal"
    */
   function getPhase(cycleDay, cycleLength) {
-    if (!cycleDay || !cycleLength) return 'follicular';
+    if (!cycleDay || !cycleLength) return null;
 
     var ratio = (cycleDay - 1) / cycleLength;
 
@@ -94,7 +94,7 @@ window.PeakHer.Cycle = (function () {
    * @returns {string} "Restore" | "Rise" | "Peak" | "Sustain"
    */
   function getPerformanceMode(phase) {
-    return PHASE_TO_MODE[phase] || 'Rise';
+    return PHASE_TO_MODE[phase] || null;
   }
 
   /**

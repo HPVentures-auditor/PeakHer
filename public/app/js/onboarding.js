@@ -991,7 +991,12 @@ window.PeakHer.Onboarding = (function () {
       userData.onboardingComplete = true;
       Store.setUser(userData);
 
-      if (userData.cycleTracking) {
+      // Only enable cycle tracking when we actually captured a last period
+      // date. Without one we cannot name a phase, and Dot would otherwise
+      // default to "Rise" for every user who skipped the date step.
+      var hasPeriodDate = !!(userData.cycleTracking && userData.lastPeriodDate);
+
+      if (hasPeriodDate) {
         Store.setCycleProfile({
           trackingEnabled: true,
           averageCycleLength: userData.cycleLength,
@@ -1012,7 +1017,7 @@ window.PeakHer.Onboarding = (function () {
         password: userData.password,
         personas: userData.hats,
         coachVoice: userData.coachVoice,
-        cycleProfile: userData.cycleTracking ? {
+        cycleProfile: hasPeriodDate ? {
           trackingEnabled: true,
           averageCycleLength: userData.cycleLength,
           lastPeriodStart: userData.lastPeriodDate,

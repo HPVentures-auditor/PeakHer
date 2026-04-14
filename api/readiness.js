@@ -101,20 +101,20 @@ module.exports = async function handler(req, res) {
 
     var cycleLength = (cycleProfile && cycleProfile.average_cycle_length) ? cycleProfile.average_cycle_length : 28;
     var cycleDay = null;
-    var phase = 'build';
-    var modeName = 'Rise';
+    var phase = null;
+    var modeName = null;
+    var phaseScore = null;
+    var phaseDetail = 'No cycle data';
 
     if (hasPhase) {
       cycleDay = calculateCycleDay(cycleProfile.last_period_start, cycleLength, today);
       phase = getPhaseForCycleDay(cycleDay, cycleLength);
       modeName = getModeName(phase);
+
+      var phaseResult = calculatePhaseBaseline(cycleDay, cycleLength, phase);
+      phaseScore = phaseResult.score;
+      phaseDetail = phaseResult.detail;
     }
-
-    // ── 1. Phase baseline score (1-10 scale) ───────────────────────────
-
-    var phaseResult = calculatePhaseBaseline(cycleDay, cycleLength, phase);
-    var phaseScore = phaseResult.score;
-    var phaseDetail = phaseResult.detail;
 
     // ── 2. Check-in score (1-10 scale) ─────────────────────────────────
 
@@ -158,9 +158,13 @@ module.exports = async function handler(req, res) {
     var available = {};
     var availableWeights = {};
 
-    // Phase is always available (uses baseline even without cycle data)
-    available.phase = phaseScore;
-    availableWeights.phase = baseWeights.phase;
+    // Phase is only included when we actually have cycle tracking data.
+    // Without a period start date we cannot name a phase, so we drop it from
+    // the weighted score rather than defaulting to Rise.
+    if (phaseScore !== null) {
+      available.phase = phaseScore;
+      availableWeights.phase = baseWeights.phase;
+    }
 
     if (checkinScore !== null) {
       available.checkin = checkinScore;
@@ -183,19 +187,24 @@ module.exports = async function handler(req, res) {
 
     var compositeScore = 0;
     var normalizedWeights = {};
-    for (var j = 0; j < keys.length; j++) {
-      var k = keys[j];
-      var nw = availableWeights[k] / totalWeight;
-      normalizedWeights[k] = Math.round(nw * 100) / 100;
-      compositeScore += available[k] * nw;
+    var hasAnyInput = totalWeight > 0;
+    if (hasAnyInput) {
+      for (var j = 0; j < keys.length; j++) {
+        var k = keys[j];
+        var nw = availableWeights[k] / totalWeight;
+        normalizedWeights[k] = Math.round(nw * 100) / 100;
+        compositeScore += available[k] * nw;
+      }
     }
 
-    var score = Math.round(Math.max(1, Math.min(10, compositeScore)));
+    var score = hasAnyInput ? Math.round(Math.max(1, Math.min(10, compositeScore))) : null;
 
     // ── Label ──────────────────────────────────────────────────────────
 
     var label;
-    if (score >= 8) {
+    if (score === null) {
+      label = 'Unknown';
+    } else if (score >= 8) {
       label = 'High';
     } else if (score >= 5) {
       label = 'Moderate';
@@ -208,7 +217,7 @@ module.exports = async function handler(req, res) {
     var breakdown = {
       phase: {
         score: phaseScore,
-        weight: normalizedWeights.phase || baseWeights.phase,
+        weight: normalizedWeights.phase || 0,
         detail: phaseDetail
       },
       checkin: {
@@ -297,7 +306,7 @@ function calculateCycleDay(lastPeriodStart, cycleLength, dateStr) {
 }
 
 function getPhaseForCycleDay(cycleDay, cycleLength) {
-  if (!cycleDay || cycleDay < 1) return 'build';
+  if (!cycleDay || cycleDay < 1) return null;
   var len = cycleLength || 28;
   var scale = len / 28;
   var reflectEnd = Math.round(5 * scale);
@@ -316,7 +325,7 @@ function getModeName(phase) {
     case 'build': return 'Rise';
     case 'perform': return 'Peak';
     case 'complete': return 'Sustain';
-    default: return 'Rise';
+    default: return null;
   }
 }
 
@@ -539,7 +548,17 @@ function calculateCalendarLoadScore(events) {
 // ── Dot summary generation ───────────────────────────────────────────────
 
 function generateDotSummary(score, modeName, breakdown) {
+  if (score === null) {
+    return "I can't read your signals yet. Log a check-in and set your last period date in Settings so I can actually see you.";
+  }
+
   var prefix = 'Your score is ' + score + ' today.';
+
+  if (!modeName) {
+    if (score >= 8) return prefix + ' Energy is showing up strong. Turn on cycle tracking and I can tell you exactly why.';
+    if (score >= 5) return prefix + ' Steady. Add your period date in Settings and I can sharpen this for you.';
+    return prefix + ' Your body is asking for a lighter day. Add your period date in Settings and I can tell you why.';
+  }
 
   if (score >= 8) {
     // High — main character era
@@ -589,6 +608,36 @@ function pickLine(lines, seed) {
 // ── Action generation ────────────────────────────────────────────────────
 
 function generateActions(score, modeName, phase, calendarEvents) {
+  if (score === null) {
+    return {
+      tackle: ['Log today\'s check-in', 'Turn on cycle tracking in Settings'],
+      defer: [],
+      protect: ['Your data starts building the moment you turn tracking on']
+    };
+  }
+
+  if (!modeName) {
+    if (score >= 8) {
+      return {
+        tackle: ['Something you\'ve been putting off', 'A focused creative block'],
+        defer: ['Low-priority admin'],
+        protect: ['Guard your best focus hours', 'Turn on cycle tracking to sharpen this signal']
+      };
+    }
+    if (score >= 5) {
+      return {
+        tackle: ['One high-priority task', 'Detail work and follow-ups'],
+        defer: ['High-stakes decisions'],
+        protect: ['Turn on cycle tracking so I can tell you WHY you feel this way']
+      };
+    }
+    return {
+      tackle: ['Only true emergencies', 'Quick wins under 15 minutes'],
+      defer: ['Big decisions', 'New commitments'],
+      protect: ['Rest without guilt', 'Turn on cycle tracking to see the pattern']
+    };
+  }
+
   if (score >= 8) {
     return {
       tackle: generateTackleHigh(modeName),

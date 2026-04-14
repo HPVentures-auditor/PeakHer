@@ -204,7 +204,7 @@ function calculateCycleDay(lastPeriodStart, cycleLength, dateStr) {
 }
 
 function getPhaseForCycleDay(cycleDay, cycleLength) {
-  if (!cycleDay || cycleDay < 1) return 'build';
+  if (!cycleDay || cycleDay < 1) return null;
   var len = cycleLength || 28;
   var scale = len / 28;
   var reflectEnd = Math.round(5 * scale);

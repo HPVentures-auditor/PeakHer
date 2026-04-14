@@ -262,7 +262,8 @@ window.PeakHer.Checkin = (function () {
       { key: 'sustain',  ratio: Cycle.PHASE_RATIOS.luteal }
     ];
 
-    var currentMode = Cycle.getPerformanceMode(currentPhase).toLowerCase();
+    var currentModeRaw = Cycle.getPerformanceMode(currentPhase);
+    var currentMode = currentModeRaw ? currentModeRaw.toLowerCase() : '';
     var svgParts = [];
     svgParts.push('<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" fill="none" xmlns="http://www.w3.org/2000/svg">');
 
@@ -390,7 +391,7 @@ window.PeakHer.Checkin = (function () {
 
     // ── Phase Circle Hero ────────────────────────────────────
 
-    if (trackingOn && cycleProfile) {
+    if (trackingOn && cycleProfile && cycleProfile.lastPeriodStart) {
       var cycleDay = Cycle.getCycleDay(
         cycleProfile.lastPeriodStart,
         cycleProfile.averageCycleLength,
@@ -620,8 +621,8 @@ window.PeakHer.Checkin = (function () {
     notesWrap.appendChild(notesField);
     moreSection.appendChild(notesWrap);
 
-    // Cycle day display (read-only)
-    if (trackingOn && cycleProfile) {
+    // Cycle day display (read-only) — only when we actually know the day
+    if (trackingOn && cycleProfile && cycleProfile.lastPeriodStart) {
       var cdDay = Cycle.getCycleDay(
         cycleProfile.lastPeriodStart,
         cycleProfile.averageCycleLength,
@@ -630,11 +631,13 @@ window.PeakHer.Checkin = (function () {
       var cdPhase = Cycle.getPhase(cdDay, cycleProfile.averageCycleLength);
       var cdMode  = Cycle.getPerformanceMode(cdPhase);
 
-      var cycleDayDisplay = document.createElement('div');
-      cycleDayDisplay.className = 'ph-cycle-display';
-      cycleDayDisplay.textContent = 'Day ' + cdDay + ' of ' +
-        cycleProfile.averageCycleLength + ', ' + cdMode + ' Phase';
-      moreSection.appendChild(cycleDayDisplay);
+      if (cdDay && cdMode) {
+        var cycleDayDisplay = document.createElement('div');
+        cycleDayDisplay.className = 'ph-cycle-display';
+        cycleDayDisplay.textContent = 'Day ' + cdDay + ' of ' +
+          cycleProfile.averageCycleLength + ', ' + cdMode + ' Phase';
+        moreSection.appendChild(cycleDayDisplay);
+      }
     }
 
     toggleBtn.addEventListener('click', function () {
@@ -752,16 +755,15 @@ window.PeakHer.Checkin = (function () {
     }
     wrapper.appendChild(streakEl);
 
-    // Mode card (if tracking)
+    // Mode card (only when we have actual cycle data to name the phase)
     var cycleProfile = Store.getCycleProfile();
-    if (cycleProfile && cycleProfile.trackingEnabled) {
-      var cycleDay = Cycle.getCycleDay(
-        cycleProfile.lastPeriodStart,
-        cycleProfile.averageCycleLength,
-        new Date()
-      );
-      var phase = Cycle.getPhase(cycleDay, cycleProfile.averageCycleLength);
-      var mode  = Cycle.getPerformanceMode(phase);
+    var cycleDay = (cycleProfile && cycleProfile.trackingEnabled && cycleProfile.lastPeriodStart)
+      ? Cycle.getCycleDay(cycleProfile.lastPeriodStart, cycleProfile.averageCycleLength, new Date())
+      : null;
+    var phase = cycleDay ? Cycle.getPhase(cycleDay, cycleProfile.averageCycleLength) : null;
+    var mode  = phase ? Cycle.getPerformanceMode(phase) : null;
+
+    if (mode) {
       var color = Cycle.getModeColor(mode);
       var desc  = Cycle.getModeDescription(mode);
 
@@ -783,6 +785,17 @@ window.PeakHer.Checkin = (function () {
       modeCard.appendChild(modeDesc);
 
       wrapper.appendChild(modeCard);
+    } else if (cycleProfile && cycleProfile.trackingEnabled) {
+      // Tracking on but no period date yet — prompt her to add it
+      var promptCard = document.createElement('div');
+      promptCard.className = 'ph-mode-card';
+      promptCard.style.background = 'rgba(45,138,138,0.12)';
+      promptCard.style.border = '1px solid rgba(45,138,138,0.35)';
+      promptCard.style.color = '#2d8a8a';
+      promptCard.style.padding = '16px';
+      promptCard.innerHTML = '<div style="font-weight:600;margin-bottom:6px;">Add your last period date</div>'
+        + '<div style="font-size:14px;opacity:0.85;">I can\'t name your phase yet. Open Settings and drop in the date to unlock your real Mode.</div>';
+      wrapper.appendChild(promptCard);
     }
 
     // Progress toward patterns
