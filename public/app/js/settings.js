@@ -211,13 +211,12 @@ window.PeakHer.Settings = (function () {
 
     // ── SMS Section ─────────────────────────────────────────────
     html += '<div class="ph-settings-section">';
-    html += '<h3>SMS Briefings</h3>';
+    html += '<h3>SMS Briefings <span style="display:inline-block;margin-left:8px;padding:3px 10px;border-radius:999px;background:rgba(255,215,0,0.15);color:#FFD700;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;vertical-align:middle;">Coming Soon</span></h3>';
     html += '<p>Get your daily briefing + check in via text. Like having a coach in your pocket.</p>';
-
-    html += '<div id="smsContent">';
-    html += renderSmsContent();
+    html += '<div style="margin-top:12px;padding:16px;border:1px dashed rgba(255,215,0,0.35);border-radius:12px;background:rgba(255,215,0,0.04);">';
+    html += '<div style="font-size:14px;color:var(--text-primary,#F0F0F5);font-weight:600;margin-bottom:4px;">We are getting ready to launch SMS.</div>';
+    html += '<div style="font-size:13px;color:var(--text-secondary,#A0A0B0);line-height:1.5;">Pending approval from our SMS provider. You will be able to receive Dot\'s daily brief and reply with a check-in straight from your phone. We will notify you the moment it is live.</div>';
     html += '</div>';
-
     html += '</div>'; // end section
 
     // ── Coach Voice Section ───────────────────────────────────────
