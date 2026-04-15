@@ -95,29 +95,36 @@ function betaInviteEmail(name, spotsLeft) {
 
   return {
     subject: name !== 'there'
-      ? name + ', your early access to PeakHer is ready'
-      : 'Your early access to PeakHer is ready',
+      ? '[BETA ACCESS] ' + name + ', your PeakHer invite is ready'
+      : '[BETA ACCESS] Your PeakHer invite is ready',
     html: '<!DOCTYPE html>' +
       '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>' +
       '<body style="margin:0;padding:0;background:#0a1628;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;">' +
       '<div style="max-width:560px;margin:0 auto;padding:40px 24px;">' +
         '<div style="text-align:center;margin-bottom:32px;">' +
           '<span style="font-size:15px;font-weight:800;letter-spacing:4px;color:#2d8a8a;text-transform:uppercase;">PEAKHER</span>' +
+          '<span style="display:inline-block;margin-left:10px;padding:3px 10px;border:1px solid #E87461;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:2px;color:#E87461;text-transform:uppercase;vertical-align:middle;">BETA</span>' +
         '</div>' +
         '<div style="background:#0f2035;border-radius:12px;padding:32px 24px;border:1px solid rgba(255,255,255,0.06);">' +
+          '<div style="display:inline-block;padding:4px 12px;background:rgba(232,116,97,0.12);border:1px solid rgba(232,116,97,0.4);border-radius:999px;font-size:11px;font-weight:700;letter-spacing:2px;color:#E87461;text-transform:uppercase;margin-bottom:16px;">Founding Beta Tester</div>' +
           '<h1 style="color:#ffffff;font-size:24px;font-weight:700;margin:0 0 12px;">You\'re In, ' + escapeHtml(name) + '.</h1>' +
           '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 16px;">' +
-            'You signed up for PeakHer\'s beta waitlist, and your spot is ready.' +
+            'You joined the PeakHer waitlist. We\'re opening the beta to you today.' +
           '</p>' +
           '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 16px;">' +
-            'PeakHer tracks your energy, confidence, and daily rhythm so you can see the patterns behind your performance. ' +
-            'No guessing. No generic advice. Just your data, showing you what actually works for <em style="color:#ffffff;">you</em>.' +
+            'PeakHer is the first Hormonal Intelligence platform. Dot reads your biology, your schedule, and your daily check-ins, then tells you exactly what to do today. No guessing. No generic advice. Just your data, translated into decisions.' +
           '</p>' +
+          '<div style="background:rgba(232,116,97,0.08);border-left:3px solid #E87461;border-radius:4px;padding:14px 16px;margin:0 0 20px;">' +
+            '<p style="color:#ffffff;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 6px;">What BETA means</p>' +
+            '<p style="color:#b0b0b0;font-size:14px;line-height:1.6;margin:0;">' +
+              'You\'re one of the first people ever to use PeakHer. Core features are live and working. Some edges are still being polished, and new features ship weekly. Your feedback directly shapes what we build next.' +
+            '</p>' +
+          '</div>' +
           '<p style="color:#b0b0b0;font-size:15px;line-height:1.6;margin:0 0 24px;">' +
-            spotsText + ' in our founding beta. Create your account now and log your first check-in (takes 30 seconds).' +
+            spotsText + ' in our founding beta. Create your account and log your first check-in (30 seconds).' +
           '</p>' +
           '<div style="text-align:center;">' +
-            '<a href="https://peakher.ai/login/?mode=signup" style="display:inline-block;background:#E87461;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;">Create Your Account</a>' +
+            '<a href="https://peakher.ai/login/?mode=signup" style="display:inline-block;background:#E87461;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;">Claim Your Beta Access</a>' +
           '</div>' +
           '<p style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;margin-top:20px;line-height:1.5;">' +
             'You\'re receiving this because you joined the PeakHer waitlist. ' +
@@ -125,7 +132,7 @@ function betaInviteEmail(name, spotsLeft) {
           '</p>' +
         '</div>' +
         '<div style="text-align:center;margin-top:32px;">' +
-          '<p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">PeakHer &copy; 2026 High Performance Ventures LLC.</p>' +
+          '<p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">PeakHer &copy; 2026 High Performance Ventures LLC. Beta software, provided as-is.</p>' +
           '<p style="margin:4px 0 0;"><a href="https://peakher.ai/privacy/" style="color:rgba(255,255,255,0.3);font-size:12px;text-decoration:none;">Privacy</a></p>' +
         '</div>' +
       '</div>' +
