@@ -92,22 +92,33 @@ module.exports = async function handler(req, res) {
 
     const token = createToken(user.id);
 
-    // Create GHL contact + send welcome email (fire-and-forget, don't block registration)
+    // Create GHL contact + send welcome email. We AWAIT both (with allSettled so
+    // one failure doesn't block the other) because Vercel serverless terminates
+    // the function as soon as the response is sent — fire-and-forget promises
+    // get dropped mid-flight. The ~500ms added latency is worth the reliability.
     try {
       var ghl = require('../_lib/ghl');
+      var emailLib = require('../_lib/email');
       var tags = ['peakher_user', 'registered'];
       if (cycleProfile && cycleProfile.trackingEnabled) tags.push('cycle_tracking');
-      ghl.upsertContact({
-        email: user.email,
-        firstName: user.name.split(' ')[0],
-        tags: tags,
-        source: 'PeakHer Registration'
-      }).catch(function (ghlErr) { console.warn('GHL contact creation failed:', ghlErr.message); });
-
-      var emailLib = require('../_lib/email');
       var tpl = emailLib.welcomeEmail(user.name);
-      emailLib.sendEmail({ to: user.email, subject: tpl.subject, html: tpl.html })
-        .catch(function (emailErr) { console.warn('Welcome email failed:', emailErr.message); });
+
+      var sideEffects = await Promise.allSettled([
+        ghl.upsertContact({
+          email: user.email,
+          firstName: user.name.split(' ')[0],
+          tags: tags,
+          source: 'PeakHer Registration'
+        }),
+        emailLib.sendEmail({ to: user.email, subject: tpl.subject, html: tpl.html })
+      ]);
+
+      var labels = ['GHL upsert', 'Welcome email'];
+      sideEffects.forEach(function (r, i) {
+        if (r.status === 'rejected') {
+          console.warn(labels[i] + ' failed for ' + user.email + ':', r.reason && r.reason.message);
+        }
+      });
     } catch (emailInitErr) {
       console.warn('Email/GHL module not available:', emailInitErr.message);
     }
