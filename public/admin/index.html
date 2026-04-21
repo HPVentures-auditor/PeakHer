@@ -1469,6 +1469,11 @@ var Admin = (function () {
         detailItem('Onboarding', u.onboardingComplete ? 'Complete' : 'Incomplete') +
       '</div>' +
 
+      '<h4 style="font-size:14px;font-weight:600;margin-bottom:8px;">Billing</h4>' +
+      '<div id="billingSection" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px 14px;margin-bottom:16px;">' +
+        '<div style="color:var(--gray-mid);font-size:13px;">Loading subscription…</div>' +
+      '</div>' +
+
       '<h4 style="font-size:14px;font-weight:600;margin-bottom:8px;">Recent Check-ins</h4>' +
       (data.recentCheckins.length === 0
         ? '<p style="color:var(--gray-mid);font-size:13px;">No check-ins yet</p>'
@@ -1499,6 +1504,110 @@ var Admin = (function () {
       '<button class="btn btn-ghost btn-sm" onclick="Admin.sendWelcome(\'' + eid + '\')">Send Welcome</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="Admin.sendReminder(\'' + eid + '\')">Send Reminder</button>' +
       '<button class="btn btn-danger btn-sm" onclick="Admin.confirmDelete(\'' + eid + '\', \'' + escapeHtml(u.name).replace(/'/g, "\\'") + '\')">Delete</button>';
+
+    // Load billing section async (doesn't block modal render)
+    loadBilling(u.id);
+  }
+
+  // ── BILLING ────────────────────────────────────────────────────────
+
+  function loadBilling(uid) {
+    var host = document.getElementById('billingSection');
+    if (!host) return;
+    request('GET', '/admin/subscription?id=' + encodeURIComponent(uid))
+      .then(function (data) { renderBilling(uid, data); })
+      .catch(function (err) {
+        host.innerHTML = '<div style="color:var(--coral);font-size:13px;">Failed to load billing: ' + escapeHtml(err.message) + '</div>';
+      });
+  }
+
+  function renderBilling(uid, data) {
+    var host = document.getElementById('billingSection');
+    if (!host) return;
+
+    if (!data.hasSubscription) {
+      host.innerHTML =
+        '<div style="color:var(--gray-mid);font-size:13px;">' +
+          'No subscription on record. Plan: <strong>' + escapeHtml(data.plan || 'free') + '</strong>' +
+        '</div>';
+      return;
+    }
+
+    var live = data.stripe;
+    var status = (live && live.status) || data.status || 'unknown';
+    var cancelFlag = live ? live.cancelAtPeriodEnd : data.cancelAtPeriodEnd;
+    var periodEnd = (live && live.currentPeriodEnd) || data.currentPeriodEnd;
+    var trialEnd = live && live.trialEnd;
+    var paused = live && live.pauseCollection;
+
+    var badgeBg = '#2d8a8a';
+    if (status === 'canceled') badgeBg = '#8a8a8a';
+    else if (status === 'past_due' || status === 'unpaid') badgeBg = '#E87461';
+    else if (status === 'trialing') badgeBg = '#FFD700';
+    else if (paused) badgeBg = '#9B30FF';
+
+    var nextChargeLine = '';
+    if (status === 'canceled') {
+      nextChargeLine = '<span style="color:var(--gray-mid);">No further charges</span>';
+    } else if (paused) {
+      nextChargeLine = '<span style="color:#9B30FF;">Paused — collection voided</span>';
+    } else if (cancelFlag && periodEnd) {
+      nextChargeLine = '<span style="color:var(--coral);">Cancels on ' + formatDate(periodEnd) + ' (no renewal)</span>';
+    } else if (trialEnd) {
+      nextChargeLine = 'Trial ends ' + formatDate(trialEnd) + ' — first charge then';
+    } else if (periodEnd) {
+      nextChargeLine = 'Next charge: ' + formatDate(periodEnd);
+    } else {
+      nextChargeLine = '<span style="color:var(--gray-mid);">Unknown period end</span>';
+    }
+
+    var active = status !== 'canceled';
+    var canCancel = active && !cancelFlag;
+    var canPause = active && !paused && status !== 'canceled';
+    var canResume = cancelFlag || paused;
+
+    host.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">' +
+        '<span class="badge-sm" style="background:' + badgeBg + ';color:#fff;">' + escapeHtml(status) + (paused ? ' (paused)' : '') + '</span>' +
+        '<span style="font-size:13px;color:var(--gray-text);">Plan: <strong>' + escapeHtml(data.plan) + '</strong></span>' +
+        (data.foundingMember ? '<span class="badge-sm" style="background:rgba(255,215,0,0.15);color:#FFD700;">Founding</span>' : '') +
+      '</div>' +
+      '<div style="font-size:13px;color:var(--gray-text);margin-bottom:10px;">' + nextChargeLine + '</div>' +
+      (data.stripeSubscriptionId
+        ? '<div style="font-size:11px;color:var(--gray-mid);font-family:monospace;margin-bottom:10px;">' + escapeHtml(data.stripeSubscriptionId) + '</div>'
+        : '') +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+        (canCancel
+          ? '<button class="btn btn-danger btn-sm" onclick="Admin.subAction(\'' + uid + '\',\'cancel_now\')">Cancel Now</button>' +
+            '<button class="btn btn-ghost btn-sm" onclick="Admin.subAction(\'' + uid + '\',\'cancel_at_period_end\')">Cancel at Period End</button>'
+          : '') +
+        (canPause
+          ? '<button class="btn btn-ghost btn-sm" onclick="Admin.subAction(\'' + uid + '\',\'pause\')">Pause</button>'
+          : '') +
+        (canResume
+          ? '<button class="btn btn-teal btn-sm" onclick="Admin.subAction(\'' + uid + '\',\'resume\')">Resume</button>'
+          : '') +
+      '</div>';
+  }
+
+  function subAction(uid, action) {
+    var prompts = {
+      cancel_now: { title: 'Cancel immediately?', msg: 'This cancels the subscription right now. No future charges. Stripe will not refund past charges automatically.' },
+      cancel_at_period_end: { title: 'Cancel at period end?', msg: 'User keeps access until the current period ends, then the subscription is not renewed.' },
+      pause: { title: 'Pause this subscription?', msg: 'Stripe will stop generating invoices. The subscription stays linked but no charges are attempted. Use Resume to reactivate.' },
+      resume: { title: 'Resume this subscription?', msg: 'This clears any pause or pending cancellation. Billing resumes on the existing schedule.' }
+    };
+    var p = prompts[action];
+    if (!p) return;
+
+    showConfirm(p.title, p.msg, function () {
+      request('POST', '/admin/subscription?id=' + encodeURIComponent(uid), { action: action })
+        .then(function (resp) {
+          toast(resp.message || 'Done', 'success');
+          loadBilling(uid); // refresh the billing panel
+        })
+        .catch(function (err) { toast('Failed: ' + err.message, 'error'); });
+    });
   }
 
   function detailItem(label, value) {
@@ -1802,7 +1911,8 @@ var Admin = (function () {
     confirmDelete: confirmDelete,
     closeConfirm: closeConfirm,
     loadActivity: loadActivity,
-    exportCSV: exportCSV
+    exportCSV: exportCSV,
+    subAction: subAction
   };
 
 })();
