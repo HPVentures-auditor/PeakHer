@@ -170,7 +170,7 @@ function escapeHtml(str) {
 //  AI CONTENT GENERATION
 // ══════════════════════════════════════════════════════════════════════════
 
-function buildEmailAIPrompt(phase, cycleDay, cycleLength, userName, todayEvents, checkinData) {
+function buildEmailAIPrompt(phase, cycleDay, cycleLength, userName, todayEvents, checkinData, wearableData) {
   var design = PHASE_DESIGN[phase] || PHASE_DESIGN.build;
   var phaseRange = getPhaseDayRange(phase, cycleLength);
   var dayWithinPhase = cycleDay - phaseRange.start + 1;
@@ -203,6 +203,56 @@ function buildEmailAIPrompt(phase, cycleDay, cycleLength, userName, todayEvents,
       parts.push('- ' + timeStr + ': ' + ev.title);
     }
     parts.push('');
+    parts.push('CALENDAR CONSTRAINTS:');
+    parts.push('- ONLY use the events listed above in calendarItems. Do not invent meetings. Match title and time exactly.');
+    parts.push('- Do not add filler entries like "Team standup" or "1:1 with manager". If it is not in the list, it does not exist.');
+    parts.push('');
+  } else {
+    parts.push('TODAY\'S CALENDAR: The user has no calendar events today.');
+    parts.push('CALENDAR CONSTRAINTS:');
+    parts.push('- Return calendarItems as an empty array [].');
+    parts.push('- Do not invent meetings. Do not add placeholder events like "Team standup" or "1:1 with manager".');
+    parts.push('');
+  }
+
+  // Wearable biometrics. Inject today and 7 day averages when present.
+  var hasWearableData = wearableData && wearableData.length > 0;
+  if (hasWearableData) {
+    var todayStrForWearable = new Date().toISOString().split('T')[0];
+    var todayWearable = wearableData.find(function (w) { return String(w.date).split('T')[0] === todayStrForWearable; });
+    var recentDays = wearableData.slice(0, 7);
+
+    if (todayWearable) {
+      parts.push('TODAY\'S BIOMETRICS (' + (todayWearable.provider || 'wearable') + '):');
+      if (todayWearable.sleep_duration_min) parts.push('- Sleep: ' + Math.round(todayWearable.sleep_duration_min / 60 * 10) / 10 + ' hours' + (todayWearable.sleep_quality_score ? ' (quality: ' + Math.round(todayWearable.sleep_quality_score) + '/100)' : '') + (todayWearable.deep_sleep_min ? ', deep: ' + todayWearable.deep_sleep_min + 'min, REM: ' + (todayWearable.rem_sleep_min || '?') + 'min' : ''));
+      if (todayWearable.hrv_avg) parts.push('- HRV: ' + Math.round(todayWearable.hrv_avg) + 'ms' + (todayWearable.hrv_max ? ' (max: ' + Math.round(todayWearable.hrv_max) + 'ms)' : ''));
+      if (todayWearable.recovery_score != null) parts.push('- Recovery: ' + Math.round(todayWearable.recovery_score) + '%');
+      if (todayWearable.readiness_score != null) parts.push('- Readiness: ' + Math.round(todayWearable.readiness_score) + '/100');
+      if (todayWearable.strain_score != null) parts.push('- Strain: ' + (Math.round(todayWearable.strain_score * 10) / 10));
+      if (todayWearable.sleep_efficiency != null) parts.push('- Sleep efficiency: ' + Math.round(todayWearable.sleep_efficiency) + '%');
+      parts.push('');
+    }
+
+    if (recentDays.length >= 3) {
+      var avgSleep = 0, avgHrv = 0, avgRecovery = 0, sleepCount = 0, hrvCount = 0, recCount = 0;
+      for (var wdi = 0; wdi < recentDays.length; wdi++) {
+        if (recentDays[wdi].sleep_duration_min) { avgSleep += recentDays[wdi].sleep_duration_min; sleepCount++; }
+        if (recentDays[wdi].hrv_avg) { avgHrv += recentDays[wdi].hrv_avg; hrvCount++; }
+        if (recentDays[wdi].recovery_score != null) { avgRecovery += recentDays[wdi].recovery_score; recCount++; }
+      }
+      parts.push('7-DAY AVERAGES:');
+      if (sleepCount) parts.push('- Sleep: ' + Math.round(avgSleep / sleepCount / 60 * 10) / 10 + ' hours/night');
+      if (hrvCount) parts.push('- HRV: ' + Math.round(avgHrv / hrvCount) + 'ms');
+      if (recCount) parts.push('- Recovery: ' + Math.round(avgRecovery / recCount) + '%');
+      parts.push('');
+    }
+
+    parts.push('BIOMETRIC RULES:');
+    parts.push('- Use SPECIFIC numbers in prepCoachAdvice, movementDo, movementSkip, and energyLevel when wearable data is present.');
+    parts.push('- Example phrasing: "Recovery is 38%. Stay in Skip That column today." or "HRV 52ms is above your 7 day average. Green light for heavy lifting."');
+    parts.push('- If recovery or readiness is low, pull workouts toward rest and move heavy lifts to movementSkip.');
+    parts.push('- If sleep was under 6 hours, say so and soften energyLevel accordingly.');
+    parts.push('');
   }
 
   if (checkinData) {
@@ -210,7 +260,15 @@ function buildEmailAIPrompt(phase, cycleDay, cycleLength, userName, todayEvents,
     parts.push('');
   }
 
-  parts.push('Return ONLY valid JSON, no markdown:');
+  parts.push('FIELD RULES:');
+  parts.push('- calendarItems MUST match the events listed in TODAY\'S CALENDAR exactly. If there are none, return [].');
+  parts.push('- prepCoachMeeting MUST be one of the real event titles from the calendar list above, or the string "No meetings today" if the list is empty.');
+  parts.push('- prepCoachAdvice, movementDo, movementSkip, and energyLevel must cite biometric data verbatim when the TODAY\'S BIOMETRICS or 7-DAY AVERAGES block is present.');
+  parts.push('  Example prepCoachAdvice: "Your HRV of 38ms is below your 7 day average of 45ms. Keep this meeting short, give yourself 10 min after to reset."');
+  parts.push('  Example movementSkip entry: "Heavy lifting. Recovery is 38 percent, stay in Skip That column today."');
+  parts.push('  Example energyLevel: "Low. Sleep was 5.2 hours last night."');
+  parts.push('');
+  parts.push('Return ONLY valid JSON, no markdown, no comments:');
   parts.push('{');
   parts.push('  "hormoneDownload": "2-3 sentences explaining what hormones are doing today in Dot\'s voice",');
   parts.push('  "calendarItems": [{"title":"event name","time":"time","energyTag":"High Energy|Low Energy|Neutral","advice":"1 sentence Dot advice for this meeting"}],');
@@ -223,11 +281,11 @@ function buildEmailAIPrompt(phase, cycleDay, cycleLength, userName, todayEvents,
   parts.push('  "fastingProtocol": "protocol name",');
   parts.push('  "fastingEatWindow": "e.g. 8 AM - 8 PM",');
   parts.push('  "fastingExplanation": "1-2 sentences why this window today",');
-  parts.push('  "prepCoachMeeting": "name of hardest meeting today or most important task",');
-  parts.push('  "prepCoachAdvice": "2-3 sentences of Dot advice for it",');
+  parts.push('  "prepCoachMeeting": "name of hardest meeting today, must match a real calendar event",');
+  parts.push('  "prepCoachAdvice": "2-3 sentences of Dot advice for it, citing biometrics when present",');
   parts.push('  "brainMode": "e.g. Creative Beast / Detail Machine / Social Magnet / Rest & Reflect",');
   parts.push('  "bodyMode": "e.g. Power Mode / Steady State / Gentle Only / Recovery",');
-  parts.push('  "energyLevel": "High / Moderate / Low / Rebuilding",');
+  parts.push('  "energyLevel": "High / Moderate / Low / Rebuilding, citing biometrics when present",');
   parts.push('  "dotQuote": "A short memorable Dot quote for the day, 1 sentence",');
   parts.push('  "scienceFact": "One fascinating hormone/cycle science fact, 1-2 sentences",');
   parts.push('  "shareText": "A shareable version of the science fact, punchy, 1 sentence"');
@@ -236,8 +294,8 @@ function buildEmailAIPrompt(phase, cycleDay, cycleLength, userName, todayEvents,
   return parts.join('\n');
 }
 
-async function generateAIContent(phase, cycleDay, cycleLength, userName, todayEvents, checkinData) {
-  var prompt = buildEmailAIPrompt(phase, cycleDay, cycleLength, userName, todayEvents, checkinData);
+async function generateAIContent(phase, cycleDay, cycleLength, userName, todayEvents, checkinData, wearableData) {
+  var prompt = buildEmailAIPrompt(phase, cycleDay, cycleLength, userName, todayEvents, checkinData, wearableData);
   try {
     var result = await sendMessage({
       system: 'You are Dot, PeakHer\'s Hormonal Intelligence AI. Respond with ONLY valid JSON. No markdown. No backticks.',
@@ -682,8 +740,29 @@ module.exports = async function handler(req, res) {
       console.error('Calendar events fetch warning:', calErr.message);
     }
 
+    // 5b. Fetch recent wearable data, last 7 days. Mirror api/briefing.js shape.
+    var sevenDaysAgo = addDays(today, -7);
+    var wearableData = [];
+    try {
+      wearableData = await sql`
+        SELECT date, provider, hrv_avg, hrv_max, resting_hr,
+               sleep_duration_min, sleep_quality_score, deep_sleep_min, rem_sleep_min,
+               sleep_efficiency, recovery_score, readiness_score, strain_score,
+               stress_avg, body_battery_start, body_battery_end, steps,
+               calories_active, skin_temp_deviation, respiratory_rate, spo2_avg
+        FROM wearable_data
+        WHERE user_id = ${userId}
+          AND date >= ${sevenDaysAgo}
+          AND date <= ${today}
+        ORDER BY date DESC
+      `;
+    } catch (wErr) {
+      // Wearable table may not exist yet. Degrade gracefully, do not fail the email.
+      console.error('Wearable data fetch warning:', wErr.message);
+    }
+
     // 6. Generate AI content (or fall back to static)
-    var aiContent = await generateAIContent(phase, cycleDay, cycleLength, user.name, todayEvents, todayCheckin);
+    var aiContent = await generateAIContent(phase, cycleDay, cycleLength, user.name, todayEvents, todayCheckin, wearableData);
     if (!aiContent) {
       aiContent = getFallbackContent(phase);
     }

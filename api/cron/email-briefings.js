@@ -89,8 +89,28 @@ module.exports = async function handler(req, res) {
           // Calendar table may not exist, gracefully degrade
         }
 
+        // Fetch last 7 days of wearable data for this user. Mirror api/briefing.js shape.
+        var sevenDaysAgo = emailBrief.addDays(today, -7);
+        var wearableData = [];
+        try {
+          wearableData = await sql`
+            SELECT date, provider, hrv_avg, hrv_max, resting_hr,
+                   sleep_duration_min, sleep_quality_score, deep_sleep_min, rem_sleep_min,
+                   sleep_efficiency, recovery_score, readiness_score, strain_score,
+                   stress_avg, body_battery_start, body_battery_end, steps,
+                   calories_active, skin_temp_deviation, respiratory_rate, spo2_avg
+            FROM wearable_data
+            WHERE user_id = ${user.id}
+              AND date >= ${sevenDaysAgo}
+              AND date <= ${today}
+            ORDER BY date DESC
+          `;
+        } catch (wErr) {
+          // Wearable table may not exist, gracefully degrade.
+        }
+
         // Generate AI content
-        var aiContent = await emailBrief.generateAIContent(phase, cycleDay, cycleLength, user.name, todayEvents, todayCheckin);
+        var aiContent = await emailBrief.generateAIContent(phase, cycleDay, cycleLength, user.name, todayEvents, todayCheckin, wearableData);
         if (!aiContent) {
           aiContent = emailBrief.getFallbackContent(phase);
         }
