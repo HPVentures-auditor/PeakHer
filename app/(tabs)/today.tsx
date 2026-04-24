@@ -363,6 +363,14 @@ export default function TodayScreen() {
               </TouchableOpacity>
             )}
 
+            {/* AI + not-medical-advice disclosure pill */}
+            <View style={styles.aiDisclosurePill}>
+              <Text style={styles.aiDisclosurePillEmoji}>{'\u{1F4AC}'}</Text>
+              <Text style={styles.aiDisclosurePillText}>
+                Dot's brief is AI-generated (Anthropic Claude) from what you've shared. <Text style={styles.aiDisclosurePillBold}>Not medical advice.</Text>
+              </Text>
+            </View>
+
             {/* Headline — from AI or static */}
             <View style={[styles.headlineCard, { borderLeftColor: phaseColor }]}>
               <Text style={styles.headline}>
@@ -670,6 +678,34 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     color: Colors.textSecondary,
     lineHeight: 20,
+  },
+  aiDisclosurePill: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: 'rgba(45, 138, 138, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(45, 138, 138, 0.3)',
+    borderRadius: BorderRadius.lg,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginBottom: Spacing.base,
+  },
+  aiDisclosurePillEmoji: {
+    fontSize: 14,
+    lineHeight: 18,
+    marginTop: 1,
+  },
+  aiDisclosurePillText: {
+    flex: 1,
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: 12,
+    lineHeight: 17,
+    color: Colors.textSecondary,
+  },
+  aiDisclosurePillBold: {
+    fontFamily: Typography.fontFamily.semiBold,
+    color: Colors.textPrimary,
   },
   headlineCard: {
     backgroundColor: Colors.surface,

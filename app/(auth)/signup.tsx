@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
+import * as Linking from 'expo-linking';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing } from '../../src/constants/theme';
 import { Input } from '../../src/components/Input';
@@ -20,6 +21,9 @@ export default function SignupScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acknowledgedNotMedical, setAcknowledgedNotMedical] = useState(false);
+  const [acceptedSensitiveAi, setAcceptedSensitiveAi] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuthStore();
@@ -44,6 +48,18 @@ export default function SignupScreen() {
       setError('Password must contain at least one letter and one number');
       return;
     }
+    if (!acceptedTerms) {
+      setError('Please agree to the Terms of Service and Privacy Policy.');
+      return;
+    }
+    if (!acknowledgedNotMedical) {
+      setError('Please acknowledge that PeakHer is not medical advice.');
+      return;
+    }
+    if (!acceptedSensitiveAi) {
+      setError('Please consent to AI processing of the data you choose to share.');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -59,6 +75,10 @@ export default function SignupScreen() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function toggleCheckbox(value: boolean, setter: (v: boolean) => void) {
+    setter(!value);
   }
 
   return (
@@ -109,6 +129,55 @@ export default function SignupScreen() {
               secureToggle
               autoComplete="new-password"
             />
+
+            <View style={styles.consentBlock}>
+              <TouchableOpacity
+                style={styles.consentRow}
+                onPress={() => toggleCheckbox(acceptedTerms, setAcceptedTerms)}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.checkbox, acceptedTerms && styles.checkboxChecked]}>
+                  {acceptedTerms && <Text style={styles.checkmark}>{'✓'}</Text>}
+                </View>
+                <Text style={styles.consentText}>
+                  I agree to the{' '}
+                  <Text style={styles.consentLink} onPress={() => Linking.openURL('https://peakher.ai/terms')}>
+                    Terms of Service
+                  </Text>
+                  {' '}and{' '}
+                  <Text style={styles.consentLink} onPress={() => Linking.openURL('https://peakher.ai/privacy')}>
+                    Privacy Policy
+                  </Text>
+                  .
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.consentRow}
+                onPress={() => toggleCheckbox(acknowledgedNotMedical, setAcknowledgedNotMedical)}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.checkbox, acknowledgedNotMedical && styles.checkboxChecked]}>
+                  {acknowledgedNotMedical && <Text style={styles.checkmark}>{'✓'}</Text>}
+                </View>
+                <Text style={styles.consentText}>
+                  I understand PeakHer is <Text style={styles.consentBold}>not medical advice</Text>, not a diagnostic tool, and not a substitute for a healthcare provider.
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.consentRow}
+                onPress={() => toggleCheckbox(acceptedSensitiveAi, setAcceptedSensitiveAi)}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.checkbox, acceptedSensitiveAi && styles.checkboxChecked]}>
+                  {acceptedSensitiveAi && <Text style={styles.checkmark}>{'✓'}</Text>}
+                </View>
+                <Text style={styles.consentText}>
+                  I consent to AI (Anthropic Claude) analyzing the cycle, energy, and check-in data I choose to share, so Dot can generate my personalized insights. My data is not used to train AI models.
+                </Text>
+              </TouchableOpacity>
+            </View>
 
             <Button
               title="Create Account"
@@ -187,6 +256,58 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: Spacing.sm,
+  },
+  consentBlock: {
+    marginTop: Spacing.lg,
+    padding: Spacing.base,
+    backgroundColor: 'rgba(45, 138, 138, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(45, 138, 138, 0.25)',
+    borderRadius: 12,
+    gap: Spacing.sm,
+  },
+  consentRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingVertical: 4,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: Colors.teal,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  checkboxChecked: {
+    backgroundColor: Colors.teal,
+    borderColor: Colors.teal,
+  },
+  checkmark: {
+    color: Colors.white,
+    fontSize: 13,
+    fontWeight: '700',
+    lineHeight: 16,
+  },
+  consentText: {
+    flex: 1,
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: 13,
+    color: Colors.textSecondary,
+    lineHeight: 18,
+  },
+  consentBold: {
+    fontFamily: Typography.fontFamily.semiBold,
+    color: Colors.textPrimary,
+  },
+  consentLink: {
+    color: Colors.teal,
+    fontFamily: Typography.fontFamily.semiBold,
+    textDecorationLine: 'underline',
   },
   footer: {
     flexDirection: 'row',
