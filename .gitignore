@@ -4,3 +4,5 @@ node_modules/
 .env.production
 .claude/
 beta-invite-preview.html
+*.ipa
+*.apk
