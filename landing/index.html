@@ -277,7 +277,26 @@
   .form-note {
     font-size: 13px;
     color: var(--gray-text-light);
-    margin-bottom: 40px;
+    margin-bottom: 12px;
+  }
+
+  .form-disclosure {
+    font-size: 11px;
+    color: var(--gray-text-light);
+    max-width: 520px;
+    margin: 0 auto 36px;
+    line-height: 1.55;
+    opacity: 0.85;
+  }
+
+  .form-disclosure a {
+    color: var(--teal);
+    text-decoration: underline;
+  }
+
+  .form-disclosure strong {
+    color: var(--navy);
+    font-weight: 600;
   }
 
   .success-msg {
@@ -594,6 +613,7 @@
     <button type="submit" class="btn btn-coral">Join the Waitlist</button>
   </form>
   <p class="form-note">Early access. Founding member rate locked for life. No spam, ever.</p>
+  <p class="form-disclosure">By joining, you agree that your email may be processed by our AI systems to personalize early-access updates. PeakHer delivers wellness insights, <strong>not medical advice</strong>. See our <a href="/privacy/">Privacy Policy</a> and <a href="/terms/">Terms</a>.</p>
 
   <div class="success-msg" id="successMsg">You're on the list! Check your inbox for next steps.</div>
 
