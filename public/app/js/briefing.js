@@ -251,6 +251,15 @@ window.PeakHer.Briefing = (function () {
       return;
     }
 
+    // Empty state: logged-in user with no cycle data set yet.
+    // Backend signals this with phase: null + cycleDay: null. Without cycle
+    // data, the daily-mode fallback looks generic and confusing — show a
+    // clear "set your period date" CTA instead.
+    if (!data.phase && !data.cycleDay) {
+      renderNoCycleDataEmptyState(target);
+      return;
+    }
+
     // v3 structured sections (new format)
     if (hasV3Data(data)) {
       renderV3(target, data);
@@ -265,6 +274,30 @@ window.PeakHer.Briefing = (function () {
 
     // Otherwise fall back to v1 renderer
     renderV1(target, data);
+  }
+
+  function renderNoCycleDataEmptyState(target) {
+    var html = '';
+    html += '<div class="briefing-phase-bar" style="background:#2d8a8a;"></div>';
+    html += '<div style="padding:24px 20px 8px;display:flex;align-items:flex-start;gap:12px;">';
+    html += '<div style="flex-shrink:0;margin-top:2px;">' + dotAvatarSVG(40) + '</div>';
+    html += '<div>';
+    html += '<div style="font-size:22px;font-weight:700;color:#2d8a8a;line-height:1.3;margin-bottom:6px;">Hey, I need one thing from you.</div>';
+    html += '<div style="font-size:15px;color:rgba(255,255,255,0.85);line-height:1.5;">Set your last period date and I&rsquo;ll show you your phase, today&rsquo;s plan, and the week ahead.</div>';
+    html += '</div></div>';
+    html += '<div style="padding:12px 20px 20px;">';
+    html += '<button id="briefing-set-cycle-cta" style="width:100%;padding:14px 20px;background:#FF6B6B;border:none;border-radius:12px;color:#fff;font-weight:700;font-size:15px;cursor:pointer;">Set my cycle data &rarr;</button>';
+    html += '</div>';
+    html += '<div style="padding:0 20px 20px;font-size:13px;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5;">Without a period date, I can&rsquo;t show you Restore, Rise, Peak, or Sustain &mdash; and that&rsquo;s the whole point.</div>';
+    target.innerHTML = html;
+    var btn = document.getElementById('briefing-set-cycle-cta');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        if (window.PeakHer && window.PeakHer.Settings && window.PeakHer.Settings.open) {
+          window.PeakHer.Settings.open();
+        }
+      });
+    }
   }
 
 
