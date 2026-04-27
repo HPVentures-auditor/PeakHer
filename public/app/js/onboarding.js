@@ -1118,6 +1118,12 @@ window.PeakHer.Onboarding = (function () {
         });
     });
 
+    var forgotPasswordLink = el('button', 'ob-auth-link', 'Forgot password?');
+    forgotPasswordLink.type = 'button';
+    forgotPasswordLink.addEventListener('click', function () {
+      window.location.href = '/reset-password/';
+    });
+
     var backToSignup = el('button', 'ob-auth-link', 'Back to sign up');
     backToSignup.type = 'button';
     backToSignup.addEventListener('click', function () {
@@ -1133,6 +1139,7 @@ window.PeakHer.Onboarding = (function () {
 
     step.appendChild(loginEmail);
     step.appendChild(loginPassword);
+    step.appendChild(forgotPasswordLink);
     step.appendChild(loginError);
     step.appendChild(el('div', 'ob-spacer'));
     step.appendChild(loginBtn);
@@ -1219,6 +1226,7 @@ window.PeakHer.Onboarding = (function () {
   // ── Public API ──────────────────────────────────────────────────────
 
   return {
-    init: init
+    init: init,
+    showLoginStep: showLoginStep
   };
 })();

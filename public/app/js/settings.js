@@ -255,6 +255,12 @@ window.PeakHer.Settings = (function () {
     html += '<button class="ph-sms-btn ph-sms-btn-secondary" id="btnExportData">Export My Data</button>';
     html += '<button class="ph-sms-btn ph-sms-btn-danger" id="btnDeleteAccount">Delete Account</button>';
     html += '</div>';
+
+    // Log out — primary path for ending the session
+    html += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-light,rgba(255,255,255,0.06));">';
+    html += '<button class="ph-sms-btn ph-sms-btn-danger" id="btnLogout" style="width:100%;font-size:14px;padding:12px 16px;">Log out</button>';
+    html += '</div>';
+
     html += '</div>';
 
     html += '</div>'; // end body
@@ -621,6 +627,25 @@ window.PeakHer.Settings = (function () {
             deleteBtn.disabled = false;
             deleteBtn.textContent = 'Delete Account';
           });
+      });
+    }
+
+    var logoutBtn = document.getElementById('btnLogout');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function () {
+        if (logoutBtn.disabled) return;
+        logoutBtn.disabled = true;
+        logoutBtn.textContent = 'Logging out...';
+        // Clear auth state (mirrors PH.API.logout: clears token + Store)
+        // We do this inline rather than calling API.logout() so we can redirect
+        // to the marketing page ('/') instead of API.logout()'s hash + reload.
+        try {
+          localStorage.removeItem('peakher_token');
+          if (Store && Store.clearAll) Store.clearAll();
+        } catch (e) {
+          // Best-effort: continue to redirect even if storage clear fails
+        }
+        window.location.href = '/';
       });
     }
   }

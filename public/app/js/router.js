@@ -7,11 +7,12 @@ window.PeakHer = window.PeakHer || {};
 window.PeakHer.Router = (function () {
   'use strict';
 
-  var VALID_ROUTES = ['onboarding', 'checkin', 'history', 'patterns', 'weekahead'];
+  var VALID_ROUTES = ['onboarding', 'login', 'checkin', 'history', 'patterns', 'weekahead'];
 
   // Tab order used to determine transition direction (forward vs backward)
   var TAB_ORDER = {
     onboarding: 0,
+    login:      0,
     checkin:    1,
     history:    2,
     patterns:   3,
@@ -74,12 +75,34 @@ window.PeakHer.Router = (function () {
 
   function navigate(hash) {
     var Store = window.PeakHer.Store;
+    var PH = window.PeakHer;
+    var API = PH && PH.API;
     var route = (hash || '').replace('#', '') || 'checkin';
-
-    // Auth guard: force onboarding if no user or onboarding not complete
     var user = Store.getUser();
-    if (!user || !user.onboardingComplete) {
-      route = 'onboarding';
+    // Require BOTH a valid auth token AND a completed onboarding to count as authed.
+    // A cached `onboardingComplete: true` is not enough — without a token, API calls
+    // will 401 and the user just sees a stale, broken personalized shell.
+    var hasToken = !!(API && API.isLoggedIn && API.isLoggedIn());
+    var isAuthed = !!(hasToken && user && user.onboardingComplete);
+
+    // Special case: explicit #login route
+    if (route === 'login') {
+      // If already authenticated, send them to check-in
+      if (isAuthed) {
+        route = 'checkin';
+      }
+      // else fall through and render the login form (handled below)
+    } else {
+      // Auth guard:
+      // - No token at all: send to login. This covers returning users who have
+      //   `onboardingComplete: true` cached in localStorage but whose session
+      //   has expired/been cleared — they should log back in, NOT redo onboarding.
+      // - Token present but onboarding not complete: finish onboarding.
+      if (!hasToken) {
+        route = 'login';
+      } else if (!user || !user.onboardingComplete) {
+        route = 'onboarding';
+      }
     }
 
     // Validate route
@@ -94,13 +117,19 @@ window.PeakHer.Router = (function () {
     var nextOrder = TAB_ORDER[route] !== undefined ? TAB_ORDER[route] : 0;
     var direction = nextOrder >= prevOrder ? 'forward' : 'backward';
 
-    // Show the screen
-    showScreen('screen-' + route, direction);
+    // Login uses the onboarding container (so its CSS/styles apply)
+    var screenId = (route === 'login') ? 'screen-onboarding' : 'screen-' + route;
+    showScreen(screenId, direction);
 
-    // Show/hide bottom nav (hidden during onboarding)
+    // If we're rendering login, swap the onboarding container into login mode
+    if (route === 'login' && PH.Onboarding && PH.Onboarding.showLoginStep) {
+      PH.Onboarding.showLoginStep();
+    }
+
+    // Show/hide bottom nav (hidden during onboarding and login)
     var bottomNav = document.getElementById('bottomNav');
     if (bottomNav) {
-      if (route === 'onboarding') {
+      if (route === 'onboarding' || route === 'login') {
         bottomNav.classList.add('hidden');
       } else {
         bottomNav.classList.remove('hidden');
@@ -111,7 +140,6 @@ window.PeakHer.Router = (function () {
     updateBottomNav(route);
 
     // Refresh the target module so it re-renders with latest data
-    var PH = window.PeakHer;
     if (route === 'checkin'   && PH.Checkin   && PH.Checkin.refresh)   PH.Checkin.refresh();
     if (route === 'history'   && PH.History   && PH.History.refresh)   PH.History.refresh();
     if (route === 'patterns'  && PH.Patterns  && PH.Patterns.refresh)  PH.Patterns.refresh();
