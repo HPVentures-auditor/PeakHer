@@ -369,6 +369,28 @@ window.PeakHer.Checkin = (function () {
     if (!container) return;
     container.innerHTML = '';
 
+    try {
+      _renderInner();
+    } catch (err) {
+      // Don't leave the user with a blank screen if anything throws.
+      // Log the error and surface a recoverable empty state.
+      try { console.error('Check-in render failed:', err); } catch (_) {}
+      container.innerHTML =
+        '<div style="padding:32px 20px;text-align:center;color:rgba(255,255,255,0.85);">' +
+          '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">Something hiccuped loading your check-in.</div>' +
+          '<div style="font-size:14px;color:rgba(255,255,255,0.65);margin-bottom:20px;">Try refreshing. If it keeps happening, head to Settings and confirm your cycle data is set.</div>' +
+          '<button id="ph-checkin-recover-settings" style="padding:12px 24px;background:#FF6B6B;border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;">Open Settings</button>' +
+        '</div>';
+      var rb = document.getElementById('ph-checkin-recover-settings');
+      if (rb) rb.addEventListener('click', function () {
+        if (window.PeakHer && window.PeakHer.Settings && window.PeakHer.Settings.open) {
+          window.PeakHer.Settings.open();
+        }
+      });
+    }
+  }
+
+  function _renderInner() {
     var user = Store.getUser();
     var today = Utils.getToday();
     var existing = Store.getCheckin(today);
@@ -390,17 +412,25 @@ window.PeakHer.Checkin = (function () {
     wrapper.appendChild(greeting);
 
     // ── Phase Circle Hero ────────────────────────────────────
-
-    if (trackingOn && cycleProfile && cycleProfile.lastPeriodStart) {
-      var cycleDay = Cycle.getCycleDay(
+    // Compute phase up front and only enter the hero block if every
+    // value resolves cleanly. Partial/corrupt cycle data (missing
+    // averageCycleLength, malformed lastPeriodStart, etc.) would
+    // otherwise cause `mode.toUpperCase()` and similar to throw
+    // mid-render and leave the user with a blank screen.
+    var cycleDay = null, phase = null, mode = null, modeColor = null, remaining = null;
+    if (trackingOn && cycleProfile && cycleProfile.lastPeriodStart && cycleProfile.averageCycleLength) {
+      cycleDay = Cycle.getCycleDay(
         cycleProfile.lastPeriodStart,
         cycleProfile.averageCycleLength,
         new Date()
       );
-      var phase = Cycle.getPhase(cycleDay, cycleProfile.averageCycleLength);
-      var mode = Cycle.getPerformanceMode(phase);
-      var modeColor = Cycle.getModeColor(mode);
-      var remaining = getDaysRemaining(cycleDay, cycleProfile.averageCycleLength, phase);
+      phase = Cycle.getPhase(cycleDay, cycleProfile.averageCycleLength);
+      mode = Cycle.getPerformanceMode(phase);
+      modeColor = Cycle.getModeColor(mode);
+      remaining = getDaysRemaining(cycleDay, cycleProfile.averageCycleLength, phase);
+    }
+
+    if (cycleDay && phase && mode) {
 
       var hero = document.createElement('div');
       hero.className = 'ph-phase-hero';
