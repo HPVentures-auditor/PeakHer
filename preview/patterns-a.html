@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Patterns — Concept A: Letter from Dot</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #12121A;
+    --surface: #1A1A26;
+    --elevated: #22222F;
+    --card: #1E1E2A;
+    --text: #F0F0F5;
+    --text-mid: #C0C0D0;
+    --text-dim: #8C8C9A;
+    --teal: #00E5A0;
+    --coral: #E87461;
+    --restore: #C77DBA;
+    --rise: #00E5A0;
+    --peak: #FFD700;
+    --sustain: #8B7BDB;
+    --border: rgba(255,255,255,0.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .display { font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.02em; }
+
+  .wrap { max-width: 600px; margin: 0 auto; padding: 24px 16px 100px; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+  .topbar .crumb { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; color: var(--teal); text-transform: uppercase; }
+  .topbar .meta { font-size: 12px; color: var(--text-dim); }
+
+  /* Hero phase pill */
+  .phase-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(139,123,219,0.14);
+    border: 1px solid rgba(139,123,219,0.3);
+    color: var(--sustain);
+    padding: 8px 14px; border-radius: 100px;
+    font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .phase-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sustain); }
+
+  .dot-headline {
+    font-size: 28px; font-weight: 800; line-height: 1.2;
+    color: var(--text); margin-bottom: 10px;
+  }
+  .dot-headline em { font-style: normal; color: var(--sustain); }
+  .dot-sub {
+    font-size: 15px; color: var(--text-mid); line-height: 1.55; margin-bottom: 28px;
+  }
+  .dot-sig {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--text-dim); margin-bottom: 32px;
+  }
+  .dot-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--coral));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Plus Jakarta Sans'; font-weight: 800; font-size: 13px; color: #12121A;
+  }
+
+  /* The Truth chart */
+  .truth-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .truth-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 4px;
+  }
+  .truth-title { font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+
+  /* Phase label row above chart */
+  .phase-bands {
+    display: flex; width: 100%;
+    margin-bottom: 6px;
+  }
+  .phase-bands .band {
+    font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    text-align: center; padding: 5px 0;
+    border-radius: 4px 4px 0 0;
+  }
+  .phase-bands .band.restore { color: var(--restore); background: rgba(199,125,186,0.12); }
+  .phase-bands .band.rise    { color: var(--rise);    background: rgba(0,229,160,0.12); }
+  .phase-bands .band.peak    { color: var(--peak);    background: rgba(255,215,0,0.14); }
+  .phase-bands .band.sustain { color: var(--sustain); background: rgba(139,123,219,0.14); }
+
+  .chart-svg { width: 100%; height: 140px; display: block; }
+  .truth-caption {
+    font-size: 13px; color: var(--text-mid); line-height: 1.55;
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-style: italic;
+  }
+  .truth-caption::before { content: '"'; color: var(--teal); font-size: 18px; margin-right: 4px; }
+  .truth-caption::after { content: '"'; color: var(--teal); font-size: 18px; margin-left: 2px; }
+
+  /* Power Window strip */
+  .pw-section { margin-top: 28px; margin-bottom: 28px; }
+  .section-h {
+    font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 14px;
+  }
+  .pw-strip {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+  }
+  .pw-day {
+    aspect-ratio: 1 / 1.4;
+    border-radius: 10px;
+    padding: 8px 4px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .pw-day .dow { color: rgba(255,255,255,0.7); text-transform: uppercase; }
+  .pw-day .dom { font-size: 16px; font-weight: 800; font-family: 'Plus Jakarta Sans'; color: var(--text); }
+  .pw-day .energy { font-size: 9px; color: rgba(255,255,255,0.55); }
+  .pw-day.sustain { background: linear-gradient(180deg, rgba(139,123,219,0.35), rgba(139,123,219,0.12)); }
+  .pw-day.restore { background: linear-gradient(180deg, rgba(199,125,186,0.35), rgba(199,125,186,0.12)); }
+  .pw-day.rise { background: linear-gradient(180deg, rgba(0,229,160,0.32), rgba(0,229,160,0.08)); }
+  .pw-day.today {
+    outline: 2px solid var(--text);
+    outline-offset: -2px;
+  }
+
+  /* Pattern cards (3 max, verb-led) */
+  .patterns-section { margin-bottom: 28px; }
+  .pat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--teal);
+    border-radius: 14px;
+    padding: 16px 16px 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .pat-card:hover { background: var(--elevated); }
+  .pat-card.warn { border-left-color: var(--coral); }
+  .pat-card.sustain-card { border-left-color: var(--sustain); }
+  .pat-action { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.35; margin-bottom: 6px; }
+  .pat-why { font-size: 13px; color: var(--text-dim); }
+  .pat-tap {
+    font-size: 11px; color: var(--teal); font-weight: 600; margin-top: 8px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  /* Wrapped teaser */
+  .wrapped {
+    background: linear-gradient(135deg, rgba(199,125,186,0.18), rgba(0,229,160,0.10), rgba(255,215,0,0.10), rgba(139,123,219,0.18));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 22px;
+    margin-top: 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .wrapped .label { font-size: 10px; font-weight: 800; letter-spacing: 3px; color: var(--peak); text-transform: uppercase; margin-bottom: 8px; }
+  .wrapped .title { font-family: 'Plus Jakarta Sans'; font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .wrapped .sub { font-size: 13px; color: var(--text-mid); margin-bottom: 14px; }
+  .wrapped .cta {
+    display: inline-block; font-size: 13px; font-weight: 700;
+    background: var(--text); color: var(--bg);
+    padding: 10px 20px; border-radius: 100px;
+    text-decoration: none;
+  }
+
+  /* Recommendations section */
+  .recs-section { margin-bottom: 28px; }
+  .recs-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .recs-head h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--text);
+  }
+  .ai-badge {
+    display: inline-flex; align-items: center;
+    background: rgba(0,229,160,0.14);
+    border: 1px solid rgba(0,229,160,0.25);
+    color: var(--teal);
+    font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+    padding: 3px 8px; border-radius: 5px;
+  }
+  .rec-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--coral);
+    border-radius: 12px;
+    padding: 16px 18px 14px;
+    margin-bottom: 10px;
+  }
+  .rec-card.sleep    { border-left-color: var(--teal); }
+  .rec-card.stress   { border-left-color: var(--coral); }
+  .rec-card.confidence { border-left-color: var(--peak); }
+  .rec-card.routine  { border-left-color: var(--sustain); }
+  .rec-card .body {
+    font-size: 14px; color: var(--text-mid); line-height: 1.55;
+    margin-bottom: 10px;
+  }
+  .rec-card .tag {
+    font-size: 10px; font-weight: 800; letter-spacing: 2px;
+    color: var(--text-dim); text-transform: uppercase;
+  }
+
+  /* Days-until-Peak countdown */
+  .countdown-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px;
+    margin-top: 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .countdown-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--peak), #FFB347);
+  }
+  .countdown-card .label {
+    font-size: 10px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--peak); margin-bottom: 12px;
+  }
+  .countdown-card .big {
+    font-family: 'Plus Jakarta Sans'; font-weight: 900;
+    font-size: 76px; line-height: 1; letter-spacing: -0.04em;
+    background: linear-gradient(180deg, var(--peak) 0%, #FFB347 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+  }
+  .countdown-card .units {
+    font-size: 12px; font-weight: 600; color: var(--text-dim);
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+  .countdown-card .window {
+    font-size: 14px; font-weight: 700; color: var(--text);
+  }
+  .countdown-card .window em { font-style: normal; color: var(--peak); }
+
+  .footnote { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 24px; }
+  .footnote a { color: var(--teal); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <span class="crumb">Patterns</span>
+    <span class="meta">28 check-ins · last 30 days</span>
+  </div>
+
+  <span class="phase-pill"><span class="dot"></span> Sustain · Day 21 of 28</span>
+
+  <h1 class="dot-headline">This week is for <em>protecting what you've built</em>, not pushing harder.</h1>
+  <p class="dot-sub">Your luteal phase started April 19. Energy dropped from 10 to 5–7, and that's not a willpower problem. Your body is rebalancing. Sleep is your lever this week.</p>
+
+  <div class="dot-sig">
+    <div class="dot-avatar">D</div>
+    <div>Dot · written today, 7:04 AM</div>
+  </div>
+
+  <!-- The Truth -->
+  <div class="truth-card">
+    <div class="truth-label">The Truth</div>
+    <div class="truth-title">Your last 28 days</div>
+    <div class="phase-bands">
+      <div class="band restore" style="flex: 86">Restore</div>
+      <div class="band rise"    style="flex: 172">Rise</div>
+      <div class="band peak"    style="flex: 86">Peak</div>
+      <div class="band sustain" style="flex: 256">Sustain</div>
+    </div>
+    <svg class="chart-svg" viewBox="0 0 600 140" preserveAspectRatio="none">
+      <!-- Phase backdrop bands -->
+      <rect x="0" y="0" width="86" height="140" fill="rgba(199,125,186,0.08)"/>
+      <rect x="86" y="0" width="172" height="140" fill="rgba(0,229,160,0.08)"/>
+      <rect x="258" y="0" width="86" height="140" fill="rgba(255,215,0,0.10)"/>
+      <rect x="344" y="0" width="256" height="140" fill="rgba(139,123,219,0.10)"/>
+      <!-- Energy line -->
+      <polyline fill="none" stroke="#00E5A0" stroke-width="2.5" stroke-linejoin="round"
+        points="0,84 22,70 44,56 66,70 88,42 110,28 132,21 154,14 176,14 198,14 220,14 242,21 264,14 286,14 308,21 330,28 352,70 374,98 396,84 418,56 440,70 462,98 484,112 506,84 528,70 550,84 572,70 600,84"/>
+      <!-- Confidence line -->
+      <polyline fill="none" stroke="#E87461" stroke-width="2" stroke-dasharray="3 3" stroke-linejoin="round"
+        points="0,70 22,84 44,70 66,84 88,42 110,28 132,21 154,14 176,14 198,21 220,14 242,28 264,21 286,14 308,28 330,42 352,84 374,98 396,70 418,70 440,70 462,84 484,98 506,70 528,84 550,70 572,84 600,84"/>
+      <!-- Today marker -->
+      <line x1="572" y1="0" x2="572" y2="140" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-dasharray="2 2"/>
+      <circle cx="572" cy="70" r="4" fill="#F0F0F5"/>
+    </svg>
+    <div style="display:flex;gap:14px;margin-top:10px;font-size:11px;color:var(--text-dim);">
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:#00E5A0;display:inline-block;"></span> Energy</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;border-top:2px dashed #E87461;display:inline-block;"></span> Confidence</span>
+    </div>
+    <p class="truth-caption">Your peak was April 12–18. Don't expect that energy this week. Expect it again around May 3.</p>
+  </div>
+
+  <!-- Power Window strip -->
+  <div class="pw-section">
+    <div class="section-h">Power Window — Next 7 Days</div>
+    <div class="pw-strip">
+      <div class="pw-day sustain today"><span class="dow">Mon</span><span class="dom">28</span><span class="energy">5–6</span></div>
+      <div class="pw-day sustain"><span class="dow">Tue</span><span class="dom">29</span><span class="energy">5–7</span></div>
+      <div class="pw-day sustain"><span class="dow">Wed</span><span class="dom">30</span><span class="energy">6–7</span></div>
+      <div class="pw-day sustain"><span class="dow">Thu</span><span class="dom">1</span><span class="energy">5–6</span></div>
+      <div class="pw-day sustain"><span class="dow">Fri</span><span class="dom">2</span><span class="energy">4–6</span></div>
+      <div class="pw-day restore"><span class="dow">Sat</span><span class="dom">3</span><span class="energy">3–5</span></div>
+      <div class="pw-day rise"><span class="dow">Sun</span><span class="dom">4</span><span class="energy">7–9</span></div>
+    </div>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:10px;">Tap any day for Dot's note.</p>
+  </div>
+
+  <!-- Pattern cards (3 max) -->
+  <div class="patterns-section">
+    <div class="section-h">Patterns I Noticed</div>
+
+    <div class="pat-card sustain-card">
+      <div class="pat-action">Block your big pitches for May 3–16.</div>
+      <div class="pat-why">Your follicular and ovulatory phases ran 10/10 energy and confidence last cycle. The data is consistent enough to bet on.</div>
+      <div class="pat-tap">Tap to see the chart →</div>
+    </div>
+
+    <div class="pat-card">
+      <div class="pat-action">Make sleep non-negotiable through May 2.</div>
+      <div class="pat-why">8+ hours lifts your confidence by 1.7 points. April 20 (sleep 2/10) was your worst day in a month.</div>
+      <div class="pat-tap">Tap to see the chart →</div>
+    </div>
+
+    <div class="pat-card warn">
+      <div class="pat-action">Treat stress like a leak, not a feeling.</div>
+      <div class="pat-why">Stress 4–5 dropped your energy from 10 to 5–7 across April 19–24. Even a 2-point drop would lift your energy by 1–2.</div>
+      <div class="pat-tap">Tap to see the chart →</div>
+    </div>
+  </div>
+
+  <!-- Recommendations -->
+  <div class="recs-section">
+    <div class="recs-head">
+      <h2>Recommendations</h2>
+      <span class="ai-badge">AI</span>
+    </div>
+
+    <div class="rec-card sleep">
+      <div class="body">During luteal phase (now through May 2), make sleep your top priority. Your data shows that 8+ hours of sleep lifts confidence by 1.7 points even when energy is naturally lower. One good night can shift your whole week.</div>
+      <div class="tag">Sleep</div>
+    </div>
+
+    <div class="rec-card stress">
+      <div class="body">Stress at 4–5 is draining your energy during luteal phase. Identify one stress-reduction practice (walk, breathing, journaling) and use it daily through May 2. Even a 2-point drop in stress will noticeably lift your energy.</div>
+      <div class="tag">Stress</div>
+    </div>
+
+    <div class="rec-card confidence">
+      <div class="body">Mark May 3–16 on your calendar as your power window (follicular + ovulatory phases). Your data shows 10/10 energy and confidence during this time. Schedule pitches, tough conversations, and ambitious projects here.</div>
+      <div class="tag">Confidence</div>
+    </div>
+
+    <div class="rec-card routine">
+      <div class="body">Build a "luteal-phase task list" of admin, planning, and recovery activities. Use this week (and future luteal phases) to tackle these lighter tasks instead of fighting your natural rhythm.</div>
+      <div class="tag">Routine</div>
+    </div>
+  </div>
+
+  <!-- Days until next Peak -->
+  <div class="countdown-card">
+    <div class="label">★ Power Window</div>
+    <div class="big">11</div>
+    <div class="units">days until your next Peak</div>
+    <div class="window">May 8 → May 16 · <em>full capacity</em></div>
+  </div>
+
+  <!-- Wrapped teaser -->
+  <div class="wrapped">
+    <div class="label">★ PeakHer Wrapped</div>
+    <div class="title">Your April, in one read.</div>
+    <div class="sub">Peak days, power windows, what the data caught.</div>
+    <a class="cta" href="#">See April Wrapped →</a>
+  </div>
+
+  <p class="footnote">Want the raw data? <a href="#">View all 13 detected patterns →</a></p>
+
+</div>
+</body>
+</html>

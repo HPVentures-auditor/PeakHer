@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patterns Page Redesign — Pick One</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #12121A;
+    color: #F0F0F5;
+    padding: 32px 16px 64px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2 { font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.02em; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .head { text-align: center; margin-bottom: 36px; }
+  .head .crumb { font-size: 11px; font-weight: 800; letter-spacing: 3px; color: #00E5A0; text-transform: uppercase; margin-bottom: 8px; }
+  .head h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+  .head p { color: #A0A0B0; font-size: 14px; max-width: 540px; margin: 0 auto; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: #1A1A26;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 18px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .frame {
+    aspect-ratio: 9 / 14;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: #12121A;
+    position: relative;
+  }
+  .frame iframe {
+    width: 280%; height: 280%;
+    border: 0;
+    transform: scale(0.357);
+    transform-origin: top left;
+    pointer-events: none;
+  }
+  .meta { padding: 18px 18px 20px; }
+  .meta .tag { font-size: 10px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: #FFD700; margin-bottom: 8px; }
+  .meta h2 { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
+  .meta .desc { font-size: 13px; color: #A0A0B0; margin-bottom: 14px; min-height: 60px; }
+  .meta .points { list-style: none; font-size: 12px; color: #C0C0D0; margin-bottom: 16px; }
+  .meta .points li { padding: 3px 0 3px 16px; position: relative; }
+  .meta .points li::before { content: '•'; position: absolute; left: 4px; color: #00E5A0; }
+  .open {
+    display: inline-block;
+    background: #F0F0F5; color: #12121A;
+    padding: 10px 18px; border-radius: 100px;
+    font-size: 13px; font-weight: 700;
+    text-decoration: none;
+  }
+  .open:hover { background: #00E5A0; }
+
+  .legend { text-align: center; margin-top: 32px; font-size: 12px; color: #6B6B7B; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="crumb">PeakHer · Patterns Redesign</div>
+    <h1>Three concepts. Pick one.</h1>
+    <p>All three use Amanda's stated design system: Plus Jakarta Sans + Inter, dark-first #12121A, phase-color accents (Restore / Rise / Peak / Sustain).</p>
+  </div>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="frame"><iframe src="patterns-a.html" loading="lazy"></iframe></div>
+      <div class="meta">
+        <div class="tag">Concept A</div>
+        <h2>Letter from Dot</h2>
+        <p class="desc">Story-first. Reads like Dot wrote you a brief, not like a dashboard. Oura/Calm-inspired.</p>
+        <ul class="points">
+          <li>Phase pill + Dot-voice headline above the fold</li>
+          <li>One sparkline ("The Truth") with phase backdrop</li>
+          <li>7-day Power Window forecast strip</li>
+          <li>3 verb-led pattern cards (max)</li>
+          <li>PeakHer Wrapped teaser at bottom</li>
+        </ul>
+        <a class="open" href="patterns-a.html" target="_blank">Open mockup →</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="frame"><iframe src="patterns-b.html" loading="lazy"></iframe></div>
+      <div class="meta">
+        <div class="tag">Concept B</div>
+        <h2>Cycle Heat Map</h2>
+        <p class="desc">Data-rich. Calendar heat map is the hero. Best if power users live on this page. Flo + Whoop-inspired.</p>
+        <ul class="points">
+          <li>30-day calendar heat map (phase color × energy intensity)</li>
+          <li>Cycle Consistency ring (0–100)</li>
+          <li>Phase Bento — 4 cards, avg energy/confidence per phase</li>
+          <li>Discoveries grouped by category, accordion-collapsed</li>
+          <li>30/60/90 day range tabs</li>
+        </ul>
+        <a class="open" href="patterns-b.html" target="_blank">Open mockup →</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="frame"><iframe src="patterns-c.html" loading="lazy"></iframe></div>
+      <div class="meta">
+        <div class="tag">Concept C</div>
+        <h2>Decision Engine</h2>
+        <p class="desc">Most opinionated. Leans hard into the Hormonal Intelligence brand: a decision engine, not a dashboard. Whoop-inspired minimalism.</p>
+        <ul class="points">
+          <li>"11 days until your next Peak" countdown HERO</li>
+          <li>Three numbered Decisions from Dot — pure imperative</li>
+          <li>One Truth chart layered on cycle phase backdrop</li>
+          <li>Patterns hidden in "For the data nerds" footer</li>
+          <li>Most screenshot-worthy of the three</li>
+        </ul>
+        <a class="open" href="patterns-c.html" target="_blank">Open mockup →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="legend">All three are static HTML mockups — no app data wired yet. Open each in a phone-width window for the real feel.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Patterns — Concept C: Decision Engine</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #12121A;
+    --surface: #1A1A26;
+    --elevated: #22222F;
+    --card: #1E1E2A;
+    --text: #F0F0F5;
+    --text-mid: #C0C0D0;
+    --text-dim: #8C8C9A;
+    --teal: #00E5A0;
+    --coral: #E87461;
+    --restore: #C77DBA;
+    --rise: #00E5A0;
+    --peak: #FFD700;
+    --sustain: #8B7BDB;
+    --border: rgba(255,255,255,0.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .display { font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.025em; }
+
+  .wrap { max-width: 600px; margin: 0 auto; padding: 24px 16px 100px; }
+
+  /* Top bar */
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+  .topbar .crumb { font-size: 11px; font-weight: 800; letter-spacing: 2.5px; color: var(--peak); text-transform: uppercase; }
+  .seg-toggle {
+    display: inline-flex; background: var(--surface); border-radius: 100px; padding: 3px;
+    border: 1px solid var(--border);
+  }
+  .seg-toggle button {
+    padding: 5px 11px; font-size: 11px; font-weight: 700;
+    background: transparent; color: var(--text-dim); border: none; border-radius: 100px;
+    cursor: pointer; font-family: inherit;
+  }
+  .seg-toggle button.active { background: var(--elevated); color: var(--text); }
+
+  /* Power Window countdown HERO */
+  .countdown {
+    text-align: center;
+    padding: 28px 16px 24px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .countdown .label {
+    font-size: 11px; font-weight: 800; letter-spacing: 3.5px; text-transform: uppercase;
+    color: var(--peak); margin-bottom: 16px;
+  }
+  .countdown .big {
+    font-family: 'Plus Jakarta Sans'; font-weight: 900;
+    font-size: 96px; line-height: 1; letter-spacing: -0.04em;
+    background: linear-gradient(180deg, var(--peak) 0%, #FFB347 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+  .countdown .units {
+    font-size: 13px; font-weight: 600; color: var(--text-mid);
+    margin-bottom: 14px;
+  }
+  .countdown .next {
+    font-size: 16px; font-weight: 700; color: var(--text);
+    margin-bottom: 4px;
+  }
+  .countdown .next em { font-style: normal; color: var(--peak); }
+  .countdown .now {
+    font-size: 12px; color: var(--text-dim);
+  }
+
+  /* Phase mini ring */
+  .mini-ring-row {
+    display: flex; align-items: center; justify-content: center; gap: 22px;
+    padding: 18px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 36px;
+  }
+  .mini-ring { position: relative; width: 64px; height: 64px; }
+  .mini-ring svg { transform: rotate(-90deg); }
+  .mini-ring .num {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: 'Plus Jakarta Sans'; font-weight: 800; font-size: 18px;
+  }
+  .mini-meta { text-align: left; }
+  .mini-meta .l { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
+  .mini-meta .v { font-family: 'Plus Jakarta Sans'; font-size: 20px; font-weight: 700; }
+  .mini-meta .v small { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+
+  /* Decisions */
+  .decisions-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .decisions-label .by { color: var(--teal); }
+
+  .decision {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px 20px 18px;
+    margin-bottom: 12px;
+    display: flex; gap: 16px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    position: relative;
+  }
+  .decision:hover { background: var(--elevated); }
+  .decision:active { transform: scale(0.99); }
+  .decision .num {
+    font-family: 'Plus Jakarta Sans'; font-size: 36px; font-weight: 900;
+    color: rgba(255,255,255,0.15); line-height: 0.9; flex-shrink: 0;
+    width: 32px;
+  }
+  .decision .body { flex: 1; }
+  .decision .verb {
+    font-family: 'Plus Jakarta Sans'; font-size: 18px; font-weight: 800;
+    line-height: 1.25; letter-spacing: -0.01em;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .decision .reveal {
+    font-size: 12px; color: var(--teal); font-weight: 600;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .decision .reveal::after { content: '↓'; font-size: 14px; }
+
+  .decision.peak-card { border-left: 3px solid var(--peak); }
+  .decision.coral-card { border-left: 3px solid var(--coral); }
+  .decision.sustain-card { border-left: 3px solid var(--sustain); }
+
+  /* The Truth chart */
+  .truth {
+    margin-top: 36px; margin-bottom: 32px;
+  }
+  .truth-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 14px;
+  }
+  .truth-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px 16px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .truth-svg { width: 100%; height: 220px; display: block; }
+  .truth-meta {
+    display: flex; justify-content: space-between; margin-top: 10px;
+    font-size: 11px; color: var(--text-dim);
+  }
+  .truth-legend { display: flex; gap: 14px; }
+  .truth-legend span { display: flex; align-items: center; gap: 5px; }
+  .truth-legend .sw { width: 10px; height: 2px; display: inline-block; }
+
+  /* Footer collapsible */
+  .nerds {
+    margin-top: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .nerds summary {
+    list-style: none;
+    padding: 14px 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px;
+  }
+  .nerds summary::-webkit-details-marker { display: none; }
+  .nerds summary .left { color: var(--text-dim); display: flex; align-items: center; gap: 10px; }
+  .nerds summary .count {
+    background: var(--elevated); color: var(--text);
+    font-weight: 700; font-size: 11px;
+    padding: 2px 8px; border-radius: 100px;
+  }
+  .nerds summary .chev { color: var(--text-dim); transition: transform 0.2s; }
+  .nerds[open] summary .chev { transform: rotate(180deg); }
+  .nerds-body {
+    padding: 4px 18px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .nerd-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .nerd-row:last-child { border-bottom: 0; }
+  .nerd-row .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .nerd-row .dot.pos { background: var(--teal); }
+  .nerd-row .dot.neg { background: var(--coral); }
+  .nerd-row .text { flex: 1; color: var(--text-mid); }
+  .nerd-row .conf { color: var(--text-dim); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <span class="crumb">★ Patterns</span>
+    <div class="seg-toggle">
+      <button class="active">30d</button>
+      <button>60d</button>
+      <button>90d</button>
+    </div>
+  </div>
+
+  <!-- Power Window Countdown -->
+  <div class="countdown">
+    <div class="label">Power Window</div>
+    <div class="big">11</div>
+    <div class="units">days until your next Peak</div>
+    <div class="next">May 8 → May 16 · <em>full capacity</em></div>
+    <div class="now">You're in Sustain. Energy 5–7 expected this week.</div>
+  </div>
+
+  <!-- Mini ring + phase remaining -->
+  <div class="mini-ring-row">
+    <div class="mini-ring">
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="5"/>
+        <circle cx="32" cy="32" r="26" fill="none" stroke="#8B7BDB" stroke-width="5" stroke-linecap="round"
+                stroke-dasharray="163" stroke-dashoffset="40"/>
+      </svg>
+      <div class="num" style="color:#8B7BDB">75%</div>
+    </div>
+    <div class="mini-meta">
+      <div class="l">Phase progress</div>
+      <div class="v">Sustain <small>· Day 21 of 28</small></div>
+    </div>
+  </div>
+
+  <!-- Decisions -->
+  <div class="decisions-label">
+    <span>Decisions</span>
+    <span class="by">↳ from Dot</span>
+  </div>
+
+  <div class="decision peak-card">
+    <div class="num">1</div>
+    <div class="body">
+      <div class="verb">Move the board pitch to May 8.</div>
+      <div class="reveal">Why I'm saying this</div>
+    </div>
+  </div>
+
+  <div class="decision coral-card">
+    <div class="num">2</div>
+    <div class="body">
+      <div class="verb">Sleep 8+ hours every night through May 2. Non-negotiable.</div>
+      <div class="reveal">Why I'm saying this</div>
+    </div>
+  </div>
+
+  <div class="decision sustain-card">
+    <div class="num">3</div>
+    <div class="body">
+      <div class="verb">Build a luteal task list. Use it the next 6 days.</div>
+      <div class="reveal">Why I'm saying this</div>
+    </div>
+  </div>
+
+  <!-- The Truth chart with cycle backdrop -->
+  <div class="truth">
+    <div class="truth-label">The Truth — your last cycle</div>
+    <div class="truth-card">
+      <svg class="truth-svg" viewBox="0 0 600 220" preserveAspectRatio="none">
+        <!-- Cycle ring backdrop bands -->
+        <rect x="0" y="0" width="86" height="220" fill="rgba(199,125,186,0.10)"/>
+        <rect x="86" y="0" width="172" height="220" fill="rgba(0,229,160,0.10)"/>
+        <rect x="258" y="0" width="86" height="220" fill="rgba(255,215,0,0.14)"/>
+        <rect x="344" y="0" width="256" height="220" fill="rgba(139,123,219,0.12)"/>
+
+        <!-- Phase labels -->
+        <text x="43" y="18" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" font-weight="800" letter-spacing="1.8" fill="#C77DBA">RESTORE</text>
+        <text x="172" y="18" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" font-weight="800" letter-spacing="1.8" fill="#00E5A0">RISE</text>
+        <text x="301" y="18" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" font-weight="800" letter-spacing="1.8" fill="#FFD700">PEAK</text>
+        <text x="472" y="18" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" font-weight="800" letter-spacing="1.8" fill="#8B7BDB">SUSTAIN</text>
+
+        <!-- Grid lines -->
+        <line x1="0" y1="60" x2="600" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="120" x2="600" y2="120" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="180" x2="600" y2="180" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+
+        <!-- Confidence (dashed coral) -->
+        <polyline fill="none" stroke="#E87461" stroke-width="2" stroke-dasharray="4 4" stroke-linejoin="round"
+          points="0,120 22,140 44,120 66,140 88,80 110,55 132,40 154,30 176,30 198,40 220,30 242,55 264,40 286,30 308,55 330,80 352,140 374,160 396,120 418,120 440,120 462,140 484,160 506,120 528,140 550,120 572,140 600,140"/>
+
+        <!-- Energy (solid teal) -->
+        <polyline fill="none" stroke="#00E5A0" stroke-width="3" stroke-linejoin="round"
+          points="0,140 22,120 44,100 66,120 88,80 110,55 132,40 154,30 176,30 198,30 220,30 242,40 264,30 286,30 308,40 330,55 352,120 374,170 396,140 418,100 440,120 462,170 484,200 506,140 528,120 550,140 572,120 600,140"/>
+
+        <!-- Today marker -->
+        <line x1="572" y1="0" x2="572" y2="220" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <circle cx="572" cy="120" r="5" fill="#F0F0F5" stroke="#12121A" stroke-width="2"/>
+        <text x="572" y="212" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#F0F0F5">TODAY</text>
+      </svg>
+      <div class="truth-meta">
+        <div class="truth-legend">
+          <span><span class="sw" style="background:#00E5A0"></span> Energy</span>
+          <span><span class="sw" style="border-top:2px dashed #E87461"></span> Confidence</span>
+        </div>
+        <div>Apr 1 → Apr 28</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nerds footer -->
+  <details class="nerds">
+    <summary>
+      <div class="left">
+        <span>For the data nerds</span>
+        <span class="count">12 patterns detected</span>
+      </div>
+      <span class="chev">▾</span>
+    </summary>
+    <div class="nerds-body">
+      <div class="nerd-row"><span class="dot pos"></span><span class="text">Better sleep correlates with higher energy</span><span class="conf">Mod</span></div>
+      <div class="nerd-row"><span class="dot neg"></span><span class="text">Higher stress drains your energy levels</span><span class="conf">Mod</span></div>
+      <div class="nerd-row"><span class="dot neg"></span><span class="text">Higher stress reduces your confidence</span><span class="conf">Mod</span></div>
+      <div class="nerd-row"><span class="dot pos"></span><span class="text">Energy peaks during Rise phase</span><span class="conf">Mod</span></div>
+      <div class="nerd-row"><span class="dot pos"></span><span class="text">Energy peaks during Peak phase</span><span class="conf">Mod</span></div>
+      <div class="nerd-row"><span class="dot pos"></span><span class="text">Confidence rises during Rise phase</span><span class="conf">Mod</span></div>
+      <div class="nerd-row"><span class="dot pos"></span><span class="text">Better sleep boosts your confidence</span><span class="conf">Mod</span></div>
+      <div class="nerd-row"><span class="dot neg"></span><span class="text">Mondays tend to be lower energy</span><span class="conf">Mod</span></div>
+      <div class="nerd-row"><span class="dot neg"></span><span class="text">Energy dips during Sustain phase</span><span class="conf">Em</span></div>
+      <div class="nerd-row"><span class="dot pos"></span><span class="text">Wednesdays are your highest-energy day</span><span class="conf">Em</span></div>
+      <div class="nerd-row"><span class="dot pos"></span><span class="text">Confidence rises during Peak phase</span><span class="conf">Em</span></div>
+      <div class="nerd-row"><span class="dot neg"></span><span class="text">Confidence dips during Sustain phase</span><span class="conf">Em</span></div>
+    </div>
+  </details>
+
+</div>
+</body>
+</html>
