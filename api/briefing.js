@@ -625,22 +625,108 @@ var PHASE_KNOWLEDGE = {
 
 
 // ══════════════════════════════════════════════════════════════════════════
-//  DOT GREETINGS AND SIGN-OFFS (exact copy per spec)
+//  DOT GREETINGS AND SIGN-OFFS — phrase banks, deterministic rotation by cycleDay.
+//  Variants pending Amanda's final review (see partnership/DOT_PHRASE_VARIANTS_FOR_AMANDA.md).
+//  Anchors are entry [0] in each bank: the previously-shipping line.
 // ══════════════════════════════════════════════════════════════════════════
 
 var DOT_GREETINGS = {
-  reflect: function (name) { return name + ', gentle morning. Your body did a lot this month. Let\'s keep it low today.'; },
-  build:   function (name) { return name + ', today\'s going to be one of those days. The good kind.'; },
-  perform: function (name) { return name + ', you\'re in your main character era. Literally. Biologically. Let\'s go.'; },
-  complete: function (name) { return name + ', your uterus sent a memo.'; }
+  reflect: [
+    function (name) { return name + ', gentle morning. Your body did a lot this month. Let\'s keep it low today.'; },
+    function (name) { return name + ', your body is in cleanup mode. Your job today is hydration, warmth, and lower expectations.'; },
+    function (name) { return name + ', slow start. This is not laziness. This is biology rebuilding the lining. Honor it.'; },
+    function (name) { return 'Hey ' + name + '. Estrogen and progesterone are at their floor. That\'s why everything feels heavier. Today is about less, not more.'; },
+    function (name) { return name + ', day one of a brand new cycle. Treat yourself the way you\'d treat a friend who just ran a marathon.'; },
+    function (name) { return name + ', you\'re in Restore. Translation: you have permission to do the bare minimum and still call it a productive day.'; },
+    function (name) { return 'Listen ' + name + '. Your hormones are at low tide. Don\'t fight the current today, just float.'; },
+    function (name) { return name + ', this is the quiet floor of your cycle. Rest now. Rise is coming. I promise.'; }
+  ],
+  build: [
+    function (name) { return name + ', today\'s going to be one of those days. The good kind.'; },
+    function (name) { return name + ', estrogen is climbing and your brain wants something new to chew on. Pick the thing you\'ve been avoiding and start messy.'; },
+    function (name) { return 'Morning ' + name + '. You\'re in Rise. This is your "begin the project, send the bold email, sketch the dumb idea" window. Use it.'; },
+    function (name) { return name + ', your Rise brain is online and it is HUNGRY. Feed it a problem worth solving.'; },
+    function (name) { return name + ', today your body is biased toward novelty. Don\'t waste that on doomscrolling. Start the thing.'; },
+    function (name) { return 'Hey ' + name + '. Estrogen rising means dopamine\'s friendlier. Risk feels lighter. Take the small bet today.'; },
+    function (name) { return name + ', you woke up with more bandwidth than you\'ll have for the next two weeks. Spend it on something future-you will thank you for.'; },
+    function (name) { return name + ', Rise mornings are for first drafts and weird ideas. Permission granted to be a little ambitious.'; }
+  ],
+  perform: [
+    function (name) { return name + ', you\'re in your main character era. Literally. Biologically. Let\'s go.'; },
+    function (name) { return name + ', Peak week. Your verbal fluency just got an upgrade. Have the hard conversation today.'; },
+    function (name) { return 'Hey ' + name + '. Estrogen and testosterone are co-spiking. This is the room-reading, deal-closing, magnetic version of you. Don\'t waste it on busywork.'; },
+    function (name) { return name + ', your communication superpower is online. Pitch the thing. Ask for the raise. Make the call you\'ve been delaying.'; },
+    function (name) { return name + ', Peak. Your body literally evolved to be persuasive this week. Use that for good. Or for getting what you want. Same thing.'; },
+    function (name) { return name + ', today you\'re operating at the top of your range. Front-load the high-stakes stuff. Save the laundry for next week.'; },
+    function (name) { return 'Morning ' + name + '. This is the 72-hour window where your brain runs hottest. Pick one big move and make it.'; },
+    function (name) { return name + ', you didn\'t suddenly get more confident. Your hormones did. Either way, ride it.'; }
+  ],
+  complete: [
+    function (name) { return name + ', your uterus sent a memo.'; },
+    function (name) { return name + ', welcome to Sustain. The brain that wants to make checklists and finish things is back. Use it.'; },
+    function (name) { return 'Morning ' + name + '. Progesterone\'s running the show now. Slower, steadier, more detail-oriented. That\'s a feature.'; },
+    function (name) { return name + ', this is the close-the-tabs, finish-the-projects, file-the-receipts week. Less starting. More finishing.'; },
+    function (name) { return name + ', you are not less productive in Sustain. You\'re differently productive. Today is about depth, not novelty.'; },
+    function (name) { return 'Hey ' + name + '. If your inner critic is louder this morning, that\'s progesterone shifting. Don\'t make decisions she\'s narrating.'; },
+    function (name) { return name + ', Sustain. Your brain loves a list today. Make a short one. Win it.'; },
+    function (name) { return name + ', late Sustain hits like a soft drag. That\'s biology, not failure. Your job is to work with it, not against it.'; }
+  ]
 };
 
 var DOT_SIGNOFFS = {
-  reflect: 'The to-do list can wait. Today is about the basics: warmth, nourishment, rest. Your body just completed a full cycle. Be gentle. I\'ll have a fresh plan when you\'re ready.',
-  build: 'Go be ambitious today. Your energy is climbing and your brain is wired for novelty. Start the thing. Say yes to the thing. I\'ll be here tomorrow with your next plan.',
-  perform: 'You are genuinely, biologically peaking right now. Crush it. I\'ll tell you when to ease off. Not today.',
-  complete: 'You don\'t need to be a productivity machine today. Eat the carbs, do the gentle yoga, crush that Q2 review. The sourdough believes in you.'
+  reflect: [
+    'The to-do list can wait. Today is about the basics: warmth, nourishment, rest. Your body just completed a full cycle. Be gentle. I\'ll have a fresh plan when you\'re ready.',
+    'Soup, sweatpants, soft lights. The strategy today isn\'t ambition, it\'s recovery. I\'ll be here when your energy is.',
+    'If you do nothing else today, drink water, eat warm food, go to bed early. That\'s the win. I\'ll handle ambition tomorrow.',
+    'Rest now. Rise is coming. Cancel one thing. Reschedule another. You don\'t have to earn this.',
+    'Your job today is to not have a job. I\'ll send the next plan when your body is ready for it.',
+    'Take the long shower. Skip the workout. Eat something with iron in it. I\'ll see you tomorrow.',
+    'Restore isn\'t a vacation, it\'s maintenance. Your body is doing real work even when you\'re horizontal. Trust it.',
+    'Slow is the assignment. I\'ll bring the strategy back when you bring the energy back.'
+  ],
+  build: [
+    'Go be ambitious today. Your energy is climbing and your brain is wired for novelty. Start the thing. Say yes to the thing. I\'ll be here tomorrow with your next plan.',
+    'Your dopamine is friendlier today than it\'ll be in three weeks. Spend it on the thing you\'ve been postponing.',
+    'Start messy. Ship ugly. Course-correct on Wednesday. Rise rewards momentum, not polish.',
+    'Make a list of the bold things. Do one. I\'ll have another waiting tomorrow.',
+    'Today is for first drafts, first asks, first reps. None of it has to be perfect. It just has to start.',
+    'If you\'ve been waiting for the right moment to do the scary thing, your hormones just RSVP\'d yes. Go.',
+    'Rise mornings are stolen from your future self. Steal something good. I\'ll see you tomorrow.',
+    'You will never feel more inclined to begin than you do this week. Begin.'
+  ],
+  perform: [
+    'You are genuinely, biologically peaking right now. Crush it. I\'ll tell you when to ease off. Not today.',
+    'Three days. That\'s the window. Don\'t spend it on errands. Spend it on the conversations that change something.',
+    'Your charisma is on a 72-hour subscription. Use it before the renewal.',
+    'Pitch the pitch. Send the email. Take the meeting. This version of you is the one that closes things.',
+    'Save the spreadsheet for Sustain. Today is for the human stuff: persuasion, presence, performance.',
+    'Peak is a short window. Front-load the high-stakes calls. Tomorrow\'s you will thank you.',
+    'If a brave version of you wanted to say something, today is the day she has the brain chemistry to say it well.',
+    'Eat. Hydrate. Sleep. The hormones can carry the rest of you today.'
+  ],
+  complete: [
+    'You don\'t need to be a productivity machine today. Eat the carbs, do the gentle yoga, crush that Q2 review. The sourdough believes in you.',
+    'Sustain rewards depth and finishing. Pick one open loop. Close it. Call that a win.',
+    'If something feels heavier today than it did last week, that\'s progesterone, not your life. Don\'t make permanent decisions on temporary chemistry.',
+    'Eat protein. Walk after meals. Skip the third coffee. Future-you in late Sustain is begging.',
+    'Today, less novelty, more nesting. Cozy clothes, warm food, short list. You\'re playing the long game.',
+    'Your inner critic is loud this week. Write down what she says. Read it again next Rise. You\'ll laugh.',
+    'Skip the heroics. Finish two things. Make tomorrow easier. That\'s strategy, not laziness.',
+    'Sustain is the close-out week. Tie the bows. Send the wrap-ups. Then rest. Restore\'s around the corner.'
+  ]
 };
+
+function pickDotGreeting(phaseKey, cycleDay, name) {
+  var bank = DOT_GREETINGS[phaseKey] || DOT_GREETINGS.build;
+  var day = (typeof cycleDay === 'number' && cycleDay > 0) ? cycleDay : 1;
+  return bank[(day - 1) % bank.length](name || 'Friend');
+}
+
+function pickDotSignoff(phaseKey, cycleDay) {
+  var bank = DOT_SIGNOFFS[phaseKey] || DOT_SIGNOFFS.build;
+  var day = (typeof cycleDay === 'number' && cycleDay > 0) ? cycleDay : 1;
+  return bank[((day - 1) + 3) % bank.length];
+}
 
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -912,13 +998,6 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
   parts.push('You MUST respond with valid JSON only. No markdown, no backticks, no explanation outside the JSON.');
   parts.push('');
   parts.push('{');
-  parts.push('  "greeting": "Phase-specific Dot greeting for the user by name. Use these EXACT templates:');
-  parts.push('    Restore: [Name], gentle morning. Your body did a lot this month. Let\'s keep it low today.');
-  parts.push('    Rise: [Name], today\'s going to be one of those days. The good kind.');
-  parts.push('    Peak: [Name], you\'re in your main character era. Literally. Biologically. Let\'s go.');
-  parts.push('    Sustain: [Name], your uterus sent a memo.');
-  parts.push('    Replace [Name] with the user\'s actual name.",');
-  parts.push('');
   parts.push('  "hormone_download": "2-4 sentences about what is happening hormonally RIGHT NOW in Dot\'s voice. Be specific about which hormones, what they are doing, and how that translates to how she feels. This is not a textbook; it is Dot explaining biology like a friend.",');
   parts.push('');
   if (hasCalendarData) {
@@ -959,12 +1038,6 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
   parts.push('');
   parts.push('  "key_insight": "One science-backed insight in Dot\'s voice. The single most important thing to remember today. Make it screenshot-worthy.",');
   parts.push('');
-  parts.push('  "sign_off": "Phase-specific Dot sign-off. Use these EXACT sign-offs:');
-  parts.push('    Restore: The to-do list can wait. Today is about the basics: warmth, nourishment, rest. Your body just completed a full cycle. Be gentle. I\'ll have a fresh plan when you\'re ready.');
-  parts.push('    Rise: Go be ambitious today. Your energy is climbing and your brain is wired for novelty. Start the thing. Say yes to the thing. I\'ll be here tomorrow with your next plan.');
-  parts.push('    Peak: You are genuinely, biologically peaking right now. Crush it. I\'ll tell you when to ease off. Not today.');
-  parts.push('    Sustain: You don\'t need to be a productivity machine today. Eat the carbs, do the gentle yoga, crush that Q2 review. The sourdough believes in you.",');
-  parts.push('');
   parts.push('  "phase_overview": "2-3 sentences summarizing the current phase, what hormones are doing, and the overall energy forecast. Keep for backward compatibility.",');
   parts.push('');
   parts.push('  "phaseOverview": {');
@@ -987,8 +1060,7 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
   parts.push('    "headline": "Short emotional headline (5-10 words)",');
   parts.push('    "body": "3-5 sentences covering emotional forecast, coping tools, social energy."');
   parts.push('  },');
-  parts.push('  "keyInsight": "Same content as key_insight. One powerful sentence.",');
-  parts.push('  "dotSignoff": "Same content as sign_off."');
+  parts.push('  "keyInsight": "Same content as key_insight. One powerful sentence."');
 
   if (hasCalendarData) {
     parts.push('  ,"scheduleInsight": "One sentence connecting the most important calendar event today with the current cycle phase."');
@@ -1008,7 +1080,6 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
   parts.push('- Make the key_insight / keyInsight something she would actually screenshot and save.');
   parts.push('- Never use the word "journey." Never say "listen to your body" without specifying WHAT to listen for.');
   parts.push('- Never use em dashes. Use commas, colons, semicolons, periods, or connecting words like "and," "so," "because," or "to" instead.');
-  parts.push('- The greeting and sign_off MUST use the exact templates provided. Do not improvise them.');
 
   return parts.join('\n');
 }
@@ -1172,10 +1243,11 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   var currentStreak = streak.current_streak || 0;
   var streakMessage = getStreakMessage(currentStreak);
 
-  // Determine Dot greeting and sign-off (use AI if available, fall back to templates)
+  // Dot greeting and sign-off come from the curated phrase bank, deterministic by cycleDay.
+  // Not AI-generated: voice-critical, owned by Amanda, and prevents Claude from converging on the same line every day.
   var userName = user.name || 'Friend';
-  var dotGreeting = (aiBriefing && aiBriefing.greeting) ? aiBriefing.greeting : DOT_GREETINGS[phase](userName);
-  var dotSignoff = (aiBriefing && aiBriefing.sign_off) ? aiBriefing.sign_off : DOT_SIGNOFFS[phase];
+  var dotGreeting = pickDotGreeting(phase, cycleDay, userName);
+  var dotSignoff = pickDotSignoff(phase, cycleDay);
 
   // Build backward-compatible briefing response
   var briefing = {
