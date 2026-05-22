@@ -282,15 +282,31 @@ window.PeakHer.Settings = (function () {
     // Check URL for calendar callback status
     if (window.location.hash.indexOf('calendar=connected') !== -1) {
       fetchCalendarStatus();
-      window.location.hash = window.location.hash.replace(/[?&]calendar=connected/, '');
+      // sync=error means the account linked but the first event pull failed
+      // (most often: Google Calendar API not enabled in the Cloud project).
+      if (window.location.hash.indexOf('sync=error') !== -1) {
+        alert('Calendar connected, but I couldn’t pull your events yet. If this persists, the Google Calendar API may need to be enabled. I’ll keep retrying daily.');
+      }
+      window.location.hash = window.location.hash
+        .replace(/[?&]calendar=connected/, '').replace(/[?&]sync=error/, '');
     }
 
     // Check URL for wearable callback status
     if (window.location.hash.indexOf('wearable=') !== -1) {
       var wMatch = window.location.hash.match(/wearable=(\w+)/);
       var wConnected = window.location.hash.indexOf('connected=1') !== -1;
+      var wSyncErr = window.location.hash.indexOf('sync=error') !== -1;
       if (wMatch && wConnected) {
-        loadWearableStatus().then(function () { refreshWearableSection(); });
+        loadWearableStatus().then(function () {
+          refreshWearableSection();
+          if (wSyncErr) {
+            var m = document.getElementById('wearableMessage');
+            if (m) {
+              m.textContent = 'Connected, but I couldn’t pull your data yet. Tap Sync, or reconnect if it keeps failing.';
+              m.className = 'ph-sms-error';
+            }
+          }
+        });
       }
       var wError = window.location.hash.match(/wearable_error=([^&]+)/);
       if (wError) {
@@ -300,7 +316,9 @@ window.PeakHer.Settings = (function () {
           wearableMsg.className = 'ph-sms-error';
         }
       }
-      window.location.hash = window.location.hash.replace(/[?&]wearable=[^&]+/, '').replace(/[?&]connected=1/, '').replace(/[?&]wearable_error=[^&]+/, '');
+      window.location.hash = window.location.hash
+        .replace(/[?&]wearable=[^&]+/, '').replace(/[?&]connected=1/, '')
+        .replace(/[?&]wearable_error=[^&]+/, '').replace(/[?&]sync=error/, '');
     }
   }
 

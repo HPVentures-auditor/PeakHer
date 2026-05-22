@@ -9,6 +9,7 @@ const { sendError } = require('../_lib/auth');
 const whoop = require('../_lib/whoop');
 const oura = require('../_lib/oura');
 const garmin = require('../_lib/garmin');
+const { syncProvider } = require('../_lib/wearable-sync');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return sendError(res, 405, 'Method not allowed');
@@ -98,6 +99,24 @@ module.exports = async function handler(req, res) {
       `;
     }
 
+    // Trigger an immediate sync so data appears right after connecting (instead
+    // of waiting for the next daily cron) and any auth/scope/API error surfaces
+    // here at connect time rather than failing silently.
+    var syncFailed = false;
+    try {
+      var connRows = await sql`
+        SELECT * FROM wearable_connections
+        WHERE user_id = ${userId} AND provider = ${provider}
+        LIMIT 1
+      `;
+      if (connRows.length > 0) {
+        await syncProvider(connRows[0], sql);
+      }
+    } catch (syncErr) {
+      syncFailed = true;
+      console.error('Initial wearable sync after connect failed:', syncErr.message);
+    }
+
     // Determine redirect source
     var source = 'web';
     if (req.query.oauth_verifier) {
@@ -117,11 +136,13 @@ module.exports = async function handler(req, res) {
       } catch (e) { /* ignore */ }
     }
 
-    // Redirect back to app
+    // Redirect back to app. sync=error tells the UI the account linked but the
+    // first data pull failed (e.g. provider API not enabled / scope missing).
+    var syncQuery = syncFailed ? '&sync=error' : '';
     if (source === 'native') {
-      return res.writeHead(302, { Location: 'peakher://wearable-connected?provider=' + (provider || 'garmin') }).end();
+      return res.writeHead(302, { Location: 'peakher://wearable-connected?provider=' + (provider || 'garmin') + (syncFailed ? '&sync=error' : '') }).end();
     }
-    return res.writeHead(302, { Location: '/app/#settings?wearable=' + (provider || 'garmin') + '&connected=1' }).end();
+    return res.writeHead(302, { Location: '/app/#settings?wearable=' + (provider || 'garmin') + '&connected=1' + syncQuery }).end();
   } catch (err) {
     console.error('Wearable callback error:', err);
     return redirectWithError(res, 'Connection failed');

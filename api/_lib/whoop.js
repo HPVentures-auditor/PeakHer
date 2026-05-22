@@ -4,7 +4,7 @@
  * Env vars required:
  *   WHOOP_CLIENT_ID
  *   WHOOP_CLIENT_SECRET
- *   WHOOP_REDIRECT_URI  (e.g. https://peakher.ai/api/wearable/whoop/callback)
+ *   WHOOP_REDIRECT_URI  (e.g. https://peakher.ai/api/wearable/callback)
  *
  * Whoop API docs: https://developer.whoop.com/api
  */
@@ -12,13 +12,15 @@
 var TOKEN_URL = 'https://api.prod.whoop.com/oauth/oauth2/token';
 var AUTH_URL = 'https://api.prod.whoop.com/oauth/oauth2/auth';
 var API_BASE = 'https://api.prod.whoop.com/developer/v1';
-var SCOPES = 'read:recovery read:sleep read:workout read:cycles read:profile read:body_measurement';
+// `offline` is REQUIRED for Whoop to return a refresh_token. Without it the
+// access token expires within hours and the connection dies (auth_expired).
+var SCOPES = 'offline read:recovery read:sleep read:workout read:cycles read:profile read:body_measurement';
 
 function getConfig() {
   return {
     clientId: process.env.WHOOP_CLIENT_ID,
     clientSecret: process.env.WHOOP_CLIENT_SECRET,
-    redirectUri: process.env.WHOOP_REDIRECT_URI || 'https://peakher.ai/api/wearable/whoop/callback'
+    redirectUri: process.env.WHOOP_REDIRECT_URI || 'https://peakher.ai/api/wearable/callback'
   };
 }
 

@@ -8,6 +8,21 @@ var oura = require('./oura');
 var garmin = require('./garmin');
 
 /**
+ * Await a provider fetch, recording (not swallowing) any error.
+ * Returns [] on failure but pushes a labelled message into `errs` so the
+ * caller can tell the difference between "no data" and "the API failed".
+ */
+async function tryFetch(label, promise, errs) {
+  try {
+    return await promise;
+  } catch (e) {
+    errs.push(label + ': ' + e.message);
+    console.error('Wearable fetch failed [' + label + ']:', e.message);
+    return [];
+  }
+}
+
+/**
  * Sync a single provider connection. Fetches last 14 days of data.
  * @param {object} connection - wearable_connections row
  * @param {function} sql - Neon query function
@@ -21,16 +36,23 @@ async function syncProvider(connection, sql) {
   var start = startDate.toISOString().split('T')[0];
   var end = now.toISOString().split('T')[0];
 
+  var errs = [];
   var normalized;
 
   if (provider === 'whoop') {
-    normalized = await syncWhoop(connection, sql, start, end);
+    normalized = await syncWhoop(connection, sql, start, end, errs);
   } else if (provider === 'oura') {
-    normalized = await syncOura(connection, sql, start, end);
+    normalized = await syncOura(connection, sql, start, end, errs);
   } else if (provider === 'garmin') {
-    normalized = await syncGarmin(connection, sql, start, end);
+    normalized = await syncGarmin(connection, sql, start, end, errs);
   } else {
     throw new Error('Unknown provider: ' + provider);
+  }
+
+  // If we got nothing AND every endpoint errored, this is a real failure
+  // (auth/scope/API down) — surface it instead of silently writing nothing.
+  if (normalized.length === 0 && errs.length > 0) {
+    throw new Error(provider + ' sync failed: ' + errs.join(' | '));
   }
 
   // Upsert each day's data
@@ -89,9 +111,11 @@ async function syncProvider(connection, sql) {
     count++;
   }
 
-  // Update last_synced on connection
+  // Mark synced. Flip status back to 'connected' so a connection that had
+  // previously errored recovers after a successful re-sync.
   await sql`
-    UPDATE wearable_connections SET last_synced = now(), updated_at = now()
+    UPDATE wearable_connections
+    SET last_synced = now(), sync_status = 'connected', updated_at = now()
     WHERE id = ${connection.id}
   `;
 
@@ -100,12 +124,12 @@ async function syncProvider(connection, sql) {
 
 // ── Provider-specific sync logic ────────────────────────────────────
 
-async function syncWhoop(connection, sql, start, end) {
+async function syncWhoop(connection, sql, start, end, errs) {
   var token = await whoop.getValidToken(connection, sql);
 
-  var recovery = await whoop.fetchRecovery(token, start, end).catch(function () { return []; });
-  var sleep = await whoop.fetchSleep(token, start, end).catch(function () { return []; });
-  var cycles = await whoop.fetchCycles(token, start, end).catch(function () { return []; });
+  var recovery = await tryFetch('whoop.recovery', whoop.fetchRecovery(token, start, end), errs);
+  var sleep = await tryFetch('whoop.sleep', whoop.fetchSleep(token, start, end), errs);
+  var cycles = await tryFetch('whoop.cycles', whoop.fetchCycles(token, start, end), errs);
 
   // Merge by date
   var byDate = {};
@@ -144,13 +168,13 @@ async function syncWhoop(connection, sql, start, end) {
   });
 }
 
-async function syncOura(connection, sql, start, end) {
+async function syncOura(connection, sql, start, end, errs) {
   var token = await oura.getValidToken(connection, sql);
 
-  var readiness = await oura.fetchReadiness(token, start, end).catch(function () { return []; });
-  var sleepDaily = await oura.fetchSleep(token, start, end).catch(function () { return []; });
-  var sleepSessions = await oura.fetchSleepSessions(token, start, end).catch(function () { return []; });
-  var activity = await oura.fetchActivity(token, start, end).catch(function () { return []; });
+  var readiness = await tryFetch('oura.readiness', oura.fetchReadiness(token, start, end), errs);
+  var sleepDaily = await tryFetch('oura.sleepDaily', oura.fetchSleep(token, start, end), errs);
+  var sleepSessions = await tryFetch('oura.sleepSessions', oura.fetchSleepSessions(token, start, end), errs);
+  var activity = await tryFetch('oura.activity', oura.fetchActivity(token, start, end), errs);
 
   var byDate = {};
 
@@ -194,7 +218,7 @@ async function syncOura(connection, sql, start, end) {
   });
 }
 
-async function syncGarmin(connection, sql, start, end) {
+async function syncGarmin(connection, sql, start, end, errs) {
   var tokenData = await garmin.getValidToken(connection);
   var accessToken = tokenData.accessToken;
   var tokenSecret = tokenData.tokenSecret;
@@ -202,9 +226,9 @@ async function syncGarmin(connection, sql, start, end) {
   var startEpoch = Math.floor(new Date(start + 'T00:00:00Z').getTime() / 1000);
   var endEpoch = Math.floor(new Date(end + 'T23:59:59Z').getTime() / 1000);
 
-  var dailies = await garmin.fetchDailySummaries(accessToken, tokenSecret, startEpoch, endEpoch).catch(function () { return []; });
-  var sleeps = await garmin.fetchSleep(accessToken, tokenSecret, startEpoch, endEpoch).catch(function () { return []; });
-  var stress = await garmin.fetchStressDetails(accessToken, tokenSecret, startEpoch, endEpoch).catch(function () { return []; });
+  var dailies = await tryFetch('garmin.dailies', garmin.fetchDailySummaries(accessToken, tokenSecret, startEpoch, endEpoch), errs);
+  var sleeps = await tryFetch('garmin.sleep', garmin.fetchSleep(accessToken, tokenSecret, startEpoch, endEpoch), errs);
+  var stress = await tryFetch('garmin.stress', garmin.fetchStressDetails(accessToken, tokenSecret, startEpoch, endEpoch), errs);
 
   var byDate = {};
 

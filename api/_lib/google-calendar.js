@@ -144,15 +144,17 @@ async function fetchEvents(accessToken, opts) {
 
   var params = new URLSearchParams({
     singleEvents: 'true',
-    orderBy: 'startTime',
     maxResults: '250'
   });
 
   if (opts.syncToken) {
-    // Incremental sync — only changes since last sync
+    // Incremental sync — only changes since last sync.
+    // Google REJECTS (400) syncToken combined with orderBy / timeMin / timeMax,
+    // so on incremental sync we send ONLY the syncToken.
     params.set('syncToken', opts.syncToken);
   } else {
-    // Full sync — fetch window
+    // Full sync — ordered window. orderBy=startTime requires singleEvents=true.
+    params.set('orderBy', 'startTime');
     if (opts.timeMin) params.set('timeMin', opts.timeMin);
     if (opts.timeMax) params.set('timeMax', opts.timeMax);
   }

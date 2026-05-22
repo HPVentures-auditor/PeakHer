@@ -7,7 +7,7 @@ window.PeakHer = window.PeakHer || {};
 window.PeakHer.Router = (function () {
   'use strict';
 
-  var VALID_ROUTES = ['onboarding', 'login', 'checkin', 'history', 'patterns', 'weekahead'];
+  var VALID_ROUTES = ['onboarding', 'login', 'checkin', 'history', 'patterns', 'weekahead', 'plan'];
 
   // Tab order used to determine transition direction (forward vs backward)
   var TAB_ORDER = {
@@ -16,7 +16,8 @@ window.PeakHer.Router = (function () {
     checkin:    1,
     history:    2,
     patterns:   3,
-    weekahead:  4
+    weekahead:  4,
+    plan:       5
   };
 
   var previousRoute = null;
@@ -144,6 +145,7 @@ window.PeakHer.Router = (function () {
     if (route === 'history'   && PH.History   && PH.History.refresh)   PH.History.refresh();
     if (route === 'patterns'  && PH.Patterns  && PH.Patterns.refresh)  PH.Patterns.refresh();
     if (route === 'weekahead' && PH.WeekAhead && PH.WeekAhead.refresh) PH.WeekAhead.refresh();
+    if (route === 'plan'      && PH.Planner   && PH.Planner.refresh)   PH.Planner.refresh();
 
     // Update hash without re-triggering
     if (window.location.hash !== '#' + route) {

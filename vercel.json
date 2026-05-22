@@ -8,6 +8,7 @@
     "api/email-brief.js": { "maxDuration": 60 },
     "api/readiness.js": { "maxDuration": 30 },
     "api/task-sort.js": { "maxDuration": 30 },
+    "api/weekly-plan.js": { "maxDuration": 30 },
     "api/fasting.js": { "maxDuration": 30 },
     "api/insights.js": { "maxDuration": 60 },
     "api/patterns.js": { "maxDuration": 30 },
