@@ -1025,6 +1025,16 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
   parts.push('    ]');
   parts.push('  },');
   parts.push('');
+  parts.push('  "work": {');
+  parts.push('    "do_this": ["2-3 specific work/career activities to lean into today. Each item: the activity, then a colon, then a brief why tied to the phase. No em dashes."],');
+  parts.push('    "skip_this": ["1-2 work activities to avoid or defer today, each with the activity, a colon, and a brief why."]');
+  parts.push('  },');
+  parts.push('');
+  parts.push('  "relationships": {');
+  parts.push('    "do_this": ["2-3 relationship or social moves that fit today (with family, partner, friends, colleagues). Each item: the action, a colon, then a brief why tied to the phase."],');
+  parts.push('    "skip_this": ["1-2 social or relational things to avoid today, each with the action, a colon, and a brief why."]');
+  parts.push('  },');
+  parts.push('');
   parts.push('  "fasting": {');
   parts.push('    "protocol": "e.g. 12:12, 14:10, 16:8, or No fasting today",');
   parts.push('    "fasting_window": "e.g. 8 PM to 8 AM",');
@@ -1071,6 +1081,7 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
   parts.push('IMPORTANT RULES:');
   parts.push('- Cover ALL sections. Do not skip any.');
   parts.push('- Provide 3-5 items in the nutrition.eat array and 1-3 in nutrition.ease_up.');
+  parts.push('- Provide 2-3 items in work.do_this and relationships.do_this; 1-2 in each skip_this. Keep each to one short phrase plus a brief why.');
   if (hasCalendarData) {
     parts.push('- Provide a calendar_intelligence entry for EVERY meeting today.');
   }
@@ -1268,6 +1279,21 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     }
     return { protocol: f.protocol || null, eatStart: eatStart, eatEnd: eatEnd, explanation: f.why || null };
   }
+  // Work + Relationships do/skip arrive as arrays of strings (or objects); the
+  // renderer reads .doThis/.skipThis as string arrays. Coerce defensively.
+  function mapListDoSkip(x) {
+    if (!x) return null;
+    function asStrings(v) {
+      var a = Array.isArray(v) ? v : (v == null ? [] : [v]);
+      return a.map(function (it) {
+        if (it == null) return '';
+        if (typeof it === 'string') return it;
+        var label = it.activity || it.name || it.focus || it.task || it.action || '';
+        return label + (it.why ? ': ' + it.why : '');
+      }).filter(Boolean);
+    }
+    return { doThis: asStrings(x.do_this), skipThis: asStrings(x.skip_this) };
+  }
 
   // Build the static fallback content
   var staticContent = STATIC_PHASE_CONTENT[phase] || STATIC_PHASE_CONTENT.build;
@@ -1317,6 +1343,8 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     calendarIntelligence: aiBriefing ? (aiBriefing.calendar_intelligence || null) : null,
     movementDoSkip: mapMovementDoSkip(aiBriefing ? aiBriefing.movement : null),
     nutritionEatEase: mapNutritionEatEase(aiBriefing ? aiBriefing.nutrition : null),
+    workDoSkip: mapListDoSkip(aiBriefing ? aiBriefing.work : null),
+    relationshipsDoSkip: mapListDoSkip(aiBriefing ? aiBriefing.relationships : null),
     fastingIntelligence: mapFastingIntelligence(aiBriefing ? aiBriefing.fasting : null),
     focusSection: aiBriefing ? aiBriefing.focus : null,
     emotionalWeather: aiBriefing ? aiBriefing.emotional_weather : null,

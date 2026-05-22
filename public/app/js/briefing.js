@@ -180,6 +180,32 @@ window.PeakHer.Briefing = (function () {
       'background:' + cfg.bg + ';color:' + cfg.color + ';">' + cfg.label + '</span>';
   }
 
+  // Reusable two-column Do This / Skip This card (matches Movement card style).
+  // `ds` = { doThis: [str], skipThis: [str] }.
+  function doSkipCardHtml(iconEntity, title, ds, color) {
+    if (!ds) return '';
+    var doItems = Array.isArray(ds.doThis) ? ds.doThis : (ds.doThis ? [ds.doThis] : []);
+    var skipItems = Array.isArray(ds.skipThis) ? ds.skipThis : (ds.skipThis ? [ds.skipThis] : []);
+    if (doItems.length === 0 && skipItems.length === 0) return '';
+    var html = '<div class="briefing-v3-section">';
+    html += '<div class="briefing-v3-section-title" style="border-left:3px solid ' + color + ';padding-left:12px;">' + iconEntity + ' ' + escapeHtml(title) + '</div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+    html += '<div style="background:#e6f9f0;border-radius:10px;padding:14px;">';
+    html += '<div style="font-size:13px;font-weight:700;color:#059669;margin-bottom:6px;">Do This</div>';
+    for (var d = 0; d < doItems.length; d++) {
+      html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(doItems[d]) + '</div>';
+    }
+    html += '</div>';
+    html += '<div style="background:#fef2f2;border-radius:10px;padding:14px;">';
+    html += '<div style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:6px;">Skip This</div>';
+    for (var s = 0; s < skipItems.length; s++) {
+      html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(skipItems[s]) + '</div>';
+    }
+    html += '</div>';
+    html += '</div></div>';
+    return html;
+  }
+
   // ── Detect v3 structured data ────────────────────────────────────────
   function hasV3Data(data) {
     return data && (
@@ -375,6 +401,11 @@ window.PeakHer.Briefing = (function () {
       html += '</div>';
     }
 
+    // ── Work & Career Do/Skip ──
+    if (data.workDoSkip) {
+      html += doSkipCardHtml('&#128188;', 'Work & Career', data.workDoSkip, color);
+    }
+
     // ── Movement Do/Skip ──
     if (data.movementDoSkip) {
       var mv = data.movementDoSkip;
@@ -441,6 +472,11 @@ window.PeakHer.Briefing = (function () {
       html += '</div>';
     }
 
+    // ── Relationships Do/Skip ──
+    if (data.relationshipsDoSkip) {
+      html += doSkipCardHtml('&#128156;', 'Relationships', data.relationshipsDoSkip, color);
+    }
+
     // ── Fasting Intelligence ──
     if (data.fastingIntelligence) {
       var fast = data.fastingIntelligence;
@@ -481,6 +517,9 @@ window.PeakHer.Briefing = (function () {
         html += '<div class="briefing-sections">';
         for (var i = 0; i < AI_SECTION_CONFIG.length; i++) {
           var cfg = AI_SECTION_CONFIG[i];
+          // Movement, Nutrition, and Work/Focus now render as Do/Skip cards
+          // above; keep only Emotional Weather here to avoid duplicate sections.
+          if (cfg.key !== 'emotionalWeather') continue;
           var sectionData = ai[cfg.key];
           if (!sectionData) continue;
 
