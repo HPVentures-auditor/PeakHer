@@ -715,13 +715,14 @@ window.PeakHer.Settings = (function () {
     createPanel();
     render();
 
-    // Load SMS settings + wearable status
+    // Load SMS settings + wearable status + calendar status
     loadSmsSettings().then(function () {
       refreshSmsContent();
     });
     loadWearableStatus().then(function () {
       refreshWearableSection();
     });
+    loadCalendarStatus();
 
     // Animate in
     requestAnimationFrame(function () {
@@ -799,7 +800,7 @@ window.PeakHer.Settings = (function () {
     var conn = Store.getCalendarConnection ? Store.getCalendarConnection() : null;
     var connected = conn && conn.connected;
 
-    var html = '<div class="ph-settings-section">';
+    var html = '<div class="ph-settings-section" id="calendarSection">';
     html += '<h3>Calendar</h3>';
     html += '<p>Connect your calendar for schedule-aware predictions and briefings</p>';
 
@@ -881,6 +882,26 @@ window.PeakHer.Settings = (function () {
       }
       render();
     }).catch(function () {});
+  }
+
+  // Re-render just the calendar section in place (mirrors refreshWearableSection).
+  // Used on panel open so the connected state reflects the server, not a stale Store.
+  function refreshCalendarSection() {
+    var el = document.getElementById('calendarSection');
+    if (!el) return;
+    el.outerHTML = renderCalendarSection();
+    bindCalendarEvents();
+  }
+
+  // Load the live calendar connection status into the Store, then refresh the
+  // section. Without this, opening Settings normally (not via the OAuth redirect)
+  // showed "Connect" even when the account was already connected.
+  function loadCalendarStatus() {
+    if (!API.getCalendarStatus) return Promise.resolve(null);
+    return API.getCalendarStatus().then(function (result) {
+      refreshCalendarSection();
+      return result;
+    }).catch(function () { return null; });
   }
 
   // ── Wearable Integration Section ──────────────────────────────────
