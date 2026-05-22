@@ -289,17 +289,16 @@ window.PeakHer.Briefing = (function () {
     // v3 structured sections (new format)
     if (hasV3Data(data)) {
       renderV3(target, data);
-      return;
-    }
-
-    // If we have AI-enriched data, use the v2 renderer
-    if (data.aiBriefing) {
+    } else if (data.aiBriefing) {
+      // AI-enriched data: v2 renderer
       renderV2(target, data);
-      return;
+    } else {
+      // Otherwise fall back to v1 renderer
+      renderV1(target, data);
     }
 
-    // Otherwise fall back to v1 renderer
-    renderV1(target, data);
+    // Attach the manual "rewrite" control to whichever card just rendered.
+    addRefreshButton(target);
   }
 
   function renderNoCycleDataEmptyState(target) {
@@ -867,14 +866,85 @@ window.PeakHer.Briefing = (function () {
     target.innerHTML = html;
   }
 
+  // ── Daily-brief persistence ───────────────────────────────────────
+  // The brief is cached per day so leaving and returning to the page does NOT
+  // regenerate it (which rewrote the text each time and ran a slow AI call).
+  // The refresh button forces a rewrite. New day = fresh brief automatically.
+
+  function todayStr() { return new Date().toISOString().split('T')[0]; }
+
+  function cacheKey() {
+    var u = (Store.getUser && Store.getUser()) || {};
+    return 'peakher_brief_' + (u.id || 'me') + '_' + todayStr();
+  }
+
+  function readCachedBrief() {
+    try {
+      var raw = localStorage.getItem(cacheKey());
+      if (!raw) return null;
+      var obj = JSON.parse(raw);
+      return (obj && obj.date === todayStr() && obj.data) ? obj.data : null;
+    } catch (e) { return null; }
+  }
+
+  function writeCachedBrief(data) {
+    try {
+      localStorage.setItem(cacheKey(), JSON.stringify({ date: todayStr(), data: data }));
+    } catch (e) { /* quota / private mode — non-fatal */ }
+  }
+
+  function injectRefreshStyles() {
+    if (document.getElementById('briefing-refresh-styles')) return;
+    var css = [
+      '.briefing-card { position: relative; }',
+      '.briefing-refresh-btn { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-light, rgba(255,255,255,0.12)); background: var(--bg-elevated, rgba(255,255,255,0.06)); color: var(--text-secondary, #A0A0B0); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; z-index: 4; transition: color .15s, background .15s, transform .15s; }',
+      '.briefing-refresh-btn:hover { color: var(--teal, #00E5A0); background: var(--bg-card, rgba(255,255,255,0.12)); }',
+      '.briefing-refresh-btn:active { transform: scale(0.92); }',
+      '.briefing-refresh-btn svg { width: 16px; height: 16px; }',
+      '.briefing-refresh-btn.spinning svg { animation: briefing-spin 0.8s linear infinite; }',
+      '@keyframes briefing-spin { to { transform: rotate(360deg); } }'
+    ].join('\n');
+    var s = document.createElement('style');
+    s.id = 'briefing-refresh-styles';
+    s.textContent = css;
+    document.head.appendChild(s);
+  }
+
+  function addRefreshButton(target) {
+    injectRefreshStyles();
+    var card = target.querySelector('.briefing-card');
+    if (!card || card.querySelector('.briefing-refresh-btn')) return;
+    var btn = document.createElement('button');
+    btn.className = 'briefing-refresh-btn';
+    btn.type = 'button';
+    btn.title = 'Rewrite my brief';
+    btn.setAttribute('aria-label', 'Rewrite my brief');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>';
+    btn.addEventListener('click', function () {
+      btn.classList.add('spinning');
+      btn.disabled = true;
+      refresh(true);
+    });
+    card.appendChild(btn);
+  }
+
   // ── Init ──────────────────────────────────────────────────────────
 
-  function init() {
+  function init(opts) {
+    opts = opts || {};
+
+    // Use today's cached brief unless a rewrite was explicitly requested.
+    if (!opts.force) {
+      var cached = readCachedBrief();
+      if (cached) { render(cached); return; }
+    }
+
     if (API.isLoggedIn() && typeof API.getBriefing === 'function') {
       renderLoading();
       API.getBriefing()
         .then(function (serverData) {
           if (serverData && (serverData.phase || serverData.phaseName)) {
+            writeCachedBrief(serverData);
             render(serverData);
           } else {
             render(buildLocalBriefing());
@@ -888,8 +958,10 @@ window.PeakHer.Briefing = (function () {
     }
   }
 
-  function refresh() {
-    init();
+  // refresh(true) forces a rewrite (refresh button); refresh() with no arg
+  // (called on navigation / after check-in) renders the cached brief if present.
+  function refresh(force) {
+    init({ force: force === true });
   }
 
   // ── Public API ────────────────────────────────────────────────────
