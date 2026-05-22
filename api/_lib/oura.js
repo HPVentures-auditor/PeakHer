@@ -4,7 +4,7 @@
  * Env vars required:
  *   OURA_CLIENT_ID
  *   OURA_CLIENT_SECRET
- *   OURA_REDIRECT_URI  (e.g. https://peakher.ai/api/wearable/oura/callback)
+ *   OURA_REDIRECT_URI  (e.g. https://peakher.ai/api/wearable/callback)
  *
  * Oura API v2 docs: https://cloud.ouraring.com/v2/docs
  */
@@ -18,7 +18,7 @@ function getConfig() {
   return {
     clientId: process.env.OURA_CLIENT_ID,
     clientSecret: process.env.OURA_CLIENT_SECRET,
-    redirectUri: process.env.OURA_REDIRECT_URI || 'https://peakher.ai/api/wearable/oura/callback'
+    redirectUri: process.env.OURA_REDIRECT_URI || 'https://peakher.ai/api/wearable/callback'
   };
 }
 

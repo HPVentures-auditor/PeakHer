@@ -1377,6 +1377,9 @@
   <!-- Week Ahead Screen -->
   <div id="screen-weekahead" class="screen"></div>
 
+  <!-- Plan My Week Screen -->
+  <div id="screen-plan" class="screen"></div>
+
 </main>
 
 <!-- Bottom Tab Navigation -->
@@ -1410,6 +1413,16 @@
     </svg>
     Week Ahead
   </a>
+  <a href="#plan" class="tab-link" data-tab="plan">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+      <path d="M9 16l2 2 4-4"/>
+    </svg>
+    Plan
+  </a>
   <a href="#" class="tab-link" data-tab="settings" id="settingsTab" onclick="PeakHer.Settings.open(); return false;">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="3"/>
@@ -1426,9 +1439,9 @@
 <!-- App Modules -->
 <script src="js/utils.js?v=20260427c"></script>
 <script src="js/store.js?v=20260427c"></script>
-<script src="js/api.js?v=20260427c"></script>
+<script src="js/api.js?v=20260522a"></script>
 <script src="js/cycle.js?v=20260427c"></script>
-<script src="js/router.js?v=20260427c"></script>
+<script src="js/router.js?v=20260522a"></script>
 <script src="js/charts.js?v=20260427c"></script>
 <script src="js/onboarding.js?v=20260427c"></script>
 <script src="js/checkin.js?v=20260427c"></script>
@@ -1436,7 +1449,8 @@
 <script src="js/history.js?v=20260427c"></script>
 <script src="js/patterns.js?v=20260428a"></script>
 <script src="js/weekahead.js?v=20260427c"></script>
-<script src="js/settings.js?v=20260427c"></script>
+<script src="js/planner.js?v=20260522a"></script>
+<script src="js/settings.js?v=20260522a"></script>
 
 <!-- Global Helpers -->
 <script>
@@ -1489,6 +1503,7 @@ window.PeakHer.applyPhaseAccent = function() {
     safeInit('History', function() { PeakHer.History.init(); });
     safeInit('Patterns', function() { PeakHer.Patterns.init(); });
     safeInit('WeekAhead', function() { PeakHer.WeekAhead.init(); });
+    safeInit('Planner', function() { PeakHer.Planner.init(); });
     safeInit('Settings', function() { PeakHer.Settings.init(); });
     safeInit('Router', function() { PeakHer.Router.init(); });
 

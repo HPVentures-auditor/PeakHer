@@ -40,22 +40,29 @@ module.exports = async function handler(req, res) {
         updated_at = now()
     `;
 
-    // Trigger initial sync immediately
+    // Trigger initial sync immediately so events appear right after connecting.
+    // syncCalendarForUser lives in ../calendar/sync (NOT in the _lib helper) —
+    // the previous require pointed at the wrong module so this never ran.
+    var syncFailed = false;
     try {
-      var { syncCalendarForUser } = require('../_lib/google-calendar');
-      if (typeof syncCalendarForUser === 'function') {
-        await syncCalendarForUser(userId, sql);
-      }
+      var { syncCalendarForUser } = require('./sync');
+      await syncCalendarForUser(userId, sql);
     } catch (syncErr) {
-      // Non-fatal — cron will catch up
-      console.error('Initial sync after connect:', syncErr.message);
+      syncFailed = true;
+      console.error('Initial calendar sync after connect failed:', syncErr.message);
+      // Surface the failure on the connection so the UI / cron can see it.
+      await sql`
+        UPDATE calendar_connections SET sync_status = 'error', updated_at = now()
+        WHERE user_id = ${userId} AND provider = 'google'
+      `.catch(function () {});
     }
 
-    // Redirect based on source
+    // Redirect based on source. sync=error means the calendar linked but the
+    // first event pull failed (most often: Calendar API disabled in GCP).
     if (source === 'native') {
-      return res.redirect('peakher://calendar-connected');
+      return res.redirect('peakher://calendar-connected' + (syncFailed ? '?sync=error' : ''));
     }
-    return res.redirect('/app/#settings?calendar=connected');
+    return res.redirect('/app/#settings?calendar=connected' + (syncFailed ? '&sync=error' : ''));
   } catch (err) {
     console.error('Calendar callback error:', err.message);
     // Redirect based on source from query (fallback since state decode failed)

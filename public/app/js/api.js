@@ -604,6 +604,15 @@ window.PeakHer.API = (function () {
     return request('GET', '/wearable/data' + qs);
   }
 
+  // ── Weekly planner ─────────────────────────────────────────────────
+
+  // tasks: array of strings (or { task, durationMin }). weekStart optional 'YYYY-MM-DD'.
+  function getWeeklyPlan(tasks, weekStart) {
+    var body = { tasks: tasks };
+    if (weekStart) body.weekStart = weekStart;
+    return request('POST', '/weekly-plan', body);
+  }
+
   // ── Public API ───────────────────────────────────────────────────
 
   return {
@@ -645,6 +654,7 @@ window.PeakHer.API = (function () {
     startWearableAuth: startWearableAuth,
     disconnectWearable: disconnectWearable,
     syncWearable: syncWearable,
-    getWearableData: getWearableData
+    getWearableData: getWearableData,
+    getWeeklyPlan: getWeeklyPlan
   };
 })();
