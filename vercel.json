@@ -4,7 +4,7 @@
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],
   "functions": {
-    "api/briefing.js": { "maxDuration": 60 },
+    "api/briefing.js": { "maxDuration": 90 },
     "api/email-brief.js": { "maxDuration": 60 },
     "api/readiness.js": { "maxDuration": 30 },
     "api/task-sort.js": { "maxDuration": 30 },

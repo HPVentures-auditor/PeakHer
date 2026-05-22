@@ -1213,9 +1213,12 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   try {
     var aiResult = await sendMessage({
       system: systemPrompt,
-      userMessage: userMessage,
-      maxTokens: 3000,
-      temperature: 0.7
+      // The structured briefing JSON is large (every section + calendar
+      // intelligence per meeting). 3000 truncated it mid-string, so JSON.parse
+      // failed and the whole brief silently fell back to greeting-only.
+      maxTokens: 6000,
+      temperature: 0.7,
+      userMessage: userMessage
     });
 
     if (aiResult && !aiResult.skipped && aiResult.content) {
@@ -1229,6 +1232,41 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   } catch (aiErr) {
     console.error('Briefing AI generation error:', aiErr.message);
     // Fall through to static fallback
+  }
+
+  // ── Map the AI's structured shape into what the v3 renderer expects ──
+  // AI returns movement.do_this/skip_this objects + nutrition.eat/ease_up;
+  // the renderer reads movementDoSkip.doThis/skipThis and nutritionEatEase.eat/ease
+  // as arrays of strings. Without this bridge the do/skip cards render empty.
+  function mapMovementDoSkip(m) {
+    if (!m) return null;
+    var out = { doThis: [], skipThis: [] };
+    if (m.do_this) {
+      out.doThis = [(m.do_this.name || '')
+        + (m.do_this.duration ? ' (' + m.do_this.duration + ')' : '')
+        + (m.do_this.why ? ': ' + m.do_this.why : '')];
+    }
+    if (m.skip_this) {
+      out.skipThis = [(m.skip_this.name || '') + (m.skip_this.why ? ': ' + m.skip_this.why : '')];
+    }
+    return out;
+  }
+  function mapNutritionEatEase(n) {
+    if (!n) return null;
+    function fmt(i) { return (i.emoji ? i.emoji + ' ' : '') + (i.food || '') + (i.why ? ': ' + i.why : ''); }
+    return {
+      eat: Array.isArray(n.eat) ? n.eat.map(fmt) : [],
+      ease: Array.isArray(n.ease_up) ? n.ease_up.map(fmt) : []
+    };
+  }
+  function mapFastingIntelligence(f) {
+    if (!f) return null;
+    var eatStart = null, eatEnd = null;
+    if (f.eating_window) {
+      var p = String(f.eating_window).split(/\s+to\s+/i);
+      if (p.length === 2) { eatStart = p[0].trim(); eatEnd = p[1].trim(); }
+    }
+    return { protocol: f.protocol || null, eatStart: eatStart, eatEnd: eatEnd, explanation: f.why || null };
   }
 
   // Build the static fallback content
@@ -1277,9 +1315,9 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
     dotGreeting: dotGreeting,
     hormoneDownload: aiBriefing ? aiBriefing.hormone_download : null,
     calendarIntelligence: aiBriefing ? (aiBriefing.calendar_intelligence || null) : null,
-    movementDoSkip: aiBriefing ? aiBriefing.movement : null,
-    nutritionEatEase: aiBriefing ? aiBriefing.nutrition : null,
-    fastingIntelligence: aiBriefing ? aiBriefing.fasting : null,
+    movementDoSkip: mapMovementDoSkip(aiBriefing ? aiBriefing.movement : null),
+    nutritionEatEase: mapNutritionEatEase(aiBriefing ? aiBriefing.nutrition : null),
+    fastingIntelligence: mapFastingIntelligence(aiBriefing ? aiBriefing.fasting : null),
     focusSection: aiBriefing ? aiBriefing.focus : null,
     emotionalWeather: aiBriefing ? aiBriefing.emotional_weather : null,
     keyInsight: aiBriefing ? aiBriefing.key_insight : null,
