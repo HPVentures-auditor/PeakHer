@@ -15,15 +15,16 @@ window.PeakHer.Planner = (function () {
   var container = null;
   var lastTasksText = '';
 
-  // Canonical phase colors (see CLAUDE.md brand system).
+  // Phase colors — match the app's live theme tokens (index.html :root),
+  // so the planner looks consistent with the rest of PeakHer.
   var PHASE_COLORS = {
-    Restore: '#9B30FF',
+    Restore: '#C77DBA',
     Rise:    '#00E5A0',
     Peak:    '#FFD700',
-    Sustain: '#FF6B6B'
+    Sustain: '#8B7BDB'
   };
 
-  function phaseColor(label) { return PHASE_COLORS[label] || '#2d8a8a'; }
+  function phaseColor(label) { return PHASE_COLORS[label] || '#00E5A0'; }
 
   // ── Styles ──────────────────────────────────────────────────────────
 
@@ -31,36 +32,37 @@ window.PeakHer.Planner = (function () {
     if (document.getElementById('planner-styles')) return;
     var css = [
       '#screen-plan .pl-wrap { padding: 24px 20px calc(24px + var(--bottom-nav-height)); max-width: 640px; margin: 0 auto; }',
-      '#screen-plan .pl-h1 { font-size: 26px; font-weight: 800; color: var(--text-dark); margin: 0 0 4px; }',
-      '#screen-plan .pl-sub { font-size: 15px; color: var(--text-muted); margin: 0 0 20px; line-height: 1.5; }',
-      '#screen-plan .pl-card { background: var(--card-bg, #fff); border: 1px solid var(--border, #eee); border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(10,22,40,0.04); }',
-      '#screen-plan .pl-label { font-size: 13px; font-weight: 700; color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }',
-      '#screen-plan textarea.pl-input { width: 100%; min-height: 150px; border: 1px solid var(--border, #ddd); border-radius: 12px; padding: 12px 14px; font: inherit; font-size: 15px; line-height: 1.6; resize: vertical; box-sizing: border-box; color: var(--text-dark); background: var(--bg, #fff); }',
+      '#screen-plan .pl-h1 { font-size: 26px; font-weight: 800; color: var(--text-primary); margin: 0 0 4px; }',
+      '#screen-plan .pl-sub { font-size: 15px; color: var(--text-secondary); margin: 0 0 20px; line-height: 1.5; }',
+      '#screen-plan .pl-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.25); }',
+      '#screen-plan .pl-label { font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }',
+      '#screen-plan textarea.pl-input { width: 100%; min-height: 150px; border: 1px solid var(--border-light); border-radius: 12px; padding: 12px 14px; font: inherit; font-size: 15px; line-height: 1.6; resize: vertical; box-sizing: border-box; color: var(--text-primary); background: var(--bg-elevated); }',
+      '#screen-plan textarea.pl-input::placeholder { color: var(--gray-text); }',
       '#screen-plan textarea.pl-input:focus { outline: none; border-color: var(--teal); }',
-      '#screen-plan .pl-hint { font-size: 13px; color: var(--text-muted); margin-top: 8px; }',
+      '#screen-plan .pl-hint { font-size: 13px; color: var(--text-secondary); margin-top: 8px; }',
       '#screen-plan .pl-hint a { color: var(--teal); font-weight: 600; cursor: pointer; }',
-      '#screen-plan .pl-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--teal); color: #fff; border: none; border-radius: 12px; padding: 13px 22px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity .15s; }',
+      '#screen-plan .pl-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--teal); color: #0a0a12; border: none; border-radius: 12px; padding: 13px 22px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity .15s; }',
       '#screen-plan .pl-btn:hover { opacity: .9; }',
       '#screen-plan .pl-btn:disabled { opacity: .5; cursor: default; }',
       '#screen-plan .pl-btn-ghost { background: transparent; color: var(--teal); border: 1px solid var(--teal); }',
       '#screen-plan .pl-week { display: flex; gap: 6px; margin-bottom: 18px; }',
-      '#screen-plan .pl-day { flex: 1; text-align: center; border-radius: 10px; padding: 8px 2px; background: var(--card-bg,#fff); border: 1px solid var(--border,#eee); }',
-      '#screen-plan .pl-day-wd { font-size: 11px; font-weight: 700; color: var(--text-muted); }',
+      '#screen-plan .pl-day { flex: 1; text-align: center; border-radius: 10px; padding: 8px 2px; background: var(--bg-card); border: 1px solid var(--border-light); }',
+      '#screen-plan .pl-day-wd { font-size: 11px; font-weight: 700; color: var(--text-secondary); }',
       '#screen-plan .pl-day-dot { width: 10px; height: 10px; border-radius: 50%; margin: 5px auto 3px; }',
       '#screen-plan .pl-day-ph { font-size: 10px; font-weight: 700; }',
-      '#screen-plan .pl-dot-summary { background: linear-gradient(135deg, rgba(45,138,138,0.10), rgba(232,116,97,0.10)); border: 1px solid var(--border,#eee); border-radius: 16px; padding: 16px 18px; margin-bottom: 18px; font-size: 15px; line-height: 1.55; color: var(--text-dark); }',
+      '#screen-plan .pl-dot-summary { background: linear-gradient(135deg, rgba(0,229,160,0.12), rgba(232,116,97,0.12)); border: 1px solid var(--border-light); border-radius: 16px; padding: 16px 18px; margin-bottom: 18px; font-size: 15px; line-height: 1.55; color: var(--text-primary); }',
       '#screen-plan .pl-dot-summary .pl-dot-name { font-weight: 800; color: var(--teal); }',
       '#screen-plan .pl-day-group { margin-bottom: 14px; }',
-      '#screen-plan .pl-day-head { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--text-dark); font-size: 15px; margin-bottom: 8px; padding-left: 2px; }',
-      '#screen-plan .pl-day-head .pl-chip { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; padding: 2px 8px; border-radius: 999px; color: #1a1a1a; }',
-      '#screen-plan .pl-task { border-left: 3px solid var(--teal); background: var(--card-bg,#fff); border-radius: 0 12px 12px 0; padding: 12px 14px; margin-bottom: 8px; box-shadow: 0 1px 6px rgba(10,22,40,0.04); }',
+      '#screen-plan .pl-day-head { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--text-primary); font-size: 15px; margin-bottom: 8px; padding-left: 2px; }',
+      '#screen-plan .pl-day-head .pl-chip { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; padding: 2px 8px; border-radius: 999px; color: #12121A; }',
+      '#screen-plan .pl-task { border-left: 3px solid var(--teal); background: var(--bg-card); border-radius: 0 12px 12px 0; padding: 12px 14px; margin-bottom: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.2); }',
       '#screen-plan .pl-task-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }',
-      '#screen-plan .pl-task-name { font-weight: 700; color: var(--text-dark); font-size: 15px; }',
+      '#screen-plan .pl-task-name { font-weight: 700; color: var(--text-primary); font-size: 15px; }',
       '#screen-plan .pl-task-time { font-size: 13px; font-weight: 700; color: var(--teal); white-space: nowrap; }',
-      '#screen-plan .pl-task-reason { font-size: 13px; color: var(--text-muted); margin-top: 4px; line-height: 1.45; }',
-      '#screen-plan .pl-unsched { border-left-color: #c0392b; }',
-      '#screen-plan .pl-error { background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.3); color: #c0392b; border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.5; }',
-      '#screen-plan .pl-shimmer { height: 64px; border-radius: 12px; margin-bottom: 10px; background: linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 37%, rgba(0,0,0,0.04) 63%); background-size: 400% 100%; animation: pl-sh 1.4s ease infinite; }',
+      '#screen-plan .pl-task-reason { font-size: 13px; color: var(--text-secondary); margin-top: 4px; line-height: 1.45; }',
+      '#screen-plan .pl-unsched { border-left-color: #FF6B8A; }',
+      '#screen-plan .pl-error { background: rgba(255,107,138,0.12); border: 1px solid rgba(255,107,138,0.35); color: #FF6B8A; border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.5; }',
+      '#screen-plan .pl-shimmer { height: 64px; border-radius: 12px; margin-bottom: 10px; background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 37%, rgba(255,255,255,0.04) 63%); background-size: 400% 100%; animation: pl-sh 1.4s ease infinite; }',
       '@keyframes pl-sh { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }'
     ].join('\n');
     var style = document.createElement('style');
@@ -206,7 +208,7 @@ window.PeakHer.Planner = (function () {
 
     var unschedHtml = '';
     if (unscheduled.length) {
-      unschedHtml = '<div class="pl-day-group"><div class="pl-day-head" style="color:#c0392b;">Didn’t place this week</div>'
+      unschedHtml = '<div class="pl-day-group"><div class="pl-day-head" style="color:#FF6B8A;">Didn’t place this week</div>'
         + unscheduled.map(function (u) {
             return '<div class="pl-task pl-unsched"><div class="pl-task-name">' + escapeHtml(u.task) + '</div>'
               + (u.reason ? '<div class="pl-task-reason">' + escapeHtml(u.reason) + '</div>' : '') + '</div>';
