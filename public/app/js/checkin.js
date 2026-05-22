@@ -745,8 +745,20 @@ window.PeakHer.Checkin = (function () {
     Store.setCheckin(today, data);
     Store.updateStreak(today);
 
-    // Sync to server
-    PeakHer.API.saveCheckin(data);
+    // Sync to server, then force the brief to rewrite so it reflects this fresh
+    // check-in. (Plain navigation still renders the cached brief; only a new
+    // check-in or the refresh button triggers a rewrite.)
+    var saved = PeakHer.API.saveCheckin(data);
+    function rewriteBrief() {
+      if (window.PeakHer && window.PeakHer.Briefing && window.PeakHer.Briefing.refresh) {
+        window.PeakHer.Briefing.refresh(true);
+      }
+    }
+    if (saved && typeof saved.then === 'function') {
+      saved.then(rewriteBrief).catch(rewriteBrief);
+    } else {
+      rewriteBrief();
+    }
 
     showPostSubmit();
   }

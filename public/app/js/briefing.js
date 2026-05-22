@@ -180,29 +180,45 @@ window.PeakHer.Briefing = (function () {
       'background:' + cfg.bg + ';color:' + cfg.color + ';">' + cfg.label + '</span>';
   }
 
-  // Reusable two-column Do This / Skip This card (matches Movement card style).
-  // `ds` = { doThis: [str], skipThis: [str] }.
-  function doSkipCardHtml(iconEntity, title, ds, color) {
+  // Reusable COLLAPSIBLE accordion section with a two-column Do/Skip (or
+  // Eat/Ease) grid in the body. Collapsed by default (matches the brief's other
+  // accordion sections). `ds` provides the lists under opts.leftKey/rightKey.
+  function doSkipSectionHtml(iconEntity, title, ds, key, opts) {
     if (!ds) return '';
-    var doItems = Array.isArray(ds.doThis) ? ds.doThis : (ds.doThis ? [ds.doThis] : []);
-    var skipItems = Array.isArray(ds.skipThis) ? ds.skipThis : (ds.skipThis ? [ds.skipThis] : []);
-    if (doItems.length === 0 && skipItems.length === 0) return '';
-    var html = '<div class="briefing-v3-section">';
-    html += '<div class="briefing-v3-section-title" style="border-left:3px solid ' + color + ';padding-left:12px;">' + iconEntity + ' ' + escapeHtml(title) + '</div>';
+    opts = opts || {};
+    var leftLabel = opts.leftLabel || 'Do This';
+    var rightLabel = opts.rightLabel || 'Skip This';
+    var leftKey = opts.leftKey || 'doThis';
+    var rightKey = opts.rightKey || 'skipThis';
+    var rightBg = opts.rightBg || '#fef2f2';
+    var rightColor = opts.rightColor || '#dc2626';
+    var leftItems = Array.isArray(ds[leftKey]) ? ds[leftKey] : (ds[leftKey] ? [ds[leftKey]] : []);
+    var rightItems = Array.isArray(ds[rightKey]) ? ds[rightKey] : (ds[rightKey] ? [ds[rightKey]] : []);
+    if (leftItems.length === 0 && rightItems.length === 0) return '';
+
+    var sectionId = 'briefing-cat-' + key;
+    var html = '<div class="briefing-section">';
+    html += '<button class="briefing-section-toggle" data-section="' + sectionId + '" type="button">';
+    html += '<span class="section-icon">' + iconEntity + '</span>';
+    html += '<span>' + escapeHtml(title) + '</span>';
+    html += '<span class="section-arrow">▼</span>';
+    html += '</button>';
+    html += '<div class="briefing-section-body briefing-doskip-body" id="' + sectionId + '">';
+    html += '<div class="briefing-section-content">';
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
-    html += '<div style="background:#e6f9f0;border-radius:10px;padding:14px;">';
-    html += '<div style="font-size:13px;font-weight:700;color:#059669;margin-bottom:6px;">Do This</div>';
-    for (var d = 0; d < doItems.length; d++) {
-      html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(doItems[d]) + '</div>';
+    html += '<div style="background:#e6f9f0;border-radius:10px;padding:12px;">';
+    html += '<div style="font-size:13px;font-weight:700;color:#059669;margin-bottom:6px;">' + leftLabel + '</div>';
+    for (var d = 0; d < leftItems.length; d++) {
+      html += '<div style="font-size:13px;color:#374151;margin-bottom:4px;line-height:1.4;">' + escapeHtml(leftItems[d]) + '</div>';
     }
     html += '</div>';
-    html += '<div style="background:#fef2f2;border-radius:10px;padding:14px;">';
-    html += '<div style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:6px;">Skip This</div>';
-    for (var s = 0; s < skipItems.length; s++) {
-      html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(skipItems[s]) + '</div>';
+    html += '<div style="background:' + rightBg + ';border-radius:10px;padding:12px;">';
+    html += '<div style="font-size:13px;font-weight:700;color:' + rightColor + ';margin-bottom:6px;">' + rightLabel + '</div>';
+    for (var s = 0; s < rightItems.length; s++) {
+      html += '<div style="font-size:13px;color:#374151;margin-bottom:4px;line-height:1.4;">' + escapeHtml(rightItems[s]) + '</div>';
     }
     html += '</div>';
-    html += '</div></div>';
+    html += '</div></div></div></div>';
     return html;
   }
 
@@ -400,80 +416,15 @@ window.PeakHer.Briefing = (function () {
       html += '</div>';
     }
 
-    // ── Work & Career Do/Skip ──
-    if (data.workDoSkip) {
-      html += doSkipCardHtml('&#128188;', 'Work & Career', data.workDoSkip, color);
-    }
-
-    // ── Movement Do/Skip ──
-    if (data.movementDoSkip) {
-      var mv = data.movementDoSkip;
-      html += '<div class="briefing-v3-section">';
-      html += '<div class="briefing-v3-section-title" style="border-left:3px solid ' + color + ';padding-left:12px;">&#127947;&#65039; Movement</div>';
-      if (mv.summary) {
-        html += '<p class="briefing-v3-text">' + escapeHtml(mv.summary) + '</p>';
-      }
-      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
-      // Do This card
-      html += '<div style="background:#e6f9f0;border-radius:10px;padding:14px;">';
-      html += '<div style="font-size:13px;font-weight:700;color:#059669;margin-bottom:6px;">Do This</div>';
-      if (mv.doThis) {
-        var doItems = Array.isArray(mv.doThis) ? mv.doThis : [mv.doThis];
-        for (var d = 0; d < doItems.length; d++) {
-          html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(doItems[d]) + '</div>';
-        }
-      }
-      html += '</div>';
-      // Skip This card
-      html += '<div style="background:#fef2f2;border-radius:10px;padding:14px;">';
-      html += '<div style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:6px;">Skip This</div>';
-      if (mv.skipThis) {
-        var skipItems = Array.isArray(mv.skipThis) ? mv.skipThis : [mv.skipThis];
-        for (var s = 0; s < skipItems.length; s++) {
-          html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(skipItems[s]) + '</div>';
-        }
-      }
-      html += '</div>';
-      html += '</div>';
-      html += '</div>';
-    }
-
-    // ── Nutrition Eat/Ease ──
-    if (data.nutritionEatEase) {
-      var nut = data.nutritionEatEase;
-      html += '<div class="briefing-v3-section">';
-      html += '<div class="briefing-v3-section-title" style="border-left:3px solid ' + color + ';padding-left:12px;">&#129367; Nutrition</div>';
-      if (nut.summary) {
-        html += '<p class="briefing-v3-text">' + escapeHtml(nut.summary) + '</p>';
-      }
-      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
-      // Eat column
-      html += '<div style="background:#e6f9f0;border-radius:10px;padding:14px;">';
-      html += '<div style="font-size:13px;font-weight:700;color:#059669;margin-bottom:6px;">Eat</div>';
-      if (nut.eat) {
-        var eatItems = Array.isArray(nut.eat) ? nut.eat : [nut.eat];
-        for (var e = 0; e < eatItems.length; e++) {
-          html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(eatItems[e]) + '</div>';
-        }
-      }
-      html += '</div>';
-      // Ease column
-      html += '<div style="background:#fef9e7;border-radius:10px;padding:14px;">';
-      html += '<div style="font-size:13px;font-weight:700;color:#d97706;margin-bottom:6px;">Ease Up On</div>';
-      if (nut.ease) {
-        var easeItems = Array.isArray(nut.ease) ? nut.ease : [nut.ease];
-        for (var ea = 0; ea < easeItems.length; ea++) {
-          html += '<div style="font-size:13px;color:#374151;margin-bottom:3px;">' + escapeHtml(easeItems[ea]) + '</div>';
-        }
-      }
-      html += '</div>';
-      html += '</div>';
-      html += '</div>';
-    }
-
-    // ── Relationships Do/Skip ──
-    if (data.relationshipsDoSkip) {
-      html += doSkipCardHtml('&#128156;', 'Relationships', data.relationshipsDoSkip, color);
+    // ── Category Do/Skip (collapsible accordion sections) ──
+    var catHtml = '';
+    catHtml += doSkipSectionHtml('&#128188;', 'Work & Career', data.workDoSkip, 'work');
+    catHtml += doSkipSectionHtml('&#127947;&#65039;', 'Movement', data.movementDoSkip, 'movement');
+    catHtml += doSkipSectionHtml('&#129367;', 'Nutrition', data.nutritionEatEase, 'nutrition',
+      { leftLabel: 'Eat', rightLabel: 'Ease Up On', leftKey: 'eat', rightKey: 'ease', rightBg: '#fef9e7', rightColor: '#d97706' });
+    catHtml += doSkipSectionHtml('&#128156;', 'Relationships', data.relationshipsDoSkip, 'relationships');
+    if (catHtml) {
+      html += '<div class="briefing-sections">' + catHtml + '</div>';
     }
 
     // ── Fasting Intelligence ──
@@ -902,7 +853,11 @@ window.PeakHer.Briefing = (function () {
       '.briefing-refresh-btn:active { transform: scale(0.92); }',
       '.briefing-refresh-btn svg { width: 16px; height: 16px; }',
       '.briefing-refresh-btn.spinning svg { animation: briefing-spin 0.8s linear infinite; }',
-      '@keyframes briefing-spin { to { transform: rotate(360deg); } }'
+      '@keyframes briefing-spin { to { transform: rotate(360deg); } }',
+      // Do/Skip accordion bodies hold more than the default 600px cap and use
+      // an even (non-indented) padding so the two columns have room.
+      '.briefing-section-body.briefing-doskip-body.open { max-height: 2600px; }',
+      '.briefing-doskip-body .briefing-section-content { padding-left: 20px; padding-right: 20px; }'
     ].join('\n');
     var s = document.createElement('style');
     s.id = 'briefing-refresh-styles';
