@@ -211,12 +211,9 @@ window.PeakHer.Settings = (function () {
 
     // ── SMS Section ─────────────────────────────────────────────
     html += '<div class="ph-settings-section">';
-    html += '<h3>SMS Briefings <span style="display:inline-block;margin-left:8px;padding:3px 10px;border-radius:999px;background:rgba(255,215,0,0.15);color:#FFD700;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;vertical-align:middle;">Coming Soon</span></h3>';
-    html += '<p>Get your daily briefing + check in via text. Like having a coach in your pocket.</p>';
-    html += '<div style="margin-top:12px;padding:16px;border:1px dashed rgba(255,215,0,0.35);border-radius:12px;background:rgba(255,215,0,0.04);">';
-    html += '<div style="font-size:14px;color:var(--text-primary,#F0F0F5);font-weight:600;margin-bottom:4px;">We are getting ready to launch SMS.</div>';
-    html += '<div style="font-size:13px;color:var(--text-secondary,#A0A0B0);line-height:1.5;">Pending approval from our SMS provider. You will be able to receive Dot\'s daily brief and reply with a check-in straight from your phone. We will notify you the moment it is live.</div>';
-    html += '</div>';
+    html += '<h3>SMS Briefings</h3>';
+    html += '<p>Get Dot\'s daily briefing and check in by text. Like having a coach in your pocket.</p>';
+    html += '<div id="smsContent"><p style="color:var(--text-secondary,#A0A0B0);">Loading…</p></div>';
     html += '</div>'; // end section
 
     // ── Coach Voice Section ───────────────────────────────────────
@@ -365,12 +362,25 @@ window.PeakHer.Settings = (function () {
     var html = '';
 
     if (!smsSettings.hasPhone) {
-      // No phone: show add phone form
-      html += '<div class="ph-sms-status none">No phone number</div>';
+      // No phone: show compliant SMS opt-in form (A2P 10DLC requirements)
+      html += '<label for="smsPhoneInput" style="display:block;font-size:13px;font-weight:600;color:var(--text-primary,#F0F0F5);margin-bottom:6px;">Mobile number</label>';
       html += '<div class="ph-sms-input-row">';
-      html += '<input type="tel" id="smsPhoneInput" placeholder="+1 (555) 123-4567" maxlength="20" autocomplete="tel">';
-      html += '<button class="ph-sms-btn ph-sms-btn-primary" id="btnSendCode">Verify</button>';
+      html += '<input type="tel" id="smsPhoneInput" placeholder="+1 (555) 123-4567" maxlength="20" autocomplete="tel" style="flex:1;">';
       html += '</div>';
+
+      // What you'll receive + frequency + rates (message-type description)
+      html += '<div style="font-size:12.5px;line-height:1.6;color:var(--text-secondary,#A0A0B0);margin:4px 0 12px;">';
+      html += 'You\'ll receive a daily wellness &amp; performance briefing from Dot plus two-way check-in texts. Message frequency varies (typically 1-3 messages per day). Message and data rates may apply. Reply <strong>STOP</strong> to unsubscribe and <strong>HELP</strong> for help at any time.';
+      html += '</div>';
+
+      // Consent checkbox — intentionally NOT pre-checked (carrier requirement)
+      html += '<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12.5px;line-height:1.5;color:var(--text-primary,#F0F0F5);margin-bottom:14px;">';
+      html += '<input type="checkbox" id="smsConsent" style="margin-top:2px;width:18px;height:18px;flex:0 0 auto;accent-color:var(--teal,#00E5A0);">';
+      html += '<span>I agree to receive recurring automated daily wellness briefing and check-in text messages from PeakHer at the number above. Consent is not a condition of purchase. See our <a href="https://peakher.ai/terms" target="_blank" rel="noopener" style="color:var(--teal,#00E5A0);text-decoration:underline;">Terms</a> and <a href="https://peakher.ai/privacy" target="_blank" rel="noopener" style="color:var(--teal,#00E5A0);text-decoration:underline;">Privacy Policy</a>.</span>';
+      html += '</label>';
+
+      // Submit — clear language, disabled until consent is actively checked
+      html += '<button class="ph-sms-btn ph-sms-btn-primary" id="btnSendCode" style="width:100%;" disabled>Yes, text me my briefing</button>';
       html += '<div id="smsMessage"></div>';
     } else if (!smsSettings.phoneVerified) {
       // Phone added but not verified: show OTP form
@@ -457,10 +467,19 @@ window.PeakHer.Settings = (function () {
 
   function bindSmsEvents() {
     var sendCodeBtn = document.getElementById('btnSendCode');
+    var consentBox = document.getElementById('smsConsent');
+    // Submit stays disabled until the user actively checks the consent box.
+    if (sendCodeBtn && consentBox) {
+      sendCodeBtn.disabled = !consentBox.checked;
+      consentBox.addEventListener('change', function () {
+        sendCodeBtn.disabled = !consentBox.checked;
+      });
+    }
     if (sendCodeBtn) {
       sendCodeBtn.addEventListener('click', function () {
         var input = document.getElementById('smsPhoneInput');
         if (!input || !input.value.trim()) return showSmsMessage('Enter a phone number', true);
+        if (consentBox && !consentBox.checked) return showSmsMessage('Please check the consent box to continue', true);
         sendCodeBtn.disabled = true;
         sendCodeBtn.textContent = 'Sending...';
         API.addPhoneNumber(input.value.trim())
@@ -475,7 +494,7 @@ window.PeakHer.Settings = (function () {
           .catch(function (err) {
             showSmsMessage(err.message || 'Failed to send code', true);
             sendCodeBtn.disabled = false;
-            sendCodeBtn.textContent = 'Verify';
+            sendCodeBtn.textContent = 'Yes, text me my briefing';
           });
       });
     }
