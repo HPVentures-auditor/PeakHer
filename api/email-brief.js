@@ -38,16 +38,33 @@ function addDays(dateStr, n) {
   return formatDate(d);
 }
 
-function formatEventTime(isoStr) {
+// Format an event start time in the USER'S timezone. start_time is a
+// TIMESTAMPTZ (absolute UTC instant); .getHours() would render it in the
+// server's zone (UTC on Vercel), which is the timezone-mismatch bug. Intl
+// with an explicit timeZone gives the correct local wall-clock time.
+function formatEventTime(isoStr, tz) {
   if (!isoStr) return '';
   var d = new Date(isoStr);
-  var hours = d.getHours();
-  var minutes = d.getMinutes();
-  var ampm = hours >= 12 ? 'PM' : 'AM';
-  var h = hours % 12;
-  if (h === 0) h = 12;
-  var m = minutes < 10 ? '0' + minutes : '' + minutes;
-  return h + ':' + m + ' ' + ampm;
+  if (isNaN(d.getTime())) return '';
+  var opts = { hour: 'numeric', minute: '2-digit', hour12: true };
+  try {
+    opts.timeZone = tz || 'America/New_York';
+    return new Intl.DateTimeFormat('en-US', opts).format(d);
+  } catch (e) {
+    // Invalid tz string — fall back to the default zone.
+    opts.timeZone = 'America/New_York';
+    return new Intl.DateTimeFormat('en-US', opts).format(d);
+  }
+}
+
+// The user's LOCAL calendar date (YYYY-MM-DD) for a given instant. 'en-CA'
+// formats as ISO date; timeZone converts to the user's local day.
+function localDateInTz(date, tz) {
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: tz || 'America/New_York' }).format(date);
+  } catch (e) {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(date);
+  }
 }
 
 function formatDatePretty(dateStr) {
@@ -199,7 +216,7 @@ function buildEmailAIPrompt(phase, cycleDay, cycleLength, userName, todayEvents,
     parts.push('TODAY\'S CALENDAR:');
     for (var i = 0; i < todayEvents.length; i++) {
       var ev = todayEvents[i];
-      var timeStr = ev.is_all_day ? 'All day' : formatEventTime(ev.start_time);
+      var timeStr = ev.local_time || (ev.is_all_day ? 'All day' : formatEventTime(ev.start_time));
       parts.push('- ' + timeStr + ': ' + ev.title);
     }
     parts.push('');
@@ -687,14 +704,17 @@ module.exports = async function handler(req, res) {
   var sql = getDb();
 
   try {
-    var today = new Date().toISOString().split('T')[0];
-
     // 1. Fetch user profile
     var users = await sql`
-      SELECT id, name, email, personas FROM users WHERE id = ${userId} LIMIT 1
+      SELECT id, name, email, personas, sms_timezone FROM users WHERE id = ${userId} LIMIT 1
     `;
     if (users.length === 0) return sendError(res, 404, 'User not found');
     var user = users[0];
+
+    // Resolve the user's timezone, then compute "today" as their LOCAL calendar
+    // date — not the server's UTC date (Vercel runs in UTC).
+    var tz = user.sms_timezone || 'America/New_York';
+    var today = localDateInTz(new Date(), tz);
 
     // 2. Fetch cycle profile
     var profiles = await sql`
@@ -723,19 +743,24 @@ module.exports = async function handler(req, res) {
     `;
     var todayCheckin = todayCheckins.length > 0 ? todayCheckins[0] : null;
 
-    // 5. Fetch today's calendar events
-    var todayStart = today + 'T00:00:00Z';
-    var todayEnd = today + 'T23:59:59Z';
+    // 5. Fetch today's calendar events — matched on the user's LOCAL calendar
+    // day (start_time is TIMESTAMPTZ; compare its date in the user's zone).
     var todayEvents = [];
     try {
       todayEvents = await sql`
         SELECT title, start_time, end_time, event_type, estimated_importance, attendee_count, is_all_day
         FROM calendar_events
         WHERE user_id = ${userId}
-          AND start_time >= ${todayStart}
-          AND start_time <= ${todayEnd}
+          AND (start_time AT TIME ZONE ${tz})::date = ${today}::date
         ORDER BY start_time ASC
       `;
+      // Pre-format each start time in the user's timezone so every downstream
+      // consumer (AI prompt + HTML fallback) renders the correct local time.
+      for (var ei = 0; ei < todayEvents.length; ei++) {
+        todayEvents[ei].local_time = todayEvents[ei].is_all_day
+          ? 'All day'
+          : formatEventTime(todayEvents[ei].start_time, tz);
+      }
     } catch (calErr) {
       console.error('Calendar events fetch warning:', calErr.message);
     }
@@ -772,7 +797,7 @@ module.exports = async function handler(req, res) {
       aiContent.calendarItems = todayEvents.map(function(ev) {
         return {
           title: ev.title,
-          time: ev.is_all_day ? 'All day' : formatEventTime(ev.start_time),
+          time: ev.local_time || (ev.is_all_day ? 'All day' : formatEventTime(ev.start_time)),
           energyTag: 'Neutral',
           advice: 'Check your briefing in the app for full phase-specific guidance.'
         };
@@ -840,6 +865,7 @@ module.exports.getPhaseMapName = getPhaseMapName;
 module.exports.PHASE_SUBJECTS = PHASE_SUBJECTS;
 module.exports.PHASE_DESIGN = PHASE_DESIGN;
 module.exports.formatEventTime = formatEventTime;
+module.exports.localDateInTz = localDateInTz;
 module.exports.parseDate = parseDate;
 module.exports.formatDate = formatDate;
 module.exports.addDays = addDays;

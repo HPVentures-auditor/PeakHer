@@ -34,13 +34,16 @@ module.exports = async function handler(req, res) {
   var sql = getDb();
 
   try {
-    var today = new Date().toISOString().split('T')[0];
-
     // 1. Fetch user profile
     var users = await sql`
-      SELECT name, personas, lifestyle FROM users WHERE id = ${userId} LIMIT 1
+      SELECT name, personas, lifestyle, sms_timezone FROM users WHERE id = ${userId} LIMIT 1
     `;
     var user = users.length > 0 ? users[0] : { name: '', personas: [], lifestyle: {} };
+
+    // Resolve the user's timezone, then "today" as their LOCAL calendar date
+    // (the server runs in UTC).
+    var tz = (user && user.sms_timezone) || 'America/New_York';
+    var today = localDateInTz(new Date(), tz);
 
     // 2. Fetch cycle profile
     var profiles = await sql`
@@ -72,11 +75,9 @@ module.exports = async function handler(req, res) {
     `;
     var streak = streaks.length > 0 ? streaks[0] : { current_streak: 0, longest_streak: 0 };
 
-    // 6. Fetch today's and this week's calendar events
-    var todayStart = today + 'T00:00:00Z';
-    var todayEnd = today + 'T23:59:59Z';
+    // 6. Fetch today's and this week's calendar events, using a user-LOCAL day
+    // window (start_time is TIMESTAMPTZ; compare its date in the user's zone).
     var weekEndDate = addDays(today, 7);
-    var weekEnd = weekEndDate + 'T23:59:59Z';
 
     var calendarEvents = [];
     try {
@@ -84,10 +85,18 @@ module.exports = async function handler(req, res) {
         SELECT title, start_time, end_time, event_type, estimated_importance, attendee_count, is_all_day
         FROM calendar_events
         WHERE user_id = ${userId}
-          AND start_time >= ${todayStart}
-          AND start_time <= ${weekEnd}
+          AND (start_time AT TIME ZONE ${tz})::date >= ${today}::date
+          AND (start_time AT TIME ZONE ${tz})::date <= ${weekEndDate}::date
         ORDER BY start_time ASC
       `;
+      // Pre-compute each event's local date + formatted local time in the
+      // user's timezone, so day-classification and rendering are all correct.
+      for (var cei = 0; cei < calendarEvents.length; cei++) {
+        calendarEvents[cei].local_date = localDateInTz(new Date(calendarEvents[cei].start_time), tz);
+        calendarEvents[cei].local_time = calendarEvents[cei].is_all_day
+          ? 'All day'
+          : formatEventTime(calendarEvents[cei].start_time, tz);
+      }
     } catch (calErr) {
       // Calendar table may not exist yet — gracefully degrade
       console.error('Calendar events fetch warning:', calErr.message);
@@ -163,16 +172,31 @@ function addDays(dateStr, n) {
   return formatDate(d);
 }
 
-function formatEventTime(isoStr) {
+// Format an event start time in the USER'S timezone. start_time is TIMESTAMPTZ
+// (an absolute UTC instant); .getHours() would render it in the server's zone
+// (UTC on Vercel) — the timezone-mismatch bug. Intl with an explicit timeZone
+// gives the correct local wall-clock time.
+function formatEventTime(isoStr, tz) {
   if (!isoStr) return '';
   var d = new Date(isoStr);
-  var hours = d.getHours();
-  var minutes = d.getMinutes();
-  var ampm = hours >= 12 ? 'PM' : 'AM';
-  var h = hours % 12;
-  if (h === 0) h = 12;
-  var m = minutes < 10 ? '0' + minutes : '' + minutes;
-  return h + ':' + m + ' ' + ampm;
+  if (isNaN(d.getTime())) return '';
+  var opts = { hour: 'numeric', minute: '2-digit', hour12: true };
+  try {
+    opts.timeZone = tz || 'America/New_York';
+    return new Intl.DateTimeFormat('en-US', opts).format(d);
+  } catch (e) {
+    opts.timeZone = 'America/New_York';
+    return new Intl.DateTimeFormat('en-US', opts).format(d);
+  }
+}
+
+// The user's LOCAL calendar date (YYYY-MM-DD) for a given instant.
+function localDateInTz(date, tz) {
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: tz || 'America/New_York' }).format(date);
+  } catch (e) {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(date);
+  }
 }
 
 
@@ -733,7 +757,7 @@ function pickDotSignoff(phaseKey, cycleDay) {
 //  AI SYSTEM PROMPT BUILDER
 // ══════════════════════════════════════════════════════════════════════════
 
-function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData, user) {
+function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData, user, today) {
   var phaseBioName = getPhaseMapName(phase);
   var knowledge = PHASE_KNOWLEDGE[phaseBioName];
 
@@ -866,7 +890,7 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
       parts.push('TODAY\'S SCHEDULE:');
       for (var ei = 0; ei < todayEvents.length; ei++) {
         var te = todayEvents[ei];
-        var timeStr = te.is_all_day ? 'All day' : formatEventTime(te.start_time);
+        var timeStr = te.local_time || (te.is_all_day ? 'All day' : formatEventTime(te.start_time));
         var impStr = te.estimated_importance ? ' (importance: ' + te.estimated_importance + '/10)' : '';
         var attendeeStr = te.attendee_count > 1 ? ' [' + te.attendee_count + ' attendees]' : '';
         parts.push('- ' + timeStr + ': ' + te.title + impStr + attendeeStr);
@@ -879,10 +903,10 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
       parts.push('HIGH-STAKES EVENTS THIS WEEK:');
       for (var wi = 0; wi < highStakesWeek.length; wi++) {
         var we = highStakesWeek[wi];
-        var wDate = new Date(we.start_time);
         var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        var wDayName = dayNames[wDate.getDay()];
-        var wTimeStr = we.is_all_day ? 'All day' : formatEventTime(we.start_time);
+        var wDateLocal = parseDate(we.local_date);
+        var wDayName = wDateLocal ? dayNames[wDateLocal.getDay()] : '';
+        var wTimeStr = we.local_time || (we.is_all_day ? 'All day' : formatEventTime(we.start_time));
         parts.push('- ' + wDayName + ' ' + wTimeStr + ': ' + we.title + ' (importance: ' + we.estimated_importance + '/10)');
       }
       parts.push('');
@@ -911,7 +935,7 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
     parts.push('The user has a connected wearable device. Use this biometric data to make guidance SPECIFIC and personalized.');
     parts.push('');
 
-    var todayStr = new Date().toISOString().split('T')[0];
+    var todayStr = today || new Date().toISOString().split('T')[0];
     var todayWearable = wearableData.find(function (w) { return String(w.date).split('T')[0] === todayStr; });
     var recentDays = wearableData.slice(0, 7);
 
@@ -1096,7 +1120,7 @@ function buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, ha
 }
 
 
-function buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak, todayEvents, weekEvents) {
+function buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak, todayEvents, weekEvents, today) {
   var parts = [];
 
   parts.push('Generate today\'s daily briefing.');
@@ -1154,7 +1178,7 @@ function buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, rece
     parts.push('TODAY\'S CALENDAR (' + todayEvents.length + ' events):');
     for (var tei = 0; tei < todayEvents.length; tei++) {
       var tev = todayEvents[tei];
-      var tTimeStr = tev.is_all_day ? 'All day' : formatEventTime(tev.start_time);
+      var tTimeStr = tev.local_time || (tev.is_all_day ? 'All day' : formatEventTime(tev.start_time));
       var tImp = tev.estimated_importance ? ', importance: ' + tev.estimated_importance + '/10' : '';
       var tAttendees = tev.attendee_count > 1 ? ', ' + tev.attendee_count + ' attendees' : '';
       parts.push('- ' + tTimeStr + ': ' + tev.title + ' (' + (tev.event_type || 'meeting') + tImp + tAttendees + ')');
@@ -1168,16 +1192,18 @@ function buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, rece
       parts.push('HIGH-STAKES EVENTS THIS WEEK (' + highStakes.length + '):');
       for (var wsi = 0; wsi < highStakes.length; wsi++) {
         var wsev = highStakes[wsi];
-        var wsDate = new Date(wsev.start_time);
         var wsDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        parts.push('- ' + wsDayNames[wsDate.getDay()] + ' ' + formatEventTime(wsev.start_time) + ': ' + wsev.title + ' (importance: ' + wsev.estimated_importance + '/10)');
+        var wsDateLocal = parseDate(wsev.local_date);
+        var wsDay = wsDateLocal ? wsDayNames[wsDateLocal.getDay()] : '';
+        var wsTime = wsev.local_time || formatEventTime(wsev.start_time);
+        parts.push('- ' + wsDay + ' ' + wsTime + ': ' + wsev.title + ' (importance: ' + wsev.estimated_importance + '/10)');
       }
       parts.push('');
     }
   }
 
   // Day of week for scheduling context
-  var dayOfWeek = parseDate(new Date().toISOString().split('T')[0]);
+  var dayOfWeek = parseDate(today || new Date().toISOString().split('T')[0]);
   if (dayOfWeek) {
     var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     parts.push('Today is ' + dayNames[dayOfWeek.getDay()] + '.');
@@ -1201,13 +1227,15 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   var cycleDateConfidence = cycleProfile.cycle_date_confidence || 'estimated';
   var hasCheckinData = recentCheckins && recentCheckins.length > 0;
 
+  var tz = (user && user.sms_timezone) || 'America/New_York';
+
   // Separate today's events from upcoming week events
   var todayEvents = [];
   var weekEvents = [];
   if (calendarEvents && calendarEvents.length > 0) {
     for (var ci = 0; ci < calendarEvents.length; ci++) {
       var evt = calendarEvents[ci];
-      var evtDate = new Date(evt.start_time).toISOString().split('T')[0];
+      var evtDate = evt.local_date || localDateInTz(new Date(evt.start_time), tz);
       if (evtDate === today) {
         todayEvents.push(evt);
       } else {
@@ -1217,8 +1245,8 @@ async function buildCycleBriefing(today, user, cycleProfile, todayCheckin, recen
   }
 
   // Build the AI-generated briefing sections
-  var systemPrompt = buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData, user);
-  var userMessage = buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak, todayEvents, weekEvents);
+  var systemPrompt = buildSystemPrompt(phase, cycleDay, cycleLength, cycleDateConfidence, hasCheckinData, todayEvents, weekEvents, wearableData, user, today);
+  var userMessage = buildUserMessage(user, cycleDay, cycleLength, phase, todayCheckin, recentCheckins, streak, todayEvents, weekEvents, today);
 
   var aiBriefing = null;
   try {

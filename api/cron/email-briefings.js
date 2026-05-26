@@ -30,12 +30,11 @@ module.exports = async function handler(req, res) {
 
   try {
     var now = new Date();
-    var today = now.toISOString().split('T')[0];
 
     // Fetch all active users with cycle tracking enabled and email
     // In the future, filter by email_brief_enabled preference
     var users = await sql`
-      SELECT u.id, u.name, u.email,
+      SELECT u.id, u.name, u.email, u.sms_timezone,
              cp.last_period_start, cp.average_cycle_length, cp.tracking_enabled
       FROM users u
       LEFT JOIN cycle_profiles cp ON cp.user_id = u.id
@@ -50,6 +49,9 @@ module.exports = async function handler(req, res) {
 
     for (var i = 0; i < users.length; i++) {
       var user = users[i];
+      // Each user's "today" is their LOCAL calendar date, not the server's UTC date.
+      var tz = user.sms_timezone || 'America/New_York';
+      var today = emailBrief.localDateInTz(now, tz);
       try {
         // Calculate cycle info
         var lastPeriodStart = user.last_period_start instanceof Date
@@ -72,19 +74,22 @@ module.exports = async function handler(req, res) {
         `;
         var todayCheckin = todayCheckins.length > 0 ? todayCheckins[0] : null;
 
-        // Fetch today's calendar events for this user
-        var todayStart = today + 'T00:00:00Z';
-        var todayEnd = today + 'T23:59:59Z';
+        // Fetch today's calendar events for this user — matched on the user's
+        // LOCAL calendar day, with each start time pre-formatted in their tz.
         var todayEvents = [];
         try {
           todayEvents = await sql`
             SELECT title, start_time, end_time, event_type, estimated_importance, attendee_count, is_all_day
             FROM calendar_events
             WHERE user_id = ${user.id}
-              AND start_time >= ${todayStart}
-              AND start_time <= ${todayEnd}
+              AND (start_time AT TIME ZONE ${tz})::date = ${today}::date
             ORDER BY start_time ASC
           `;
+          for (var ci = 0; ci < todayEvents.length; ci++) {
+            todayEvents[ci].local_time = todayEvents[ci].is_all_day
+              ? 'All day'
+              : emailBrief.formatEventTime(todayEvents[ci].start_time, tz);
+          }
         } catch (calErr) {
           // Calendar table may not exist, gracefully degrade
         }
@@ -120,7 +125,7 @@ module.exports = async function handler(req, res) {
           aiContent.calendarItems = todayEvents.map(function(ev) {
             return {
               title: ev.title,
-              time: ev.is_all_day ? 'All day' : emailBrief.formatEventTime(ev.start_time),
+              time: ev.local_time || (ev.is_all_day ? 'All day' : emailBrief.formatEventTime(ev.start_time, tz)),
               energyTag: 'Neutral',
               advice: 'Check your briefing in the app for full phase-specific guidance.'
             };
