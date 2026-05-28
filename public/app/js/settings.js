@@ -1105,6 +1105,22 @@ window.PeakHer.Settings = (function () {
 
     html += '<div id="cycleDetails" style="' + (enabled ? '' : 'display:none;') + '">';
 
+    // Quick re-anchor: "my period started" one-tap log. Cycles drift, so the
+    // most common correction is "it started today/yesterday" — make that
+    // obvious instead of buried in the 35-chip grid below.
+    html += '<div style="padding:14px;margin:4px 0 10px;border-radius:12px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.25);">';
+    html += '<div class="ph-sms-toggle-label" style="display:flex;align-items:center;gap:6px;">🩸 Period started?</div>';
+    html += '<div class="ph-sms-toggle-desc" style="margin:4px 0 10px;">Cycles drift. Tap the day it began and I’ll re-sync you to Day 1.</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+    var quickOpts = [{ d: 0, l: 'Today' }, { d: 1, l: 'Yesterday' }, { d: 2, l: '2 days ago' }, { d: 3, l: '3 days ago' }];
+    for (var q = 0; q < quickOpts.length; q++) {
+      html += '<button class="ph-period-start-btn" data-period-start="' + quickOpts[q].d + '" style="' +
+        'flex:1;min-width:72px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,107,107,0.4);' +
+        'background:rgba(255,107,107,0.12);color:#FF6B6B;font-weight:600;font-size:13px;cursor:pointer;' +
+        'font-family:inherit;transition:all 0.15s;">' + quickOpts[q].l + '</button>';
+    }
+    html += '</div></div>';
+
     // Cycle length
     html += '<div class="ph-sms-toggle-row">';
     html += '<div style="flex:1;">';
@@ -1157,6 +1173,16 @@ window.PeakHer.Settings = (function () {
     var toggle = document.getElementById('cycleEnabledToggle');
     var details = document.getElementById('cycleDetails');
 
+    // "Period started?" one-tap buttons
+    var periodBtns = document.querySelectorAll('.ph-period-start-btn');
+    for (var p = 0; p < periodBtns.length; p++) {
+      (function (btn) {
+        btn.addEventListener('click', function () {
+          logPeriodStart(parseInt(btn.getAttribute('data-period-start'), 10));
+        });
+      })(periodBtns[p]);
+    }
+
     if (toggle) {
       toggle.addEventListener('change', function () {
         if (details) details.style.display = toggle.checked ? '' : 'none';
@@ -1199,7 +1225,41 @@ window.PeakHer.Settings = (function () {
     }
   }
 
-  function saveCycleSettings() {
+  // One-tap "my period started N days ago" re-anchor. Enables tracking if
+  // off, drives the existing day-chip selection so the UI stays in sync, then
+  // saves via the shared path with 'exact' confidence (the user is confirming
+  // a real start, not estimating).
+  function logPeriodStart(daysAgo) {
+    var toggle = document.getElementById('cycleEnabledToggle');
+    var details = document.getElementById('cycleDetails');
+    if (toggle && !toggle.checked) {
+      toggle.checked = true;
+      if (details) details.style.display = '';
+    }
+
+    var allChips = document.querySelectorAll('.ph-cycle-day-chip');
+    for (var i = 0; i < allChips.length; i++) {
+      allChips[i].classList.remove('ph-cycle-day-chip--active');
+      allChips[i].style.background = 'var(--bg-elevated,#22222F)';
+      allChips[i].style.borderColor = 'var(--border-light,rgba(255,255,255,0.06))';
+      allChips[i].style.color = 'var(--text-secondary,#A0A0B0)';
+      allChips[i].style.fontWeight = 'normal';
+    }
+    var target = document.querySelector('.ph-cycle-day-chip[data-day="' + daysAgo + '"]');
+    if (target) {
+      target.classList.add('ph-cycle-day-chip--active');
+      target.style.background = 'rgba(0,229,160,0.12)';
+      target.style.borderColor = 'var(--teal,#00E5A0)';
+      target.style.color = 'var(--teal,#00E5A0)';
+      target.style.fontWeight = '600';
+    }
+
+    var when = daysAgo === 0 ? 'today' : daysAgo === 1 ? 'yesterday' : daysAgo + ' days ago';
+    saveCycleSettings({ confidence: 'exact', confirm: 'Logged! Re-synced to Day 1 (started ' + when + ').' });
+  }
+
+  function saveCycleSettings(opts) {
+    opts = opts || {};
     var toggle = document.getElementById('cycleEnabledToggle');
     var lengthSelect = document.getElementById('cycleLengthSelect');
     var enabled = toggle ? toggle.checked : false;
@@ -1219,6 +1279,8 @@ window.PeakHer.Settings = (function () {
         d.setDate(d.getDate() - daysAgo);
         cycleProfile.lastPeriodStart = d.toISOString().split('T')[0];
       }
+
+      if (opts.confidence) cycleProfile.cycleDateConfidence = opts.confidence;
     }
 
     var statusEl = document.getElementById('cycleMessage');
@@ -1235,7 +1297,7 @@ window.PeakHer.Settings = (function () {
         if (window.PeakHer.applyPhaseAccent) window.PeakHer.applyPhaseAccent();
         if (window.PeakHer.Checkin && window.PeakHer.Checkin.refresh) window.PeakHer.Checkin.refresh();
         if (statusEl) {
-          statusEl.textContent = 'Saved!';
+          statusEl.textContent = opts.confirm || 'Saved!';
           statusEl.style.color = 'var(--teal,#2d8a8a)';
         }
         setTimeout(function () {
