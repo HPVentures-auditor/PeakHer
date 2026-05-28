@@ -1481,9 +1481,15 @@ window.PeakHer.applyPhaseAccent = function() {
   if (!Store || !Cycle) return;
   var profile = Store.getCycleProfile();
   if (!profile || !profile.trackingEnabled) return;
+  // Partial/invalid cycle data (missing lastPeriodStart or averageCycleLength,
+  // future date, malformed date) cascades to null here. Bail before
+  // mode.toLowerCase() so we never throw — callers like the check-in render
+  // wrap this and would otherwise surface a "Something hiccuped" error screen.
+  if (!profile.lastPeriodStart || !profile.averageCycleLength) return;
   var day = Cycle.getCycleDay(profile.lastPeriodStart, profile.averageCycleLength, new Date());
   var phase = Cycle.getPhase(day, profile.averageCycleLength);
   var mode = Cycle.getPerformanceMode(phase);
+  if (!mode) return;
   document.body.classList.remove('phase-restore','phase-rise','phase-peak','phase-sustain');
   document.body.classList.add('phase-' + mode.toLowerCase());
 };
