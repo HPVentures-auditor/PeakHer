@@ -1138,7 +1138,7 @@ window.PeakHer.Settings = (function () {
       var chipStyle = isActive
         ? 'background:rgba(0,229,160,0.12);border-color:var(--teal,#00E5A0);color:var(--teal,#00E5A0);font-weight:600;'
         : 'background:var(--bg-elevated,#22222F);border-color:var(--border-light,rgba(255,255,255,0.06));color:var(--text-secondary,#A0A0B0);';
-      html += '<button class="ph-cycle-day-chip" data-day="' + d + '" style="' +
+      html += '<button class="ph-cycle-day-chip' + (isActive ? ' ph-cycle-day-chip--active' : '') + '" data-day="' + d + '" style="' +
         'padding:6px 12px;border-radius:20px;border:1px solid;font-size:13px;cursor:pointer;transition:all 0.2s;font-family:inherit;' +
         chipStyle + '">' + label + '</button>';
     }
@@ -1175,14 +1175,19 @@ window.PeakHer.Settings = (function () {
     for (var i = 0; i < chips.length; i++) {
       (function (chip) {
         chip.addEventListener('click', function () {
-          // Update visual state
+          // Update visual state. Track the active chip with a class — not by
+          // sniffing the inline-style color string, which the browser
+          // re-serializes with spaces (rgba(0, 229, 160, ...)) so an exact
+          // substring match silently fails and the date never saves.
           var allChips = document.querySelectorAll('.ph-cycle-day-chip');
           for (var j = 0; j < allChips.length; j++) {
+            allChips[j].classList.remove('ph-cycle-day-chip--active');
             allChips[j].style.background = 'var(--bg-elevated,#22222F)';
             allChips[j].style.borderColor = 'var(--border-light,rgba(255,255,255,0.06))';
             allChips[j].style.color = 'var(--text-secondary,#A0A0B0)';
             allChips[j].style.fontWeight = 'normal';
           }
+          chip.classList.add('ph-cycle-day-chip--active');
           chip.style.background = 'rgba(0,229,160,0.12)';
           chip.style.borderColor = 'var(--teal,#00E5A0)';
           chip.style.color = 'var(--teal,#00E5A0)';
@@ -1206,8 +1211,8 @@ window.PeakHer.Settings = (function () {
     if (enabled) {
       cycleProfile.averageCycleLength = lengthSelect ? parseInt(lengthSelect.value) : 28;
 
-      // Find selected day chip
-      var activeChip = document.querySelector('.ph-cycle-day-chip[style*="rgba(0,229,160"]');
+      // Find selected day chip by class (set on click / initial render)
+      var activeChip = document.querySelector('.ph-cycle-day-chip--active');
       if (activeChip) {
         var daysAgo = parseInt(activeChip.getAttribute('data-day'));
         var d = new Date();
@@ -1225,6 +1230,10 @@ window.PeakHer.Settings = (function () {
     API.updateUser({ cycleProfile: cycleProfile })
       .then(function () {
         Store.setCycleProfile(cycleProfile);
+        // Re-render the screens behind the panel so the phase hero/accent
+        // appears immediately instead of waiting for a manual page reload.
+        if (window.PeakHer.applyPhaseAccent) window.PeakHer.applyPhaseAccent();
+        if (window.PeakHer.Checkin && window.PeakHer.Checkin.refresh) window.PeakHer.Checkin.refresh();
         if (statusEl) {
           statusEl.textContent = 'Saved!';
           statusEl.style.color = 'var(--teal,#2d8a8a)';
