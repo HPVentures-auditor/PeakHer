@@ -118,14 +118,22 @@ module.exports = async function handler(req, res) {
       }
       if (cycleProfile) {
         var confidence = cycleProfile.cycleDateConfidence || 'estimated';
+        // Upsert, not UPDATE: a user without an existing cycle_profiles row
+        // (e.g. set their date for the first time post-onboarding) would have
+        // the UPDATE match zero rows and silently persist nothing — leaving
+        // the server, email, and SMS briefs with no cycle data.
         await sql`
-          UPDATE cycle_profiles SET
-            tracking_enabled = ${cycleProfile.trackingEnabled || false},
-            average_cycle_length = ${cycleProfile.averageCycleLength || 28},
-            last_period_start = ${cycleProfile.lastPeriodStart || null},
-            cycle_date_confidence = ${confidence},
+          INSERT INTO cycle_profiles
+            (user_id, tracking_enabled, average_cycle_length, last_period_start, cycle_date_confidence, updated_at)
+          VALUES
+            (${userId}, ${cycleProfile.trackingEnabled || false}, ${cycleProfile.averageCycleLength || 28},
+             ${cycleProfile.lastPeriodStart || null}, ${confidence}, now())
+          ON CONFLICT (user_id) DO UPDATE SET
+            tracking_enabled = EXCLUDED.tracking_enabled,
+            average_cycle_length = EXCLUDED.average_cycle_length,
+            last_period_start = EXCLUDED.last_period_start,
+            cycle_date_confidence = EXCLUDED.cycle_date_confidence,
             updated_at = now()
-          WHERE user_id = ${userId}
         `;
       }
 

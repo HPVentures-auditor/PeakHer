@@ -298,6 +298,16 @@ window.PeakHer.Briefing = (function () {
     // data, the daily-mode fallback looks generic and confusing — show a
     // clear "set your period date" CTA instead.
     if (!data.phase && !data.cycleDay) {
+      // The server can lag the client: the user may have just set their cycle
+      // date locally (or the server-side profile didn't persist). If we can
+      // build a real phase briefing from local data, prefer it over the
+      // "set your cycle data" CTA so the page reflects the date they just set.
+      var local = buildLocalBriefing();
+      if (local && local.phase) {
+        writeCachedBrief(local);
+        render(local);
+        return;
+      }
       renderNoCycleDataEmptyState(target);
       return;
     }
